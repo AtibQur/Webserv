@@ -14,3 +14,6 @@ https://medium.com/@avocadi/what-is-epoll-9bbc74272f7c
 
 Multithreaded Server in c++ using Epoll (LINUX SPECIFIC):
 https://unscriptedcoding.medium.com/multithreaded-server-in-c-using-epoll-baadad32224c
+
+Introduction to server-side programming and how it differs from client-side
+https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Introduction
