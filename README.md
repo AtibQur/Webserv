@@ -20,6 +20,9 @@ Sources:
 - What is a web server?:
 https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_web_server
 
+Introduction to server-side programming and how it differs from client-side
+https://developer.mozilla.org/en-US/docs/Learn/Server-side/First_steps/Introduction
+
 - TCP and HTTP, differences and why we need to use both for a web server:
 https://www.goanywhere.com/blog/http-vs-tcp-whats-the-difference#:~:text=TCP%20contains%20information%20about%20what,data%20in%20the%20stream%20contains.
 
