@@ -16,8 +16,6 @@ class Server
 
         void start();
 
-        // SIGNAL HANDLER
-        // void SignalInterrupt();
     };
 
 
