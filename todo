@@ -1,0 +1,10 @@
+* Zorg dat epoll meerdere connecties kan handelen;
+* Maak client class;
+* Maak config parser {
+    * Zorg dat main loop werkt voor meerdere servers;
+    * Maak server constructor die alles initialzieert;
+}
+* Maak parser voor client requests;
+* Zorg dat de client fd geconnect wordt met de server fd;
+
+// niet perse in volgorde

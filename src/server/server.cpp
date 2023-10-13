@@ -51,7 +51,7 @@ void Server::start() {
         perror("In bind");
         exit(EXIT_FAILURE);
     }
-    if (listen(_server_fd, 10) < 0) // listen to incoming socket connection and have a max amount of people in queu
+    if (listen(_server_fd, 10) < 0) // listen to incoming socket connection and have a max amount of people in queue
     {
         perror("In listen");
         exit(EXIT_FAILURE);
