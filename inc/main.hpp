@@ -11,7 +11,10 @@
 #include <iostream>
 
 /* Header inclusions */
-#include "./server/server.hpp"
+#include "Server.hpp"
+#include "Config.hpp"
+#include "ConfigParser.hpp"
+#include "ConfigParserUtils.hpp"
 
 /* config info */
 #define PORT 8080
