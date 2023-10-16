@@ -5,14 +5,14 @@
 
 class ConfigParser : public ConfigParserUtils {
 private:
-    std::string _conf_file;
-    int _server_bracket = 0;
-    int _location_bracket = 0;
+    std::ifstream _conf_file;
+    std::string _conf_file_path;
+    std::vector<std::string> _lines;
 
 public:
     // STRUCTORS
-    ConfigParser() { _conf_file = ""; }
-    ConfigParser(std::string file_path) { _conf_file = file_path; }
+    ConfigParser() { _conf_file_path = ""; }
+    ConfigParser(std::string file_path) { _conf_file_path = file_path; }
     ~ConfigParser() {};
 
     void read_file();

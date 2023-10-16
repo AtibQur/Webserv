@@ -9,6 +9,9 @@
 
 /* CPP Libraries */
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 /* Header inclusions */
 #include "Server.hpp"
