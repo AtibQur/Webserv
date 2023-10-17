@@ -12,10 +12,12 @@ enum class ConfigKey {
 
 class Config {
 private:
+    std::vector<std::string> _lines;
 
 public:
     // STRUCTORS
     Config() {};
+    Config(std::vector<std::string> lines) {};
     ~Config() {};
 
     // METHODS

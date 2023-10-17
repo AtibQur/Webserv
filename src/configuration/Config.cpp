@@ -19,3 +19,7 @@
         return stringMap[configKey];
     }
 */
+
+// Config::Config(std::vector<std::string> lines) {
+//     for_each 
+// }

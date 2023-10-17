@@ -5,27 +5,24 @@ void ExitWithMessage(std::string message) {
     std::quick_exit(EXIT_FAILURE);
 }
 
-void confloop(std::string file_name) {
+std::vector<Config> confloop(std::string file_name) {
     ConfigParser        confParser(file_name);
     confParser.readFile();
-    // std::vector<Config>  conf;
+
+    std::vector<Config>  conf;
     int end = 0;
 	int start = confParser.findServerBlock(0, end);
-	while(start > -1)
-    {
-        std::cout << "start: " << start << std::endl;
-        std::cout << "end: " << end << std::endl;
-        // ConfigParser CPTmp;
-        // CPTmp.setServerContent(confParser.subVector(start, end));
-        // Config  tmp(CPTmp);
+	while(start > -1) {
+        ConfigParser parse_temp(confParser.getLines(), start, end);
+        Config  conf_temp(parse_temp.getLines());
 
         // conf.push_back(tmp);
 		start = confParser.findServerBlock(end, end);
 	}
-    // if (conf.empty()) {
-    //     ExitWithMessage("Error: no server blocks found in config file");
-    // }
-    // return (conf);
+    if (conf.empty()) {
+        ExitWithMessage("Error: no server blocks found in config file");
+    }
+    return (conf);
 }
 
 int main(int argc, char *argv[]) {

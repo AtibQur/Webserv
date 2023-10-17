@@ -1,5 +1,11 @@
-#include "ConfigParser.hpp"
+#include "main.hpp"
 #include <algorithm>
+
+ConfigParser::ConfigParser(std::vector<std::string> lines, int start, int end) {
+    for (int i = start; i <= end; i++) {
+        _lines.push_back(lines[i]);
+    }
+}
 
 void ConfigParser::readFile() {
     _conf_file.open(_conf_file_path, std::ios::in); // open file readonly
@@ -15,6 +21,13 @@ void ConfigParser::readFile() {
     }
     _conf_file.close();
 }
+
+/* 
+    in this function we are searching the first next server block and returning
+    its index from the full config array
+    we also modify the end variable to the index of the correct closing bracket of the server block
+    so we can use the values to make subvectors for each server
+*/
 
 int ConfigParser::findServerBlock(int start, int &end) {
     int i = start;
