@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
 
     Server server;
 
-    server.start();
+    server.Start();
 
     return 0;
 }
