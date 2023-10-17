@@ -1,6 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+class Client;
+
 class Server
 {
 
@@ -15,7 +17,7 @@ class Server
         Server &operator=(Server const &copy);
 
         void start();
-
+        void createRespond(Client* client);
     };
 
 

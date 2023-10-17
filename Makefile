@@ -12,6 +12,7 @@ INC := -I $(INCLUDE_DIR)
 
 SRCS = 	main.cpp \
 		server/server.cpp \
+		client/client.cpp \
 
 OBJS = $(addprefix $(OBJS_DIR)/,$(SRCS:.cpp=.o))
 

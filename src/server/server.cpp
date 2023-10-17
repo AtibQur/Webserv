@@ -24,10 +24,7 @@ Server& Server::operator=(Server const &copy) {
 void Server::start() {
     
     struct sockaddr_in address;
-    long valread;
     int addrlen = sizeof(address);
-
-    char hello[] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 
     // create a socket
     if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -36,6 +33,7 @@ void Server::start() {
         exit(EXIT_FAILURE);
     }
 
+    // allowing the server to re-use the same port
     int optval = 1;
     setsockopt(_server_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 
@@ -51,7 +49,7 @@ void Server::start() {
         perror("In bind");
         exit(EXIT_FAILURE);
     }
-    if (listen(_server_fd, 10) < 0) // listen to incoming socket connection and have a max amount of people in queue
+    if (listen(_server_fd, 10) < 0) // listen to incoming socket connection and have a max amount of people in queu
     {
         perror("In listen");
         exit(EXIT_FAILURE);
@@ -65,12 +63,19 @@ void Server::start() {
             perror("In accept");
             exit(EXIT_FAILURE);
         }
-        
-        char buffer[30000] = {0};
-        valread = read( _client_socket , buffer, 30000);
-        printf("%s\n",buffer );
-        write(_client_socket , hello , strlen(hello));
-        printf("------------------Hello message sent-------------------\n");
+        // read and parse the client request and save client pointer in a list
+        Client client;
+        client.saveClientRequest(_client_socket);
+
+        // create a respond (WIP)
+        createRespond(client.getClientListIndex(0));
         close(_client_socket);
     }
+}
+
+void Server::createRespond(Client* client) {
+    std::cout << client->getMethod() << std::endl;
+    char hello[] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    write(_client_socket , hello , strlen(hello));
+    printf("------------------Hello message sent-------------------\n");
 }
