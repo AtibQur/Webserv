@@ -17,10 +17,11 @@ private:
 public:
     // STRUCTORS
     Config() {};
-    Config(std::vector<std::string> lines) {};
+    Config(std::vector<std::string> lines);
     ~Config() {};
 
     // METHODS
     const std::string& ConfigKeyToString(ConfigKey configKey);
+    void outputLines();
 };
 #endif

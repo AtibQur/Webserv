@@ -15,7 +15,6 @@ std::vector<Config> confloop(std::string file_name) {
 	while(start > -1) {
         ConfigParser parse_temp(confParser.getLines(), start, end);
         Config  conf_temp(parse_temp.getLines());
-
         // conf.push_back(tmp);
 		start = confParser.findServerBlock(end, end);
 	}

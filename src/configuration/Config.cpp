@@ -20,6 +20,12 @@
     }
 */
 
-// Config::Config(std::vector<std::string> lines) {
-//     for_each 
-// }
+Config::Config(std::vector<std::string> lines) {
+    for(std::string line : lines)
+        _lines.push_back(line);
+}
+
+void Config::outputLines() {
+    for (std::string line : _lines)
+        std::cout << line << std::endl;
+}
