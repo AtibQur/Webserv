@@ -3,7 +3,7 @@
 
 #include "main.hpp"
 
-class ConfigParser : public ConfigParserUtils {
+class ConfigParser {
 private:
     std::ifstream _conf_file;
     std::string _conf_file_path;

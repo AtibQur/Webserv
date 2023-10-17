@@ -1,4 +1,5 @@
 #include "ConfigParser.hpp"
+#include <algorithm>
 
 void ConfigParser::readFile() {
     _conf_file.open(_conf_file_path, std::ios::in); // open file readonly
@@ -17,18 +18,27 @@ void ConfigParser::readFile() {
 
 int ConfigParser::findServerBlock(int start, int &end) {
     int i = start;
+    int bracket_count = 0;
+    int line_count = 0;
     while (i < _lines.size()) {
         if (_lines[i].find("server ") != std::string::npos) {
-            start = i;
+            std::cout << "found one!"<< std::endl;
+            start = i++;
             break;
         }
         i++;
     }
     while (i < _lines.size()) {
-        if (_lines[i].find("}") != std::string::npos) {
+        if (_lines[i].find("{") != std::string::npos) 
+            bracket_count++;
+        if (_lines[i].find("}") != std::string::npos && bracket_count == 0) {
+            std::cout << "Closed one!!"<< std::endl;
             end = i;
             break;
         }
+        line_count = std::count(_lines[i].begin(), _lines[i].end(), '{');
+        if (line_count > 0)
+            bracket_count -= line_count;
         i++;
     }
     if (i == _lines.size())
