@@ -1,110 +1,89 @@
 #include "../../inc/main.hpp"
 
+/* Default constructor/destructor */
+
 Server::Server() {
+    _optval = 1;
+    _MAX_EVENTS = 1000;
+    _MAX_CLIENTS = 1000;
 }
 
 Server::~Server() {
-    close(this->new_socket);
-    close(this->server_fd);
+    close(this->_new_socket);
+    close(this->_server_fd);
 }
 
-// PORT/SOCKET SETTER
-
-void Server::CreateSocket() {
-    if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
+Server::Server(Server const &copy) {
+    *this = copy;
 }
 
-void Server::BindSocketToPort() {
-    this->address.sin_family = AF_INET;
-    this->address.sin_addr.s_addr = INADDR_ANY;
-    this->address.sin_port = htons(PORT);
-    if (bind(this->server_fd, (struct sockaddr *)&address, sizeof(this->address))<0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-    }
+Server& Server::operator=(Server const &copy) {
+    *this = copy;
+    return *this;
 }
 
-void Server::ListenToSocket() {
-    if (listen(this->server_fd, 1000) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
-}
+/* Server start */
 
 void Server::Start() {
-    // Bericht voor de client
+    // Message for client
     char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
 
-    // Maak een socket
     this->CreateSocket();
-
-    int optval = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
-
-    // Bind socket aan poort 8080
     this->BindSocketToPort();
-
-    // Luister naar de socket
     this->ListenToSocket();
+    this->initEpoll();
 
     std::cout << "Server started, listening on port " << PORT << "..." << std::endl;
 
-    // Initialize epoll
-    this->initEpoll();
 
         while (1) {
-        const int MAX_EVENTS = 1000;
-        struct epoll_event events[MAX_EVENTS];
-        int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        if (num_events == -1) {
+        struct epoll_event events[_MAX_EVENTS];
+        int num_events = epoll_wait(_epoll_fd, events, _MAX_EVENTS, -1);
+        if (num_events < 0) {
             perror("epoll_wait");
             exit(EXIT_FAILURE);
         }
 
         for (int i = 0; i < num_events; ++i) {
-            if (events[i].data.fd == server_fd) {
+            if (events[i].data.fd == _server_fd) {
                 // New client connection
-                if ((this->new_socket = accept(this->server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+                if ((this->_new_socket = accept(this->_server_fd, (struct sockaddr *)&_address, (socklen_t *)&_addrlen)) < 0) {
                     perror("accept");
                     exit(EXIT_FAILURE);
                 }
                 // Add the new client socket to epoll
                 struct epoll_event client_event;
                 client_event.events = EPOLLIN;
-                client_event.data.fd = this->new_socket;
-                if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->new_socket, &client_event) == -1) {
+                client_event.data.fd = this->_new_socket;
+                if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, this->_new_socket, &client_event) < 0) {
                     perror("epoll_ctl (client)");
                     exit(EXIT_FAILURE);
                 }
-                this->client_sockets.push_back(this->new_socket);
+                this->_client_sockets.push_back(this->_new_socket);
             } else {
                 // Existing client socket ready for read
                 int client_socket = events[i].data.fd;
                 // Handle data on the client socket and send a response
                 char buffer[1024];
                 ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
-                if (bytes_read == -1) {
+                if (bytes_read < 0) {
                     perror("read");
                 } else if (bytes_read == 0) {
                     // Connection closed
                     std::cout << "Connection closed by the client." << std::endl;
                     // Remove the client socket from epoll and close it
-                    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_socket, nullptr);
+                    epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_socket, nullptr);
                     close(client_socket);
                     // Remove the client socket from the list
-                    for (auto it = client_sockets.begin(); it != client_sockets.end(); ++it) {
+                    for (auto it = _client_sockets.begin(); it != _client_sockets.end(); ++it) {
                         if (*it == client_socket) {
-                            client_sockets.erase(it);
+                            _client_sockets.erase(it);
                             break;
                         }
                     }
                 } else {
-                    // Process the received data
+                    // Process the received data and send a response
                     std::cout << "Received data: " << std::string(buffer, bytes_read) << std::endl;
-                    // Send a response
                     send(client_socket, response, strlen(response), 0);
                 }
             }
@@ -112,11 +91,43 @@ void Server::Start() {
     }
 }
 
-// EPOLL
+/* Create a socket and also set up signal handler */
+
+void Server::CreateSocket() {
+    if ((this->_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+    setsockopt(_server_fd, SOL_SOCKET, SO_REUSEPORT, &_optval, sizeof(_optval)); // handle signals (ctrl+C)
+}
+
+/* assign socket addres and give the socket the adress/netwerk and port numbers */
+
+void Server::BindSocketToPort() {
+    this->_address.sin_family = AF_INET;
+    this->_address.sin_addr.s_addr = INADDR_ANY;
+    this->_address.sin_port = htons(PORT);
+    if (bind(this->_server_fd, (struct sockaddr *)&_address, sizeof(this->_address))<0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* listen to incoming socket connection and have a max amount of people in queue */
+
+void Server::ListenToSocket() {
+    if (listen(this->_server_fd, _MAX_CLIENTS) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* Initialise epoll and add server to it*/
+
 void Server::initEpoll() {
     // Create epoll instance
-    this->epoll_fd = epoll_create1(0);
-    if (this->epoll_fd == -1) {
+    this->_epoll_fd = epoll_create1(0);
+    if (this->_epoll_fd < 0) {
         perror("epoll_create1");
         exit(EXIT_FAILURE);
     }
@@ -124,9 +135,8 @@ void Server::initEpoll() {
     // Add server socket to epoll
     struct epoll_event event;
     event.events = EPOLLIN; // Watch for input events
-    event.data.fd = this->server_fd;
-
-    if (epoll_ctl(this->epoll_fd, EPOLL_CTL_ADD, this->server_fd, &event) == -1) {
+    event.data.fd = this->_server_fd;
+    if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_server_fd, &event) < 0) {
         perror("epoll_ctl");
         exit(EXIT_FAILURE);
     }

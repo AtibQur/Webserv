@@ -3,24 +3,28 @@
 
 class Server {
     private:
-        int server_fd;
-        int epoll_fd;
-        std::vector<int> client_sockets; // To keep track of client sockets
-        int new_socket;
-        struct sockaddr_in address;
-        int addrlen = sizeof(address);
+        int                 _server_fd;
+        int                 _new_socket;
+        struct sockaddr_in  _address;
+        int _addrlen = sizeof(_address);
 
+        int                 _epoll_fd;
+        int                 _MAX_EVENTS;
+        int                 _MAX_CLIENTS;
+        std::vector<int>    _client_sockets; // To keep track of client sockets
+
+
+        int                 _optval;
     public:
         Server();
         ~Server();
-        void Start();
+        Server(Server const &copy);
+        Server &operator=(Server const &copy);
 
-        // PORT/SOCKET SETTER
+        void Start();
         void CreateSocket();
         void BindSocketToPort();
         void ListenToSocket();
-
-        // EPOLL
         void initEpoll();
 };
 
