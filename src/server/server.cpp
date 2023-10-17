@@ -35,8 +35,8 @@ void Server::Start() {
 
     std::cout << "Server started, listening on port " << PORT << "..." << std::endl;
 
-
         while (1) {
+        //  wait for events on file descriptors registered with epoll
         struct epoll_event events[_MAX_EVENTS];
         int num_events = epoll_wait(_epoll_fd, events, _MAX_EVENTS, -1);
         if (num_events < 0) {
