@@ -15,6 +15,7 @@ public:
     ConfigParser(std::string file_path) { _conf_file_path = file_path; }
     ~ConfigParser() {};
 
-    void read_file();
+    void readFile();
+    int findServerBlock(int start, int &end);
 };
 #endif
