@@ -24,12 +24,12 @@ public:
     Client(Client const &copy);
     Client &operator=(Client const &copy);
 
-    void	saveClientRequest(int client_socket);
+    void	saveClientRequest(char* buffer, int client_socket);
 	void	parseRequest(char* buffer, Client* client);
 
 	// setters and getters
 	Client* getClientListIndex(int index) { return clients[index]; };
-	int getClientSocket() { return clientSocket; };
+	int		getClientSocket() { return clientSocket; };
 	std::string getMethod() { return method; };
 	// void setMethod(std::string new_method){method = new_method;};
 };

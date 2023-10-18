@@ -8,12 +8,3 @@
 * Zorg dat de client fd geconnect wordt met de server fd;
 
 // niet perse in volgorde
-
-
-// read and parse the client request and save client pointer in a list
-        Client client;
-        client.saveClientRequest(_client_socket);
-
-        // create a respond (WIP)
-        createRespond(client.getClientListIndex(0));
-        close(_client_socket);

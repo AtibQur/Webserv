@@ -19,13 +19,12 @@ Client& Client::operator=(Client const &copy) {
     return *this;
 }
 
-void    Client::saveClientRequest(int client_socket) {
-    char buffer[30000] = {0};
-    long value_read = read(client_socket, buffer, 30000);
-    if (buffer < 0){
-        std::cerr << "Error reading from the client socket" << std::endl;
-    }
-
+void    Client::saveClientRequest(char* buffer, int client_socket) {
+    // char buffer[30000] = {0};
+    // long value_read = read(client_socket, buffer, 30000);
+    // if (buffer < 0){
+    //     perror("Error reading from the client socket");
+    // }
     Client* client = new Client(client_socket);
     parseRequest(buffer, client);
     Client::clients.push_back(client); // add client to the clients list
@@ -59,6 +58,14 @@ void Client::parseRequest(char* buffer, Client* client) {
             headerMap[key] = value;
         }
         pos = lineEnd + 1;
+    }
+
+    // print map
+    std::map<std::string, std::string>::iterator it = headerMap.begin();
+    while (it != headerMap.end())
+    {
+        std::cout << "Key: " << it->first << " Value: " << it->second << std::endl;
+        ++it;
     }
 
     // request body

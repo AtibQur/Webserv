@@ -2,12 +2,15 @@
 
 /* Default constructor/destructor */
 
-Server::Server() {}
+Server::Server() {
+    _optval = 1;
+    _MAX_EVENTS = 1000;
+    _MAX_CLIENTS = 1000;
+}
 
 Server::~Server() {
-    close(this->_client_socket);
+    close(this->_new_socket);
     close(this->_server_fd);
-    std::cout << "Server closed" << std::endl;
 }
 
 Server::Server(Server const &copy) {
@@ -21,19 +24,7 @@ Server& Server::operator=(Server const &copy) {
 
 /* Server start */
 
-void Server::start() {
-    
-    struct sockaddr_in address;
-    int addrlen = sizeof(address);
-
-    // create a socket
-    if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-    {
-        perror("In socket");
 void Server::Start() {
-    // Message for client
-    char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
-
     this->CreateSocket();
     this->BindSocketToPort();
     this->ListenToSocket();
@@ -69,12 +60,12 @@ void Server::Start() {
             } else {
                 // Existing client socket ready for read
                 int client_socket = events[i].data.fd;
-                // Handle data on the client socket and send a response
-                char buffer[1024];
+                // read from the client request
+                char buffer[1024] = {0};
                 ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
                 if (bytes_read < 0) {
-                    perror("read");
-                } else if (bytes_read == 0) {
+                    perror("Error reading from the client socket");
+                } if (bytes_read == 0) {
                     // Connection closed
                     std::cout << "Connection closed by the client." << std::endl;
                     // Remove the client socket from epoll and close it
@@ -88,9 +79,11 @@ void Server::Start() {
                         }
                     }
                 } else {
-                    // Process the received data and send a response
-                    std::cout << "Received data: " << std::string(buffer, bytes_read) << std::endl;
-                    send(client_socket, response, strlen(response), 0);
+                    // save the client respond and parse it
+                    Client client;
+                    client.saveClientRequest(buffer, client_socket);
+                    // send a response
+                    createRespond(client.getClientListIndex(0));
                 }
             }
         }
@@ -104,21 +97,6 @@ void Server::CreateSocket() {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-
-    // allowing the server to re-use the same port
-    int optval = 1;
-    setsockopt(_server_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
-
-    // assign socket adress
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);
-
-
-    if (bind(_server_fd, (struct sockaddr *)&address, sizeof(address))<0) // give the socket the adress/netwerk and port numbers 
-    {
-        perror("In bind");
     setsockopt(_server_fd, SOL_SOCKET, SO_REUSEPORT, &_optval, sizeof(_optval)); // handle signals (ctrl+C)
 }
 
@@ -132,9 +110,6 @@ void Server::BindSocketToPort() {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    if (listen(_server_fd, 10) < 0) // listen to incoming socket connection and have a max amount of people in queu
-    {
-        perror("In listen");
 }
 
 /* listen to incoming socket connection and have a max amount of people in queue */
@@ -144,22 +119,6 @@ void Server::ListenToSocket() {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-
-    while(1)
-    {
-        printf("\n+++++++ Waiting for client connection ++++++++\n\n");
-        if ((_client_socket = accept(_server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) 
-        {
-            perror("In accept");
-            exit(EXIT_FAILURE);
-        }
-        // read and parse the client request and save client pointer in a list
-        Client client;
-        client.saveClientRequest(_client_socket);
-
-        // create a respond (WIP)
-        createRespond(client.getClientListIndex(0));
-        close(_client_socket);
 }
 
 /* Initialise epoll and add server to it*/
@@ -182,9 +141,10 @@ void Server::initEpoll() {
     }
 }
 
+// creating a respond to the client
 void Server::createRespond(Client* client) {
     std::cout << client->getMethod() << std::endl;
-    char hello[] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-    write(_client_socket , hello , strlen(hello));
+    char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
+    send(client->getClientSocket(), response, strlen(response), 0);
     printf("------------------Hello message sent-------------------\n");
 }
