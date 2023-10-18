@@ -28,7 +28,7 @@ class Server {
         void ListenToSocket();
         void initEpoll();
 
-        void createRespond(Client* client);
+        void createResponse(Client* client);
 };
 
 #endif
