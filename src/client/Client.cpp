@@ -19,18 +19,6 @@ Client& Client::operator=(Client const &copy) {
     return *this;
 }
 
-// void    Client::saveClientRequest(char* buffer, int client_socket) {
-    // char buffer[30000] = {0};
-    // long value_read = read(client_socket, buffer, 30000);
-    // if (buffer < 0){
-    //     perror("Error reading from the client socket");
-    // }
-    // Client* client = new Client(client_socket);
-    // parseRequest(buffer, client);
-    // Client::clients.push_back(client); // add client to the clients list
-// }
-
-
 /* Parse the client request */
 
 void Client::parseRequest(char* buffer) {
