@@ -10,13 +10,19 @@
 
 /* CPP Libraries */
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <map>
 
 /* Header inclusions */
-#include "./server/server.hpp"
-#include "./client/client.hpp"
+#include "Server.hpp"
+#include "Config.hpp"
+#include "ConfigParser.hpp"
+#include "ConfigParserUtils.hpp"
+#include "Client.hpp"
 
 /* config info */
 #define PORT 8080
 
+void ExitWithMessage(std::string message);
