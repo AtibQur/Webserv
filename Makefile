@@ -12,6 +12,7 @@ INC := -I $(INCLUDE_DIR)
 
 SRCS = 	main.cpp \
 		server/Server.cpp \
+		server/Response.cpp \
 		configuration/Config.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \

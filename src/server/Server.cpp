@@ -84,7 +84,7 @@ void Server::Start() {
                     client->parseRequest(buffer); // parse the request with this client
                     createResponse(client); // send a response
                     delete client; // delete the client after the response
-                    close (client_socket); // close the connection (still need to delete it from the list);
+                    close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
                 }
             }
         }
@@ -140,14 +140,4 @@ void Server::initEpoll() {
         perror("epoll_ctl");
         exit(EXIT_FAILURE);
     }
-}
-
-/* Create a respond to the client */
-
-void Server::createResponse(Client* client) {
-    // GET //POST //DELETE
-    // home page and upload files page everything else is 404
-    char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
-    send(client->getClientSocket(), response, strlen(response), 0);
-    printf("\n------------------response sent-------------------\n");
 }
