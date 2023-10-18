@@ -1,5 +1,7 @@
-#ifndef _SERVER_HPP_
-#define _SERVER_HPP_
+#ifndef SERVER_HPP
+#define SERVER_HPP
+
+class Client;
 
 class Server {
     private:
@@ -13,7 +15,6 @@ class Server {
         int                 _MAX_CLIENTS;
         std::vector<int>    _client_sockets; // To keep track of client sockets
 
-
         int                 _optval;
     public:
         Server();
@@ -26,6 +27,8 @@ class Server {
         void BindSocketToPort();
         void ListenToSocket();
         void initEpoll();
+
+        void createRespond(Client* client);
 };
 
 #endif

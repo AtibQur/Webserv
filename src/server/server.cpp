@@ -25,9 +25,6 @@ Server& Server::operator=(Server const &copy) {
 /* Server start */
 
 void Server::Start() {
-    // Message for client
-    char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
-
     this->CreateSocket();
     this->BindSocketToPort();
     this->ListenToSocket();
@@ -63,12 +60,12 @@ void Server::Start() {
             } else {
                 // Existing client socket ready for read
                 int client_socket = events[i].data.fd;
-                // Handle data on the client socket and send a response
-                char buffer[1024];
+                // read from the client request
+                char buffer[1024] = {0};
                 ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
                 if (bytes_read < 0) {
-                    perror("read");
-                } else if (bytes_read == 0) {
+                    perror("Error reading from the client socket");
+                } if (bytes_read == 0) {
                     // Connection closed
                     std::cout << "Connection closed by the client." << std::endl;
                     // Remove the client socket from epoll and close it
@@ -82,9 +79,11 @@ void Server::Start() {
                         }
                     }
                 } else {
-                    // Process the received data and send a response
-                    std::cout << "Received data: " << std::string(buffer, bytes_read) << std::endl;
-                    send(client_socket, response, strlen(response), 0);
+                    // save the client respond and parse it
+                    Client client;
+                    client.saveClientRequest(buffer, client_socket);
+                    // send a response
+                    createRespond(client.getClientListIndex(0));
                 }
             }
         }
@@ -140,4 +139,12 @@ void Server::initEpoll() {
         perror("epoll_ctl");
         exit(EXIT_FAILURE);
     }
+}
+
+// creating a respond to the client
+void Server::createRespond(Client* client) {
+    std::cout << client->getMethod() << std::endl;
+    char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
+    send(client->getClientSocket(), response, strlen(response), 0);
+    printf("------------------Hello message sent-------------------\n");
 }
