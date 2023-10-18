@@ -35,7 +35,6 @@ int ConfigParser::findServerBlock(int start, int &end) {
     int line_count = 0;
     while (i < _lines.size()) {
         if (_lines[i].find("server ") != std::string::npos) {
-            std::cout << "found one!"<< std::endl;
             start = i++;
             break;
         }
@@ -45,7 +44,6 @@ int ConfigParser::findServerBlock(int start, int &end) {
         if (_lines[i].find("{") != std::string::npos) 
             bracket_count++;
         if (_lines[i].find("}") != std::string::npos && bracket_count == 0) {
-            std::cout << "Closed one!!"<< std::endl;
             end = i;
             break;
         }

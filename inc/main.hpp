@@ -22,3 +22,4 @@
 /* config info */
 #define PORT 8080
 
+void ExitWithMessage(std::string message);
