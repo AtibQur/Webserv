@@ -6,18 +6,21 @@
 #include <signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/epoll.h>
 
 /* CPP Libraries */
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 
 /* Header inclusions */
 #include "Server.hpp"
 #include "Config.hpp"
 #include "ConfigParser.hpp"
 #include "ConfigParserUtils.hpp"
+#include "Client.hpp"
 
 /* config info */
 #define PORT 8080
