@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/epoll.h>
 
 /* CPP Libraries */
 #include <iostream>
