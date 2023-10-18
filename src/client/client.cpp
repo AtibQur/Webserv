@@ -19,28 +19,30 @@ Client& Client::operator=(Client const &copy) {
     return *this;
 }
 
-void    Client::saveClientRequest(char* buffer, int client_socket) {
+// void    Client::saveClientRequest(char* buffer, int client_socket) {
     // char buffer[30000] = {0};
     // long value_read = read(client_socket, buffer, 30000);
     // if (buffer < 0){
     //     perror("Error reading from the client socket");
     // }
-    Client* client = new Client(client_socket);
-    parseRequest(buffer, client);
-    Client::clients.push_back(client); // add client to the clients list
-}
+    // Client* client = new Client(client_socket);
+    // parseRequest(buffer, client);
+    // Client::clients.push_back(client); // add client to the clients list
+// }
 
-void Client::parseRequest(char* buffer, Client* client) {
+
+/* Parse the client request */
+
+void Client::parseRequest(char* buffer) {
     std::string httpRequest = buffer;
-    // std::cout << httpRequest << std::endl;
     std::string requestLine = httpRequest.substr(0, httpRequest.find("\r\n"));
     size_t methodEnd = requestLine.find(' ');
     size_t uriEnd = requestLine.find(' ', methodEnd + 1);
     
     // parse request line
-    client->method = requestLine.substr(0, methodEnd);
-    client->uri = requestLine.substr(methodEnd + 1, uriEnd - methodEnd - 1);
-    client->protocol = requestLine.substr(uriEnd + 1);
+    this->_method = requestLine.substr(0, methodEnd);
+    this->_uri = requestLine.substr(methodEnd + 1, uriEnd - methodEnd - 1);
+    this->_protocol = requestLine.substr(uriEnd + 1);
 
     // parse headers
     size_t startHeaderSection = httpRequest.find("\n");
@@ -60,11 +62,13 @@ void Client::parseRequest(char* buffer, Client* client) {
         pos = lineEnd + 1;
     }
 
+    // print request line
+    std::cout << _method << " " << _uri << " " << _protocol << std::endl;
     // print map
     std::map<std::string, std::string>::iterator it = headerMap.begin();
     while (it != headerMap.end())
     {
-        std::cout << "Key: " << it->first << " Value: " << it->second << std::endl;
+        std::cout << "-> " << it->first << "-> " << it->second << std::endl;
         ++it;
     }
 

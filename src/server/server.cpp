@@ -11,6 +11,7 @@ Server::Server() {
 Server::~Server() {
     close(this->_new_socket);
     close(this->_server_fd);
+    std::cout << "Server closed" << std::endl;
 }
 
 Server::Server(Server const &copy) {
@@ -79,11 +80,11 @@ void Server::Start() {
                         }
                     }
                 } else {
-                    // save the client respond and parse it
-                    Client client;
-                    client.saveClientRequest(buffer, client_socket);
-                    // send a response
-                    createRespond(client.getClientListIndex(0));
+                    Client* client = new Client(client_socket); // create a client class
+                    client->parseRequest(buffer); // parse the request with this client
+                    createResponse(client); // send a response
+                    delete client; // delete the client after the response
+                    close (client_socket); // close the connection (still need to delete it from the list);
                 }
             }
         }
@@ -141,10 +142,12 @@ void Server::initEpoll() {
     }
 }
 
-// creating a respond to the client
-void Server::createRespond(Client* client) {
-    std::cout << client->getMethod() << std::endl;
+/* Create a respond to the client */
+
+void Server::createResponse(Client* client) {
+    // GET //POST //DELETE
+    // home page and upload files page everything else is 404
     char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
     send(client->getClientSocket(), response, strlen(response), 0);
-    printf("------------------Hello message sent-------------------\n");
+    printf("\n------------------response sent-------------------\n");
 }
