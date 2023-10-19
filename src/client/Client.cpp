@@ -66,3 +66,13 @@ void Client::parseRequest(char* buffer) {
         std::cout << "There is a request body" << std::endl;
     }
 }
+
+int Client::getNbMethod() { 
+    if (_method == "GET") 
+        return 1; 
+    if (_method == "POST") 
+        return 2; 
+    if (_method == "DELETE") 
+        return 3;
+    return (0);
+}
