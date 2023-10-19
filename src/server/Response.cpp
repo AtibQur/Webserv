@@ -3,9 +3,22 @@
 /* Create a respond to the client */
 
 void Server::createResponse(Client* client) {
-    //GET //POST //DELETE
-    // home page and upload files page everything else is 404
-    char response[] = "HTTP/1.1 200\nContent-Type: text/plain\nContent-Length: 37\n\nHello mi brothas\nHope all is well :)\n";
-    send(client->getClientSocket(), response, strlen(response), 0);
-    printf("\n------------------response sent-------------------\n");
+    std::cout << client->getMethod() << std::endl;
+    
+    // Read the content of the index.html file
+    std::ifstream indexFile("index.html");
+    if (!indexFile.is_open()) {
+        // If the file can't be opened, send an error response
+        char response[] = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
+        send(client->getClientSocket(), response, strlen(response), 0);
+    } else {
+        // If the file is opened successfully, read its content and send it as the response
+        std::string fileContent((std::istreambuf_iterator<char>(indexFile)), (std::istreambuf_iterator<char>()));
+        indexFile.close();
+        
+        std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+        send(client->getClientSocket(), response.c_str(), response.size(), 0);
+    }
+    
+    printf("------------------Response sent-------------------\n");
 }
