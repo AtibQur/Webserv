@@ -6,7 +6,7 @@ void Server::createResponse(Client* client) {
     std::cout << client->getMethod() << std::endl;
     
     // Read the content of the index.html file
-    std::ifstream indexFile("index.html");
+    std::ifstream indexFile("docs/index.html");
     if (!indexFile.is_open()) {
         // If the file can't be opened, send an error response
         char response[] = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
