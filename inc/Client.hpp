@@ -26,6 +26,8 @@ public:
 	// getters
 	int			getClientSocket() { return clientSocket; };
 	std::string getMethod() { return _method; };
+	std::string	getUri() { return _uri; };
+	std::string getProtocol() { return _protocol; };
 };
 
 #endif
