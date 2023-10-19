@@ -4,7 +4,7 @@
 
 void Server::createResponse(Client* client) {
     std::cout << client->getMethod() << std::endl;
-    
+
     // Read the content of the index.html file
     std::ifstream indexFile("docs/index.html");
     if (!indexFile.is_open()) {
