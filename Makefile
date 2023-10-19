@@ -13,10 +13,11 @@ INC := -I $(INCLUDE_DIR)
 SRCS = 	main.cpp \
 		server/Server.cpp \
 		server/Response.cpp \
+		server/Post_Delete.cpp \
 		configuration/Config.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \
-		client/Client.cpp \
+		client/Client.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/,$(SRCS:.cpp=.o))
 
