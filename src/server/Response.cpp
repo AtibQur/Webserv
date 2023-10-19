@@ -22,7 +22,7 @@ void Server::createResponse(Client* client) {
 }
     /* GET*/
 void Server::getMethod(Client* client) {
-    // if its / or /upload open that page
+    // if index / 404 /upload open that page
     const char* file;
     if (client->getUri() == "/")
         file = "docs/index.html";
