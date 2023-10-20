@@ -10,9 +10,10 @@ private:
 	std::string _method;
 	std::string _uri;
 	std::string _protocol;
-
 	// header information
 	std::map <std::string, std::string> headerMap;
+	// request body
+	std::string _boundary;
 public:
     Client();
     Client(int client_socket);
