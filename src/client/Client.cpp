@@ -81,6 +81,7 @@ void Client::parseRequest(char* buffer) {
         std::cout << "-> " << it->first << " -> " << it->second << std::endl;
         ++it;
     }
+    std::cout << "b --> " << this->_boundary << std::endl;
 }
 
 int Client::getNbMethod() { 
