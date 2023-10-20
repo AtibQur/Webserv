@@ -27,7 +27,7 @@ void    Client::saveClientRequest(char* buffer, int client_socket) {
     // }
     Client* client = new Client(client_socket);
     parseRequest(buffer, client);
-    Client::clients.push_back(client); // add client to the clients list
+    clients.push_back(client); // add client to the clients list
 }
 
 void Client::parseRequest(char* buffer, Client* client) {
@@ -67,6 +67,10 @@ void Client::parseRequest(char* buffer, Client* client) {
         std::cout << "Key: " << it->first << " Value: " << it->second << std::endl;
         ++it;
     }
+
+    std::cout << "Method: " << client->method << std::endl;
+    std::cout << "URI: " << client->uri << std::endl;
+    std::cout << "Protocol: " << client->protocol << std::endl;
 
     // request body
     std::string requestBody;

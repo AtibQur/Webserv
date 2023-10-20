@@ -80,10 +80,10 @@ void Server::Start() {
                     }
                 } else {
                     // save the client respond and parse it
-                    Client client;
-                    client.saveClientRequest(buffer, client_socket);
+                    Client clients;
+                    clients.saveClientRequest(buffer, client_socket);
                     // send a response
-                    createRespond(client.getClientListIndex(0));
+                    createRespond(clients.getClientListIndex(i));
                 }
             }
         }
