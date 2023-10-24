@@ -21,6 +21,7 @@
 #include "ConfigParser.hpp"
 #include "ConfigParserUtils.hpp"
 #include "Client.hpp"
+#include "Response.hpp"
 
 /* config info */
 #define PORT 8080

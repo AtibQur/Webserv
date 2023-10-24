@@ -37,3 +37,6 @@ https://medium.com/@avocadi/what-is-epoll-9bbc74272f7c
 
 - Multithreaded Server in c++ using Epoll (LINUX SPECIFIC):
 https://unscriptedcoding.medium.com/multithreaded-server-in-c-using-epoll-baadad32224c
+
+- All web status codes
+https://www.w3.org/Protocols/HTTP/HTRESP.html
