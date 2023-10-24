@@ -30,6 +30,7 @@ Config::Config(std::vector<std::string> lines) {
     std::cout << "server_name: " << _server_name << std::endl;
     std::cout << "index: " << _index << std::endl;
     std::cout << "root: " << _root << std::endl;
+    
 }
 
 void Config::outputLines() {
