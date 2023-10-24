@@ -12,6 +12,10 @@ enum class ConfigKey {
 
 class Config {
 private:
+    int _port;
+    std::string _server_name;
+    std::string _index;
+    std::string _root;
     std::vector<std::string> _lines;
 
 public:
@@ -23,5 +27,11 @@ public:
     // METHODS
     const std::string& ConfigKeyToString(ConfigKey configKey);
     void outputLines();
+    void findVarName(std::string line);
+
+    // SETTERS
+    void setAttribute(std::string variable, std::string value);
+    void setPort();
+
 };
 #endif
