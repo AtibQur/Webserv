@@ -39,7 +39,7 @@ void Server::getMethod(Client* client) {
         std::string response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;;
         send(client->getClientSocket(), response.c_str(), response.size(), 0);
     }
-    std::cout << client->getMethod() << std::endl;
+    // std::cout << client->getMethod() << std::endl;
 
     // Read the content of the index.html file
     std::ifstream indexFile("docs/index.html");
