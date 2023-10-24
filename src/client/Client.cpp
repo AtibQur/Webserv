@@ -23,6 +23,11 @@ Client& Client::operator=(Client const &copy) {
 
 void Client::parseRequest(char* buffer) {
     std::string httpRequest = buffer;
+    
+    std::size_t contentDispositionPos = httpRequest.find("Content-Disposition");
+    if (contentDispositionPos != std::string::npos)
+        std::cout << "FOUND!" << std::endl;
+
     size_t nl = httpRequest.find("\r\n");
     if (nl == std::string::npos)
         perror("400: invalid request: can't find the request line");
