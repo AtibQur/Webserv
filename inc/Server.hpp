@@ -29,6 +29,12 @@ class Server {
         void initEpoll();
 
         void createResponse(Client* client);
+
+        // get method functions
+        void getMethod(Client* client);
+        // post method functions
+        void postMethod();
+
 };
 
 #endif
