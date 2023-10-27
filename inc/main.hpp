@@ -14,6 +14,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <stdexcept>
 
 /* Header inclusions */
 #include "Server.hpp"

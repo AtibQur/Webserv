@@ -81,8 +81,8 @@ void Server::Start() {
                     }
                 } else {
                     Client* client = new Client(client_socket); // create a client class
-                    client->parseRequest(buffer); // parse the request with this client
-                    createResponse(client); // send a response
+                    if (!client->handleRequest(buffer)) // parse the request with this client
+                        createResponse(client); // send a response
                     delete client; // delete the client after the response
                     close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
                 }

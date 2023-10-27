@@ -54,3 +54,7 @@ void Server::getMethod(Client* client) {
     }
     printf("------------------Response sent-------------------\n");
 }
+
+// response zin eindigt met /r/n
+// hele response eidigt met /r/n/r/n
+// content length bepaalt of the body compleet is (als er een body is) 

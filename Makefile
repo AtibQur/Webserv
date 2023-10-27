@@ -17,7 +17,8 @@ SRCS = 	main.cpp \
 		configuration/Config.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \
-		client/Client.cpp
+		client/Client.cpp \
+		client/Parser.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/,$(SRCS:.cpp=.o))
 

@@ -8,3 +8,14 @@
 * Zorg dat de client fd geconnect wordt met de server fd;
 
 // niet perse in volgorde
+
+// voor cgi and post
+pipe aanmaken en de write kant toevoegen aan epoll
+wanneer de epoll klaar is kan het een request handelen
+
+1. CGi request binnen
+2. de body duppen naar STDIN
+3. excev naar een python script dat de inpout naar STDOUT convert
+4. van STDOUT naar response naar de client
+
+
