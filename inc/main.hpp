@@ -14,6 +14,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 /* Header inclusions */
 #include "Server.hpp"
@@ -22,6 +23,7 @@
 #include "ConfigParserUtils.hpp"
 #include "Client.hpp"
 #include "Response.hpp"
+#include "Location.hpp"
 
 /* config info */
 #define PORT 8080

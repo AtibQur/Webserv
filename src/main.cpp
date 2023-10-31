@@ -11,7 +11,6 @@ std::vector<Config> confloop(std::string file_name) {
 
     std::vector<Config>  conf;
     int end = 0;
-    int i = 0;
 	int start = confParser.findServerBlock(0, end);
 	while(start > -1) {
         // making subarray for each server block and constructing config object
@@ -20,8 +19,6 @@ std::vector<Config> confloop(std::string file_name) {
         conf.push_back(conf_temp);
         // continue searching for server blocks from old end index till none are found
 		start = confParser.findServerBlock(end, end);
-        std::cout << i << std::endl;
-        i++;
 	}
     if (conf.empty()) {
         ExitWithMessage("Error: no server blocks found in config file");

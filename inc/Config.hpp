@@ -3,6 +3,7 @@
 
 #include "main.hpp"
 
+
 enum class ConfigKey {
     LISTEN,
     SERVER_NAME,
@@ -10,12 +11,15 @@ enum class ConfigKey {
     ROOT,
 };
 
+class Location;
+
 class Config {
 private:
     int _port;
     std::string _server_name;
     std::string _index;
     std::string _root;
+    std::map<std::string, Location> _locations;
     std::vector<std::string> _lines;
 
 public:
@@ -27,11 +31,12 @@ public:
     // METHODS
     const std::string& ConfigKeyToString(ConfigKey configKey);
     void outputLines();
-    void findVarName(std::string line);
+    void findVarName(std::string line, int &index);
 
     // SETTERS
-    void setAttribute(std::string variable, std::string value);
+    void setAttribute(std::string variable, std::string value, int &index);
     void setPort();
+    void setLocation(std::string path, int &index);
 
 };
 #endif

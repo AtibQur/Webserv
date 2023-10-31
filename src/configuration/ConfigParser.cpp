@@ -47,7 +47,7 @@ int ConfigParser::findServerBlock(int start, int &end) {
             end = i;
             break;
         }
-        line_count = std::count(_lines[i].begin(), _lines[i].end(), '{');
+        line_count = std::count(_lines[i].begin(), _lines[i].end(), '}');
         if (line_count > 0)
             bracket_count -= line_count;
         i++;
