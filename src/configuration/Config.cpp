@@ -34,7 +34,7 @@ Config::Config(std::vector<std::string> lines) {
         findVarName(lines[index], index);
         index++;
     }
-    outputConfig();
+    // outputConfig();
 }
 
 /*

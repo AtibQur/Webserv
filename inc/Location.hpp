@@ -7,24 +7,27 @@ class Location {
 private:
     std::string _path;
     std::string _index;
-    std::string _methods;
+    std::vector<std::string> _methods;
 
 public:
     // STRUCTORS
     Location() {};
-    Location(std::string index, std::string methods);
+    Location(std::string index, std::vector<std::string> methods, std::string path);
     ~Location() {};
 
     // METHODS
-    void setIndex(std::string index);
-    void setMethods(std::string methods);
-    void setPath(std::string path);
     void findVarName(std::string line, std::vector<std::string> &variables);
     void setAtrributes(std::vector<std::string> variables);
 
+    // SETTERS
+    void setIndex(std::string index);
+    void setMethods(std::vector<std::string> methods, int &index);
+    void setPath(std::string path);
+
     // GETTERS
     std::string getIndex();
-    std::string getMethods();
+    std::vector<std::string> getMethods();
+    std::string getPath();
 
     // OUTPUT
     void outputLocation();
