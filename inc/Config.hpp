@@ -16,7 +16,7 @@ class Location;
 class Config {
 private:
     int _port;
-    std::string _server_name;
+    std::vector<std::string> _server_names;
     std::string _index;
     std::string _root;
     std::map<std::string, Location> _locations;
@@ -37,6 +37,7 @@ public:
     void setAttribute(std::string variable, std::string value, int &index);
     void setPort();
     void setLocation(std::string path, int &index);
+    void setServerName(std::string server_name, int &index);
 
 };
 #endif
