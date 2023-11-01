@@ -16,7 +16,7 @@ public:
     ~Location() {};
 
     // METHODS
-    void findVarName(std::string line, std::vector<std::string> &variables);
+    void findVarName(std::string line, std::vector<std::string> &variables, int index);
     void setAtrributes(std::vector<std::string> variables);
 
     // SETTERS

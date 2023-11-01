@@ -121,7 +121,7 @@ void Config::setLocation(std::string path, int &index) {
     index++;    // skip opening bracket as we already got the value
     temp.setPath(path);
     while (_lines[index].find("}") == std::string::npos) {
-        temp.findVarName(_lines[index], variables);
+        temp.findVarName(_lines[index], variables, 0);
         index++;
     }
     temp.setAtrributes(variables);

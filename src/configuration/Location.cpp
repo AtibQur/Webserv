@@ -46,11 +46,12 @@ std::string trim(const std::string& str)
 
 // METHODS
 
-void Location::findVarName(std::string line, std::vector<std::string> &variables) {
+void Location::findVarName(std::string line, std::vector<std::string> &variables, int index) {
     std::string variable;
     std::string value;
+    if (index != 0)
+        line = line.substr(index);
     std::string::iterator it = line.begin();
-
     while (it != line.end() && (*it == ' ' || *it == '\t'))
         it++;
     while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') {
@@ -65,8 +66,12 @@ void Location::findVarName(std::string line, std::vector<std::string> &variables
     while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') {
         value += *it++;
     }
+    while (it != line.end() && (*it == ' ' || *it == '\t'))
+        it++;
     variables.push_back(variable);
     variables.push_back(value);
+    if (it != line.end() && *it != ';')
+        findVarName(line, variables, it - line.begin());
 }
 
 void Location::setAtrributes(std::vector<std::string> variables) {
@@ -78,17 +83,15 @@ void Location::setAtrributes(std::vector<std::string> variables) {
             setMethods(variables, i);
         i++;
     }
+    outputLocation();
 }
 
 void Location::setMethods(std::vector<std::string> variables, int &index) {
     std::string methods = trim(variables[++index]);
     while (methods == "GET" || methods == "POST" || methods == "DELETE") {
-        std::cout << "methods: " << methods << std::endl;
         _methods.push_back(methods);
         methods = variables[++index];
     }
-    std::cout << "methods: " << methods << std::endl;
-
 }
 
 // OUTPUT
