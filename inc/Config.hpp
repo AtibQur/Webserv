@@ -30,14 +30,18 @@ public:
 
     // METHODS
     const std::string& ConfigKeyToString(ConfigKey configKey);
-    void outputLines();
     void findVarName(std::string line, int &index);
 
     // SETTERS
-    void setAttribute(std::string variable, std::string value, int &index);
+    void setAttribute(std::string variable, std::string value, int &index, int line_i);
     void setPort();
     void setLocation(std::string path, int &index);
-    void setServerName(std::string server_name, int &index);
+    void setServerName(std::string server_name, int &index, int line_i);
+
+    // OUTPUT
+    void outputConfig();
+    void outputLines();
+    void outputServerNames();
 
 };
 #endif

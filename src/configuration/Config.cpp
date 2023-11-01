@@ -31,10 +31,10 @@ Config::Config(std::vector<std::string> lines) {
     std::string var = "";
     int index = 0;
     while (index < lines.size()) {
-        // std::cout << "line: " << line << std::endl;
         findVarName(lines[index], index);
         index++;
     }
+    outputConfig();
 }
 
 /*
@@ -63,11 +63,10 @@ void Config::findVarName(std::string line, int &index) {
     while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') {
         value += *it++;
     }
-    std::cout << std::distance(line.begin(), it) << std::endl;
-    setAttribute(variable, value, index);
+    setAttribute(variable, value, index, std::distance(line.begin(), it));
 }
 
-void Config::setAttribute(std::string variable, std::string value, int &index) {
+void Config::setAttribute(std::string variable, std::string value, int &index, int line_i) {
     std::string options[5] = { // all possible options for server block
         "listen",
         "server_name",
@@ -83,7 +82,7 @@ void Config::setAttribute(std::string variable, std::string value, int &index) {
                     _port = std::stoi(value);
                     break;
                 case 1:
-                    setServerName(value, index);
+                    setServerName(value, index, line_i);
                     break;
                 case 2:
                     _index = value;
@@ -99,15 +98,20 @@ void Config::setAttribute(std::string variable, std::string value, int &index) {
     }
 }
 
-void Config::setServerName(std::string server_name, int &index) {
+void Config::setServerName(std::string server_name, int &index, int line_i) {
     std::string name;
-    std::string::iterator it = server_name.begin();
-    _server_names.push_back(name);
-    while (it != server_name.end() && *it != ';') {
-        while (it != server_name.end() && *it != ' ' && *it != '\t' && *it != ';')
+    std::string line = _lines[index].substr(line_i);
+    std::string::iterator it = line.begin();
+    _server_names.push_back(server_name);
+    while (it != line.end() && (*it == ' ' || *it == '\t'))
+        it++;
+    while (it != line.end() && *it != ';') {
+        while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';')
             name += *it++;
         _server_names.push_back(name);
         name = "";
+        while (it != line.end() && (*it == ' ' || *it == '\t'))
+            it++;
     }
 }
 
@@ -125,6 +129,25 @@ void Config::setLocation(std::string path, int &index) {
 }
 
 // OUTPUT
+
+void Config::outputConfig() {
+    std::cout << "port: " << _port << std::endl;
+    std::cout << "index: " << _index << std::endl;
+    std::cout << "root: " << _root << std::endl;
+    std::cout << "server_names: " << std::endl;
+    outputServerNames();
+    std::cout << "locations: " << std::endl;
+    for (auto it = _locations.begin(); it != _locations.end(); it++) {
+        std::cout << "path: " << it->first << std::endl;
+        it->second.outputLocation();
+    }
+
+}
+
+void Config::outputServerNames() {
+    for (std::string name : _server_names)
+        std::cout << name << std::endl;
+}
 
 void Config::outputLines() {
     for (std::string line : _lines)
