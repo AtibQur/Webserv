@@ -14,6 +14,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <stdexcept>
 #include <unordered_map>
 
 /* Header inclusions */

@@ -14,10 +14,12 @@ SRCS = 	main.cpp \
 		server/Server.cpp \
 		server/Response.cpp \
 		server/Post_Delete.cpp \
+		server/ServerRequest.cpp \
 		configuration/Config.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \
 		client/Client.cpp \
+		client/Parser.cpp
 		configuration/Location.cpp \
 
 OBJS = $(addprefix $(OBJS_DIR)/,$(SRCS:.cpp=.o))

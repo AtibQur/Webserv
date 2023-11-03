@@ -63,28 +63,33 @@ void Server::Start() {
                 int client_socket = events[i].data.fd;
                 // read from the client request
                 char buffer[1024] = {0};
-                ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
-                if (bytes_read < 0) {
-                    perror("Error reading from the client socket");
-                } if (bytes_read == 0) {
-                    // Connection closed
-                    std::cout << "Connection closed by the client." << std::endl;
-                    // Remove the client socket from epoll and close it
-                    epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_socket, nullptr);
-                    close(client_socket);
-                    // Remove the client socket from the list
-                    for (auto it = _client_sockets.begin(); it != _client_sockets.end(); ++it) {
-                        if (*it == client_socket) {
-                            _client_sockets.erase(it);
-                            break;
+                ssize_t bytes_read;
+                std::string accumulatedRequestData;
+
+                while (1) {
+                    bytes_read = read(client_socket, buffer, sizeof(buffer));
+                    if (bytes_read < 0) {
+                        perror("Error reading from the client socket");
+                        break ;
+                    } else if (bytes_read == 0){
+                        std::cout << "Connection closed by the client." << std::endl;
+                        break ;
+                    }
+                    else {
+                        accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
+                        std::cout << "buffer: " << buffer << std::endl;
+                        std::cout << "whole: " << accumulatedRequestData << std::endl;
+
+                        if (isRequestComplete(accumulatedRequestData)){
+                            Client* client = new Client(client_socket); // create a client class
+
+                            client->handleRequest(buffer); // parse the request with this client
+                            createResponse(client); // send a response
+                            delete client; // delete the client after the response
+                            close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
+                            break ;
                         }
                     }
-                } else {
-                    Client* client = new Client(client_socket); // create a client class
-                    client->parseRequest(buffer); // parse the request with this client
-                    createResponse(client); // send a response
-                    delete client; // delete the client after the response
-                    close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
                 }
             }
         }
@@ -141,3 +146,16 @@ void Server::initEpoll() {
         exit(EXIT_FAILURE);
     }
 }
+
+
+
+                    // // Remove the client socket from epoll and close it
+                    // epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_socket, nullptr);
+                    // close(client_socket);
+                    // // Remove the client socket from the list
+                    // for (auto it = _client_sockets.begin(); it != _client_sockets.end(); ++it) {
+                    //     if (*it == client_socket) {
+                    //         _client_sockets.erase(it);
+                    //         break;
+                    //     }
+                    // }

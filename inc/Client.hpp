@@ -21,8 +21,13 @@ public:
     Client(Client const &copy);
     Client &operator=(Client const &copy);
 
+	// parser
     void	saveClientRequest(char* buffer, int client_socket);
-	void	parseRequest(char* buffer);
+	int		handleRequest(char *buffer);
+	bool	checkRequestLine(std::string httpRequest);
+	bool	checkMethod(std::string tmp);
+	void	createErrorResponse(const std::string& errorMessage);
+	int		parseRequest(char* buffer);
 
 	// getters
 	int			getClientSocket() { return clientSocket; };
