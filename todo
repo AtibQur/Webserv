@@ -18,4 +18,15 @@ wanneer de epoll klaar is kan het een request handelen
 3. excev naar een python script dat de inpout naar STDOUT convert
 4. van STDOUT naar response naar de client
 
+// request parser
+Here's how you can approach this:
 
+Read Data in Chunks: When using epoll, you'll receive events when a file descriptor is ready for reading. You should read data in chunks as it becomes available using non-blocking I/O.
+
+Parse Request Header: As you read data, you can start parsing the request header. Look for the presence of "\r\n\r\n" or another appropriate indicator to determine the end of the header. Once you've found this indicator, you can consider the request header as complete.
+
+Check Content-Length: If the request includes a "Content-Length" header, it specifies the length of the request body. You can use this value to determine the expected length of the request body and keep track of how much data you've received.
+
+Parse Request Body: If there is a request body (e.g., for "POST" requests), continue reading and processing data in chunks. When the length of the received request body matches the "Content-Length" specified in the header, you can consider the entire request as received.
+
+Handle Chunked Encoding: If the request uses "chunked encoding" (indicated by the "Transfer-Encoding" header), you need to handle this encoding format. It involves reading chunks and processing them until the final "0\r\n\r\n" chunk is received.

@@ -14,6 +14,7 @@ SRCS = 	main.cpp \
 		server/Server.cpp \
 		server/Response.cpp \
 		server/Post_Delete.cpp \
+		server/ServerRequest.cpp \
 		configuration/Config.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \

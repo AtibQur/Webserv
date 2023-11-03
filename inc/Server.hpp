@@ -28,6 +28,8 @@ class Server {
         void ListenToSocket();
         void initEpoll();
 
+        // response 
+        bool isRequestComplete(std::string accumulatedRequestData);
         void createResponse(Client* client);
 
         // get method functions
