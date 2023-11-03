@@ -19,9 +19,9 @@ Client& Client::operator=(Client const &copy) {
     return *this;
 }
 
-int Client::handleRequest(char *buffer) {
+int Client::handleRequest(std::string request, char *buffer) {
     try {
-        parseRequest(buffer);
+        parseRequest(request, buffer);
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
         createErrorResponse(e.what());
