@@ -21,10 +21,11 @@ private:
     std::string _root;
     std::map<std::string, Location> _locations;
     std::vector<std::string> _lines;
+    unsigned long long max_body_size;
 
 public:
     // STRUCTORS
-    Config() {};
+    Config() : max_body_size(1000000) {};
     Config(std::vector<std::string> lines);
     ~Config() {};
 
@@ -37,6 +38,7 @@ public:
     void setPort();
     void setLocation(std::string path, int &index);
     void setServerName(std::string server_name, int &index, int line_i);
+    void setMaxBodySize(std::string value);
 
     // OUTPUT
     void outputConfig();

@@ -83,7 +83,6 @@ void Location::setAtrributes(std::vector<std::string> variables) {
             setMethods(variables, i);
         i++;
     }
-    outputLocation();
 }
 
 void Location::setMethods(std::vector<std::string> variables, int &index) {

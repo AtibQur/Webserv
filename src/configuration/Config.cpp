@@ -26,7 +26,7 @@
     retrieving the values for each key and storing them in the class object
 */
 
-Config::Config(std::vector<std::string> lines) {
+Config::Config(std::vector<std::string> lines) : max_body_size(1000000) {
     _lines = lines;
     std::string var = "";
     int index = 0;
@@ -34,7 +34,7 @@ Config::Config(std::vector<std::string> lines) {
         findVarName(lines[index], index);
         index++;
     }
-    // outputConfig();
+    outputConfig();
 }
 
 /*
@@ -67,15 +67,16 @@ void Config::findVarName(std::string line, int &index) {
 }
 
 void Config::setAttribute(std::string variable, std::string value, int &index, int line_i) {
-    std::string options[5] = { // all possible options for server block
+    std::string options[6] = { // all possible options for server block
         "listen",
         "server_name",
         "index",
         "root",
-        "location"
+        "location",
+        "max_body_size"
     };
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
         if (variable == options[i]) { // if variable name matches expected name we store it
             switch (i) {
                 case 0:
@@ -92,6 +93,9 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
                     break;
                 case 4:
                     setLocation(value, index);
+                    break;
+                case 5:
+                    setMaxBodySize(value);
                     break;
             }
         }
@@ -113,6 +117,10 @@ void Config::setServerName(std::string server_name, int &index, int line_i) {
         while (it != line.end() && (*it == ' ' || *it == '\t'))
             it++;
     }
+}
+
+void Config::setMaxBodySize(std::string value) {
+    max_body_size = std::stoull(value) * 1000000;
 }
 
 void Config::setLocation(std::string path, int &index) {
@@ -141,7 +149,7 @@ void Config::outputConfig() {
         std::cout << "path: " << it->first << std::endl;
         it->second.outputLocation();
     }
-
+    std::cout << "max_body_size: " << max_body_size << std::endl;
 }
 
 void Config::outputServerNames() {
