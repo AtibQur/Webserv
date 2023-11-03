@@ -20,6 +20,7 @@ SRCS = 	main.cpp \
 		configuration/ConfigParserUtils.cpp \
 		client/Client.cpp \
 		client/Parser.cpp
+		configuration/Location.cpp \
 
 OBJS = $(addprefix $(OBJS_DIR)/,$(SRCS:.cpp=.o))
 

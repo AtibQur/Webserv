@@ -27,15 +27,16 @@ std::vector<Config> confloop(std::string file_name) {
 }
 
 int main(int argc, char *argv[]) {
-    // if (argc != 2) {
-    //     return 1;
-    // }
-    
-    // confloop(argv[1]);
+    if (argc != 2) {
+        std::cout << "Only 2 arguments please ./webserv [config_file]" << std::endl;
+        return 1;
+    }
 
-    Server server;
+    confloop(argv[1]);
 
-    server.Start();
+    // Server server;
+
+    // server.Start();
 
     return 0;
 }
