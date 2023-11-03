@@ -40,17 +40,21 @@ int ConfigParser::findServerBlock(int start, int &end) {
         }
         i++;
     }
-    while (i < _lines.size()) {
+    while (i < _lines.size() && bracket_count >= 0) {
         if (_lines[i].find("{") != std::string::npos) 
             bracket_count++;
         if (_lines[i].find("}") != std::string::npos && bracket_count == 0) {
             end = i;
             break;
         }
-        line_count = std::count(_lines[i].begin(), _lines[i].end(), '{');
+        line_count = std::count(_lines[i].begin(), _lines[i].end(), '}');
         if (line_count > 0)
             bracket_count -= line_count;
         i++;
+    }
+    if (bracket_count == -1 && i != _lines.size()) {
+        end = i;
+        return start;
     }
     if (i == _lines.size())
         return -1;
