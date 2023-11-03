@@ -46,6 +46,13 @@ std::string trim(const std::string& str)
 
 // METHODS
 
+
+/*
+    this function is similar to the one in Config.cpp but in this one we put in a vector
+    at the end of the function we check if the line is finished or if there is another variable name
+    if so we recursively call the function with the index of the next variable name
+*/
+
 void Location::findVarName(std::string line, std::vector<std::string> &variables, int index) {
     std::string variable;
     std::string value;
@@ -74,16 +81,24 @@ void Location::findVarName(std::string line, std::vector<std::string> &variables
         findVarName(line, variables, it - line.begin());
 }
 
+/*
+    in this function we are iterating through the vector of variables and setting the attributes
+*/
+
 void Location::setAtrributes(std::vector<std::string> variables) {
     int i = 0;
     while (i < variables.size()) {
-        if (variables[i] == "index")
+        if (variables[i] == "index") // if the name matches we set the value of the next index
             _index = variables[++i];
         else if (variables[i] == "methods")
             setMethods(variables, i);
         i++;
     }
 }
+
+/*
+    while the variables vector matches valid HTTP methods we continue to add them to the _methods vector
+*/
 
 void Location::setMethods(std::vector<std::string> variables, int &index) {
     std::string methods = trim(variables[++index]);

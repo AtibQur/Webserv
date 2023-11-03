@@ -102,15 +102,19 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
     }
 }
 
+/*
+    in this function we are looping through the line and storing all server names
+*/
+
 void Config::setServerName(std::string server_name, int &index, int line_i) {
     std::string name;
-    std::string line = _lines[index].substr(line_i);
+    std::string line = _lines[index].substr(line_i); // start from first server name
     std::string::iterator it = line.begin();
     _server_names.push_back(server_name);
-    while (it != line.end() && (*it == ' ' || *it == '\t'))
+    while (it != line.end() && (*it == ' ' || *it == '\t')) // skip whitespace
         it++;
     while (it != line.end() && *it != ';') {
-        while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';')
+        while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') // copy every character of the name to name
             name += *it++;
         _server_names.push_back(name);
         name = "";
@@ -119,9 +123,16 @@ void Config::setServerName(std::string server_name, int &index, int line_i) {
     }
 }
 
+
 void Config::setMaxBodySize(std::string value) {
-    max_body_size = std::stoull(value) * 1000000;
+    max_body_size = std::stoull(value) * 1000000; // mutiply by a million to convert it to megabyte
 }
+
+/*
+    in this function we are iterating through every line of each location block
+    and storing the values in a temporary location object
+    when we reach the closing bracket we store the temporary object in the _locations map
+*/
 
 void Config::setLocation(std::string path, int &index) {
     Location temp;
