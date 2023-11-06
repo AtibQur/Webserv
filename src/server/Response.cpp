@@ -4,12 +4,12 @@
 
 void Server::createResponse(Client* client) {
     // check if the method is allowed in the config file
-    if (!isMethodAllowed(client))
-        std::cout << "Method is not allowed" << std::endl;
-    else
-        std::cout << "Method is allowed" << std::endl;
-    exit(0);
-
+    try {
+        isMethodAllowed(client);
+    } catch (const std::exception& e) {
+        createErrorResponse(e.what());
+        return ;
+    }
     int method = client->getNbMethod();
     switch (method)
     {
@@ -37,6 +37,7 @@ void Server::getMethod(Client* client) {
     // check uri - not found - 404 page not found
     // good? - return index
 
+    
 
 
 
@@ -71,14 +72,25 @@ void Server::getMethod(Client* client) {
     printf("------------------Response sent-------------------\n");
 }
 
-// response zin eindigt met /r/n
-// hele response eidigt met /r/n/r/n
-// content length bepaalt of the body compleet is (als er een body is) 
-
-int Server::isMethodAllowed(Client *client)
+bool Server::isMethodAllowed(Client *client)
 {
-    std::cout << "config" << std::endl;
     Location clientLocation = _conf->getLocation(client->getUri());
-    clientLocation.outputLocation();
-    return (0);
+    // if (clientLocation.empty())
+
+    std::vector<std::string> methods = clientLocation.getMethods();
+
+
+    if (methods.empty())
+        throw std::invalid_argument("400");
+    std::vector<std::string>::iterator it = methods.begin();
+    for (it; it < methods.end(); it++){
+         std::cout << *it << std::endl;
+        if (client->getMethod() == *it)
+            return true;
+    }
+    throw std::invalid_argument("400");
+}
+
+void Server::createErrorResponse(const std::string& errorMessage){
+    std::cout << "HTTP/1.1 " << errorMessage << std::endl;
 }

@@ -1,5 +1,9 @@
 #include "Location.hpp"
 
+// Location::Location(){
+
+// }
+
 Location::Location(std::string index, std::vector<std::string> methods, std::string path) {
     _index = index;
     _methods = methods;

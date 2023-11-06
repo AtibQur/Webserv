@@ -36,10 +36,11 @@ class Server {
         // response 
         bool isRequestComplete(std::string accumulatedRequestData);
         void createResponse(Client* client);
+        void createErrorResponse(const std::string& errorMessage);
 
         // get method functions
         void getMethod(Client* client);
-        int isMethodAllowed(Client* client);
+        bool isMethodAllowed(Client* client);
         // post method functions
         void postMethod();
 

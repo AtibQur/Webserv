@@ -36,7 +36,9 @@ int Client::parseRequest(std::string request, char* buffer) {
     // std::cout << "the rest:" << request << std::endl;
     return (0);
 
-
+    // response zin eindigt met /r/n
+    // hele response eidigt met /r/n/r/n
+    // content length bepaalt of the body compleet is (als er een body is) 
 
 
     // std::size_t contentDispositionPos = httpRequest.find("Content-Disposition");

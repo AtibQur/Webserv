@@ -161,6 +161,7 @@ void Config::outputConfig() {
         it->second.outputLocation();
     }
     std::cout << "max_body_size: " << max_body_size << std::endl;
+    std::cout << "----------------------------\n" << std::endl;
 }
 
 void Config::outputServerNames() {
