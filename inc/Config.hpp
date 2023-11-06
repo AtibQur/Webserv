@@ -22,6 +22,7 @@ private:
     std::map<std::string, Location> _locations;
     std::vector<std::string> _lines;
     unsigned long long max_body_size;
+    std::map<std::string, std::string> error_pages;
 
 public:
     // STRUCTORS
@@ -50,7 +51,7 @@ public:
     std::vector<std::string> getServerNames() { return _server_names; };
     std::string getIndex() { return _index; };
     std::string getRoot() { return _root; };
-    Location getLocation(std::string path) { return _locations[path]; };
+    Location &getLocation(std::string path) { return _locations[path]; };
     unsigned long long getMaxBodySize() { return max_body_size; };
 
 };
