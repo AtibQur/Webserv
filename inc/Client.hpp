@@ -23,11 +23,11 @@ public:
 
 	// parser
     void	saveClientRequest(char* buffer, int client_socket);
-	int		handleRequest(char *buffer);
+	int		handleRequest(std::string request, char *buffer);
 	bool	checkRequestLine(std::string httpRequest);
 	bool	checkMethod(std::string tmp);
 	void	createErrorResponse(const std::string& errorMessage);
-	int		parseRequest(char* buffer);
+	int		parseRequest(std::string request, char* buffer);
 
 	// getters
 	int			getClientSocket() { return clientSocket; };

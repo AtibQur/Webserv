@@ -2,37 +2,38 @@
 
 /* Parse the client request */
 
-int Client::parseRequest(char* buffer) {
-    std::string request = buffer;
-    std::stringstream httpRequest(buffer);
+int Client::parseRequest(std::string request, char* buffer) {
+    std::stringstream httpRequest(request);
     std::string tmp;
 
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
     }
-    std::istringstream iss(buffer);
     getline(httpRequest, tmp, ' ');
     if (!checkMethod(tmp)){
         throw std::invalid_argument("405 Method Not Allowed");
     }
     _method = tmp;
     getline (httpRequest, tmp, ' ');
+
     if (tmp.empty())
         throw std::invalid_argument("400 Bad Request");
     _uri = tmp;
     getline (httpRequest, tmp);
-    // if (tmp.compare("HTTP/1.1\r\n"))
-    //     throw std::invalid_argument("400 Bad Request: Only protocol HTTP/1.1 is allowed"); // weird;
+    
+    if (tmp.compare("HTTP/1.1\r")) // \r\n
+        throw std::invalid_argument("400 Bad Request: Only protocol HTTP/1.1 is allowed");
     _protocol = tmp;
 
+    std::cout << "the request line is valid" << std::endl;
     // start header
     if (request.find("\r\n\r\n") == std::string::npos){
         std::cout << "the request is not complete" << std::endl;
         return 1;
     }
-
-    
+    // parse header
+    std::cout << "the rest:" << request << std::endl;
     return (0);
 
 
