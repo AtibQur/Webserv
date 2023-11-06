@@ -23,3 +23,5 @@ wanneer de epoll klaar is kan het een request handelen
 2. de body duppen naar STDIN
 3. excev naar een python script dat de inpout naar STDOUT convert
 4. van STDOUT naar response naar de client
+
+SEGFAULT ONE METHOD
