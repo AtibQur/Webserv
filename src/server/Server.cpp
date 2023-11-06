@@ -75,6 +75,9 @@ void Server::Start() {
 
                 while (1) {
                     bytes_read = read(client_socket, buffer, sizeof(buffer));
+
+                    std::string HardcodedRequest = buffer; // hardcoded the string to work with for the response
+
                     if (bytes_read < 0) {
                         perror("Error reading from the client socket");
                         break ;
@@ -84,13 +87,11 @@ void Server::Start() {
                     }
                     else {
                         accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
-                        std::cout << "buffer: " << buffer << std::endl;
-                        std::cout << "whole: " << accumulatedRequestData << std::endl;
 
                         if (isRequestComplete(accumulatedRequestData)){
                             Client* client = new Client(client_socket); // create a client class
 
-                            client->handleRequest(buffer); // parse the request with this client
+                            client->handleRequest(accumulatedRequestData, buffer); // parse the request with this client
                             createResponse(client); // send a response
                             delete client; // delete the client after the response
                             close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
