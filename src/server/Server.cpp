@@ -8,6 +8,13 @@ Server::Server() {
     _MAX_CLIENTS = 1000;
 }
 
+Server::Server(Config *conf) {
+    _optval = 1;
+    _MAX_EVENTS = 1000;
+    _MAX_CLIENTS = 1000;
+    this->_conf = conf;
+}
+
 Server::~Server() {
     close(this->_new_socket);
     close(this->_server_fd);

@@ -32,9 +32,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    confloop(argv[1]);
+    std::vector<Config> conf = confloop(argv[1]);
 
-    Server server;
+    Server server(&conf[0]);
 
     server.Start();
 

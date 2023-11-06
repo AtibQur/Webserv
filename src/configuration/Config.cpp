@@ -34,7 +34,7 @@ Config::Config(std::vector<std::string> lines) : max_body_size(1000000) {
         findVarName(lines[index], index);
         index++;
     }
-    outputConfig();
+    // outputConfig();
 }
 
 /*
