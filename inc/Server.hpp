@@ -39,6 +39,7 @@ class Server {
 
         // get method functions
         void getMethod(Client* client);
+        int isMethodAllowed(Client* client);
         // post method functions
         void postMethod();
 

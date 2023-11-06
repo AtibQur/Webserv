@@ -33,7 +33,7 @@ int Client::parseRequest(std::string request, char* buffer) {
         return 1;
     }
     // parse header
-    std::cout << "the rest:" << request << std::endl;
+    // std::cout << "the rest:" << request << std::endl;
     return (0);
 
 
