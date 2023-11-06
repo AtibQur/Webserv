@@ -22,6 +22,7 @@ private:
     std::map<std::string, Location> _locations;
     std::vector<std::string> _lines;
     unsigned long long max_body_size;
+    std::map<std::string, std::string> error_pages;
 
 public:
     // STRUCTORS
