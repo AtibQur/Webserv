@@ -45,5 +45,13 @@ public:
     void outputLines();
     void outputServerNames();
 
+    // GETTERS
+    int getPort() { return _port; };
+    std::vector<std::string> getServerNames() { return _server_names; };
+    std::string getIndex() { return _index; };
+    std::string getRoot() { return _root; };
+    Location getLocation(std::string path) { return _locations[path]; };
+    unsigned long long getMaxBodySize() { return max_body_size; };
+
 };
 #endif

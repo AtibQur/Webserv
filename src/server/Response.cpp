@@ -24,6 +24,8 @@ void Server::createResponse(Client* client) {
 void Server::getMethod(Client* client) {
     // if index / 404 /upload open that page
     const char* file;
+    Location clientLocation = _conf->getLocation(client->getUri());
+    clientLocation.outputLocation();
     if (client->getUri() == "/")
         file = "docs/index.html";
     else if (client->getUri() == "/upload")
