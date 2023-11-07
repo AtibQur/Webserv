@@ -22,7 +22,7 @@ private:
     std::map<std::string, Location> _locations;
     std::vector<std::string> _lines;
     unsigned long long max_body_size;
-    std::map<std::string, std::string> error_pages;
+    std::map<std::string, std::string> _error_pages;
 
 public:
     // STRUCTORS
@@ -36,10 +36,10 @@ public:
 
     // SETTERS
     void setAttribute(std::string variable, std::string value, int &index, int line_i);
-    void setPort();
     void setLocation(std::string path, int &index);
     void setServerName(std::string server_name, int &index, int line_i);
     void setMaxBodySize(std::string value);
+    void setErrorPage(std::string value, int &index, int line_i);
 
     // OUTPUT
     void outputConfig();
