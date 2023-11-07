@@ -38,9 +38,7 @@ void Server::Start() {
     this->ListenToSocket();
     this->initEpoll();
 
-
-    Config config;
-    config.outputConfig();
+    // _conf->outputConfig();
 
     std::cout << "Server started, listening on port " << PORT << "..." << std::endl;
 

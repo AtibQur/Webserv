@@ -173,3 +173,11 @@ void Config::outputLines() {
     for (std::string line : _lines)
         std::cout << line << std::endl;
 }
+
+Location Config::getLocation(std::string path) 
+{
+    for (auto it = _locations.begin(); it != _locations.end(); it++)
+        return _locations[path];
+    Location nullLoaction;
+    return (nullLoaction);
+};
