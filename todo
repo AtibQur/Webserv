@@ -25,3 +25,4 @@ wanneer de epoll klaar is kan het een request handelen
 4. van STDOUT naar response naar de client
 
 SEGFAULT ONE METHOD
+DOESNT REACH BODy_SIZE

@@ -73,7 +73,7 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
         "index",
         "root",
         "location",
-        "max_body_size"
+        "max_body_size",
         "error_page"
     };
 
@@ -135,8 +135,6 @@ void Config::setErrorPage(std::string error_code, int &index, int line_i) {
         it++;
     while (it != line.end() && *it != ';' && *it != ' ' && *it != '\t')
         page += *it++;
-    std::cout << "error code: " << error_code << std::endl;
-    std::cout << "error page: " << page << std::endl;
     _error_pages[error_code] = page;
 }
 
