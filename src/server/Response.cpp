@@ -3,6 +3,13 @@
 /* Create a respond to the client */
 
 void Server::createResponse(Client* client) {
+    // check if the method is allowed in the config file
+    if (!isMethodAllowed(client))
+        std::cout << "Method is not allowed" << std::endl;
+    else
+        std::cout << "Method is allowed" << std::endl;
+    exit(0);
+
     int method = client->getNbMethod();
     switch (method)
     {
@@ -22,10 +29,17 @@ void Server::createResponse(Client* client) {
 }
     /* GET*/
 void Server::getMethod(Client* client) {
-    // if index / 404 /upload open that page
     const char* file;
-    Location clientLocation = _conf->getLocation(client->getUri());
-    clientLocation.outputLocation();
+    // Location clientLocation = _conf->getLocation(client->getUri());
+    // clientLocation.outputLocation();
+
+    // check method - not allowd - 400 method not allowd
+    // check uri - not found - 404 page not found
+    // good? - return index
+
+
+
+
     if (client->getUri() == "/")
         file = "docs/index.html";
     else if (client->getUri() == "/upload")
@@ -60,3 +74,11 @@ void Server::getMethod(Client* client) {
 // response zin eindigt met /r/n
 // hele response eidigt met /r/n/r/n
 // content length bepaalt of the body compleet is (als er een body is) 
+
+int Server::isMethodAllowed(Client *client)
+{
+    std::cout << "config" << std::endl;
+    Location clientLocation = _conf->getLocation(client->getUri());
+    clientLocation.outputLocation();
+    return (0);
+}
