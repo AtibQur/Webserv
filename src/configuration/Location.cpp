@@ -109,6 +109,8 @@ void Location::setMethods(std::vector<std::string> variables, int &index) {
     std::string methods = trim(variables[++index]);
     while (methods == "GET" || methods == "POST" || methods == "DELETE") {
         _methods.push_back(methods);
+        if (index + 1 == variables.size())
+            break;
         methods = variables[++index];
     }
 }

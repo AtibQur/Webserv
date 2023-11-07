@@ -34,7 +34,7 @@ Config::Config(std::vector<std::string> lines) : max_body_size(1000000) {
         findVarName(lines[index], index);
         index++;
     }
-    // outputConfig();
+    outputConfig();
 }
 
 /*
@@ -67,16 +67,17 @@ void Config::findVarName(std::string line, int &index) {
 }
 
 void Config::setAttribute(std::string variable, std::string value, int &index, int line_i) {
-    std::string options[6] = { // all possible options for server block
+    std::string options[7] = { // all possible options for server block
         "listen",
         "server_name",
         "index",
         "root",
         "location",
-        "max_body_size"
+        "max_body_size",
+        "error_page"
     };
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 7; i++) {
         if (variable == options[i]) { // if variable name matches expected name we store it
             switch (i) {
                 case 0:
@@ -96,6 +97,9 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
                     break;
                 case 5:
                     setMaxBodySize(value);
+                    break;
+                case 6:
+                    setErrorPage(value, index, line_i);
                     break;
             }
         }
@@ -123,6 +127,16 @@ void Config::setServerName(std::string server_name, int &index, int line_i) {
     }
 }
 
+void Config::setErrorPage(std::string error_code, int &index, int line_i) {
+    std::string page;
+    std::string line = _lines[index].substr(line_i); // start from index where page is
+    std::string::iterator it = line.begin();
+    while (it != line.end() && (*it == ' ' || *it == '\t')) // skip whitespace
+        it++;
+    while (it != line.end() && *it != ';' && *it != ' ' && *it != '\t')
+        page += *it++;
+    _error_pages[error_code] = page;
+}
 
 void Config::setMaxBodySize(std::string value) {
     max_body_size = std::stoull(value) * 1000000; // mutiply by a million to convert it to megabyte
@@ -161,7 +175,11 @@ void Config::outputConfig() {
         it->second.outputLocation();
     }
     std::cout << "max_body_size: " << max_body_size << std::endl;
-    std::cout << "----------------------------\n" << std::endl;
+    std::cout << "error_pages: " << std::endl;
+    for (auto it = _error_pages.begin(); it != _error_pages.end(); it++) {
+        std::cout << "error_code: " << it->first << std::endl;
+        std::cout << "error_page: " << it->second << std::endl;
+    }
 }
 
 void Config::outputServerNames() {
