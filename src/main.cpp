@@ -34,9 +34,9 @@ int main(int argc, char *argv[]) {
 
     std::vector<Config> conf = confloop(argv[1]);
 
-    // Server server(&conf[0]);
+    Server server(&conf[0]);
 
-    // server.Start();
+    server.Start();
 
     return 0;
 }

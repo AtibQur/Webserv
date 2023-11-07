@@ -53,6 +53,8 @@ public:
     std::string getRoot() { return _root; };
     Location getLocation(std::string path);
     unsigned long long getMaxBodySize() { return max_body_size; };
+    std::string getErrorPage(std::string code) { return _error_pages[code]; };
 
 };
+
 #endif

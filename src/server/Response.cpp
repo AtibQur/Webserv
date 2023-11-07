@@ -34,9 +34,6 @@ void Server::getMethod(Client* client) {
 
     std::cout << "INDEX: " << clientLocation.getIndex() << std::endl;
     
-    // good? - return index
-
-    
     if (client->getUri() == "/")
         file = "docs/index.html";
     else if (client->getUri() == "/upload")
@@ -71,34 +68,45 @@ void Server::getMethod(Client* client) {
 bool Server::isPathAndMethodAllowed(Client *client)
 {
     Location clientLocation = _conf->getLocation(client->getUri());
-    if (clientLocation.getPath().empty()){
-        throw std::invalid_argument("405");
+    if (clientLocation.getPath().empty())
+    {
+        throw std::invalid_argument("404");
     }
     std::vector<std::string> methods = clientLocation.getMethods();
     if (methods.empty())
         throw std::invalid_argument("400");
     std::vector<std::string>::iterator it = methods.begin();
-    for (it; it < methods.end(); it++){
+    for (it; it < methods.end(); it++)
+    {
          std::cout << *it << std::endl;
         if (client->getMethod() == *it)
             return true;
     }
     throw std::invalid_argument("400");
 }
+# define stdendl std::endl
 
-void Server::createErrorResponse(const std::string& errorMessage, Client *client){
-    std::cout << "HTTP/1.1 " << errorMessage << std::endl;
+void Server::createErrorResponse(const std::string& errorMessage, Client *client)
+{
+    std::string file;
+    std::string response;
 
-    const char* file;
-
-    file = "docs/error_pages/404.html";
+    file = _conf->getErrorPage(errorMessage);
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     htmlFile.close();
-    if (file == "docs/error_pages/404.html") {
-        // 404 page
-        std::string response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;;
-        send(client->getClientSocket(), response.c_str(), response.size(), 0);
+    if (file == "docs/error_pages/400.html") // 400
+    {
+        response = "HTTP/1.1 400 Bad Request\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
     }
+    if (file == "docs/error_pages/404.html") // 404
+    {
+        response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+    }
+    if (file == "docs/error_pages/405.html") // 405
+    {
+        response = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+    }
+    send(client->getClientSocket(), response.c_str(), response.size(), 0);
 }

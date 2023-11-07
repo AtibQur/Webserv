@@ -194,8 +194,8 @@ void Config::outputLines() {
 
 Location Config::getLocation(std::string path) 
 {
-    for (auto it = _locations.begin(); it != _locations.end(); it++)
-        return _locations[path];
+    if (_locations.find(path) != _locations.end())
+        return (_locations[path]);
     Location nullLoaction;
     return (nullLoaction);
 };
