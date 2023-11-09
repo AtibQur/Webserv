@@ -3,16 +3,22 @@
 /* Default constructor/destructor */
 
 Server::Server() {
-    _optval = 1;
     _MAX_EVENTS = 1000;
     _MAX_CLIENTS = 1000;
 }
 
-Server::Server(Config *conf) {
-    _optval = 1;
-    _MAX_EVENTS = 1000;
-    _MAX_CLIENTS = 1000;
-    this->_conf = conf;
+
+Server::Server(Config *conf) : _conf(conf) {
+    this->initServer();
+}
+
+void Server::initServer() {
+    this->initSocketFd();
+    this->initAddress();
+    this->initSocketOpt();
+    this->initNonBlock();
+    this->BindSocket();
+    _addrlen =  sizeof(_server_address);
 }
 
 Server::~Server() {
@@ -33,12 +39,6 @@ Server& Server::operator=(Server const &copy) {
 /* Server start */
 
 void Server::Start() {
-    this->CreateSocket();
-    this->BindSocketToPort();
-    this->ListenToSocket();
-    this->initEpoll();
-
-    // _conf->outputConfig();
 
     std::cout << "Server started, listening on port " << PORT << "..." << std::endl;
 
@@ -106,24 +106,56 @@ void Server::Start() {
     }
 }
 
-/* Create a socket and also set up signal handler */
+/* Create a socket */
 
-void Server::CreateSocket() {
+void Server::initSocketFd() {
     if ((this->_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-    setsockopt(_server_fd, SOL_SOCKET, SO_REUSEPORT, &_optval, sizeof(_optval)); // handle signals (ctrl+C)
+}
+
+/* Set up signal handler*/
+
+void Server::initSocketOpt() {
+    int optval = 1;
+
+    int opt = setsockopt(_server_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)); // handle signals (ctrl+C)
+    if (opt < 0) {
+        perror("setsockopt() failed");
+        close(this->_server_fd);
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* To make server socket non blocking*/
+
+void Server::initNonBlock() {
+    int result = fcntl(this->_server_fd, F_SETFL, O_NONBLOCK);
+    if (result < 0) {
+        perror("initNonBlock failed()");
+        close(this->_server_fd);
+        exit(EXIT_FAILURE);
+    }
 }
 
 /* assign socket addres and give the socket the adress/netwerk and port numbers */
 
-void Server::BindSocketToPort() {
-    this->_address.sin_family = AF_INET;
-    this->_address.sin_addr.s_addr = INADDR_ANY;
-    this->_address.sin_port = htons(PORT);
-    if (bind(this->_server_fd, (struct sockaddr *)&_address, sizeof(this->_address))<0) {
+void Server::initAddress() {
+    bzero((char*)&_server_address, sizeof(_server_address)); // clear memory of server address
+    _server_address.sin_family = AF_INET;
+    _server_address.sin_addr.s_addr = INADDR_ANY;
+    _server_address.sin_port = htons(PORT);
+    memset(_server_address.sin_zero, '\0', sizeof(_server_address)); // set remaining bytes to zero
+
+}
+
+/* Bind socket to server address*/
+
+void Server::BindSocket() {
+    if (bind(this->_server_fd, (struct sockaddr *)&_server_address, sizeof(this->_server_address)) < 0) {
         perror("bind failed");
+        close(this->_server_fd);
         exit(EXIT_FAILURE);
     }
 }
@@ -132,7 +164,8 @@ void Server::BindSocketToPort() {
 
 void Server::ListenToSocket() {
     if (listen(this->_server_fd, _MAX_CLIENTS) < 0) {
-        perror("listen");
+        perror("listen() failed");
+        close(this->_server_fd);
         exit(EXIT_FAILURE);
     }
 }

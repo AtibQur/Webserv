@@ -13,6 +13,7 @@ INC := -I $(INCLUDE_DIR)
 SRCS = 	main.cpp \
 		server/Server.cpp \
 		server/Response.cpp \
+		server/BigServer.cpp \
 		server/Post_Delete.cpp \
 		server/ServerRequest.cpp \
 		configuration/Config.cpp \
