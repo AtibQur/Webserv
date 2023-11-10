@@ -28,7 +28,4 @@
 #include "Location.hpp"
 #include "BigServer.hpp"
 
-/* config info */
-#define PORT 8080
-
 void ExitWithMessage(std::string message);

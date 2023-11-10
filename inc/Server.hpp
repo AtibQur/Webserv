@@ -9,17 +9,14 @@ class Config;
 class Server {
     private:
         int                 _server_fd;
-        int                 _new_socket;
         int                 _addrlen;
+        int                 _epoll;
         struct sockaddr_in  _server_address;
         Config              *_conf;
+        // int                 _MAX_EVENTS;
+        // int                 _new_socket;
+        // std::vector<int>    _client_sockets; // To keep track of client sockets
 
-        int                 _epoll_fd;
-        int                 _MAX_EVENTS;
-        int                 _MAX_CLIENTS;
-        std::vector<int>    _client_sockets; // To keep track of client sockets
-
-        
     public:
         Server();
         Server(std::vector<Config> conf);
@@ -36,7 +33,11 @@ class Server {
         void initNonBlock();
         void BindSocket();
         void ListenToSocket();
-        // void initEpoll();
+
+        void initServerEpoll(int epoll);
+
+        // GETTERS
+        int getSockFd() const {return this->_server_fd; };
 
         // response 
         bool isRequestComplete(std::string accumulatedRequestData);
