@@ -19,7 +19,6 @@ BigServer::~BigServer() {
     std::cout << "Big Server closed" << std::endl;
 }
 
-
 void BigServer::runBigServer() {
     initEpoll();
     while (1)
@@ -38,12 +37,9 @@ void BigServer::loopEvents() {
         if (index < 0) {
             perror("Index not found");
             exit(EXIT_FAILURE);
-        } 
-        // read:
-        // server->client connection
-        // client request
-        // write:
-        // client response
+        }
+        _server[index].clientAccept(_eventFd);
+        _server[index].getRequest(_eventFd);
     }
 }
 
@@ -56,7 +52,6 @@ int BigServer::findServerIndex(int eventFd) {
         }
         index++;
     }
-
     return 0;
 }
 

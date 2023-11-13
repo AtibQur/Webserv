@@ -9,7 +9,7 @@ void Server::createResponse(Client* client) {
         createErrorResponse(e.what(), client);
         return ;
     }
-
+    std::cout << client->getSocketFd() << std::endl;
     int method = client->getNbMethod();
     switch (method)
     {
@@ -47,20 +47,19 @@ void Server::getMethod(Client* client) {
     if (file == "docs/error_pages/404.html") {
         // 404 page
         std::string response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;;
-        send(client->getClientSocket(), response.c_str(), response.size(), 0);
+        send(client->getSocketFd(), response.c_str(), response.size(), 0);
     }
     // std::cout << client->getMethod() << std::endl;
-
     // Read the content of the index.html file
     std::ifstream indexFile("docs/index.html");
     if (!indexFile.is_open()) {
         // If the file can't be opened, send an error response
         char response[] = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
-        send(client->getClientSocket(), response, strlen(response), 0);
+        send(client->getSocketFd(), response, strlen(response), 0);
     } else {
         // Correct page
         std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-        send(client->getClientSocket(), response.c_str(), response.size(), 0);
+        send(client->getSocketFd(), response.c_str(), response.size(), 0);
     }
     printf("------------------Response sent-------------------\n");
 }
@@ -108,5 +107,5 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
     {
         response = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
     }
-    send(client->getClientSocket(), response.c_str(), response.size(), 0);
+    send(client->getSocketFd(), response.c_str(), response.size(), 0);
 }

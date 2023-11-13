@@ -11,10 +11,11 @@ class Server {
         int                 _server_fd;
         int                 _addrlen;
         int                 _epoll;
-        struct sockaddr_in  _server_address;
+        int                 _acceptFd;
+        struct sockaddr_in  _server_address,
+                            _client_address;
         Config              *_conf;
         // int                 _MAX_EVENTS;
-        // int                 _new_socket;
         // std::vector<int>    _client_sockets; // To keep track of client sockets
 
     public:
@@ -35,12 +36,14 @@ class Server {
         void ListenToSocket();
 
         void initServerEpoll(int epoll);
+        void clientAccept(int eventFd);
+        void getRequest(int eventFd);
 
         // GETTERS
         int getSockFd() const {return this->_server_fd; };
+        int getAcceptFd() const { return this->_acceptFd; };
 
         // response 
-        bool isRequestComplete(std::string accumulatedRequestData);
         void createResponse(Client* client);
         void createErrorResponse(const std::string& errorMessage, Client *client);
 
