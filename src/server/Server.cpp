@@ -41,76 +41,76 @@ Server& Server::operator=(Server const &copy) {
 
 /* Server start */
 
-// void Server::Start() {
+void Server::Start() {
 
-//     std::cout << "Server started, listening on port " << PORT << "..." << std::endl;
-
-
-//         while (1) {
-//         //  wait for events on file descriptors registered with epoll
-
-//         /*setup new event*/
-
-//          /* */
+    std::cout << "Server started, listening on port " << PORT << "..." << std::endl;
 
 
-//         /* */
-//         for (int i = 0; i < num_events; ++i) {
-//             if (events[i].data.fd == _server_fd) {
-//                 // New client connection
-//                 if ((this->_new_socket = accept(getSockFd(), (struct sockaddr *)&_address, (socklen_t *)&_addrlen)) < 0) {
-//                     perror("accept");
-//                     exit(EXIT_FAILURE);
-//                 }
-//         /* */
+        while (1) {
+        //  wait for events on file descriptors registered with epoll
 
-//                 // Add the new client socket to epoll
-//                 struct epoll_event client_event;
-//                 client_event.events = EPOLLIN;
-//                 client_event.data.fd = this->_new_socket;
-//                 if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, this->_new_socket, &client_event) < 0) {
-//                     perror("epoll_ctl (client)");
-//                     exit(EXIT_FAILURE);
-//                 }
-//                 this->_client_sockets.push_back(this->_new_socket);
-//             } else {
-//                 // Existing client socket ready for read
-//                 int client_socket = events[i].data.fd;
-//                 // read from the client request
-//                 char buffer[1024] = {0};
-//                 ssize_t bytes_read;
-//                 std::string accumulatedRequestData;
+        /*setup new event*/
 
-//                 while (1) {
-//                     bytes_read = read(client_socket, buffer, sizeof(buffer));
+         /* */
 
-//                     std::string HardcodedRequest = buffer; // hardcoded the string to work with for the response
 
-//                     if (bytes_read < 0) {
-//                         perror("Error reading from the client socket");
-//                         break ;
-//                     } else if (bytes_read == 0){
-//                         std::cout << "Connection closed by the client." << std::endl;
-//                         break ;
-//                     }
-//                     else {
-//                         accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
+        /* */
+        for (int i = 0; i < num_events; ++i) {
+            if (events[i].data.fd == _server_fd) {
+                // New client connection
+                if ((this->_new_socket = accept(getSockFd(), (struct sockaddr *)&_address, (socklen_t *)&_addrlen)) < 0) {
+                    perror("accept");
+                    exit(EXIT_FAILURE);
+                }
+        /* */
 
-//                         if (isRequestComplete(accumulatedRequestData)){
-//                             Client* client = new Client(client_socket); // create a client class
+                // Add the new client socket to epoll
+                struct epoll_event client_event;
+                client_event.events = EPOLLIN;
+                client_event.data.fd = this->_new_socket;
+                if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, this->_new_socket, &client_event) < 0) {
+                    perror("epoll_ctl (client)");
+                    exit(EXIT_FAILURE);
+                }
+                this->_client_sockets.push_back(this->_new_socket);
+            } else {
+                // Existing client socket ready for read
+                int client_socket = events[i].data.fd;
+                // read from the client request
+                char buffer[1024] = {0};
+                ssize_t bytes_read;
+                std::string accumulatedRequestData;
 
-//                             client->handleRequest(accumulatedRequestData, buffer); // parse the request with this client
-//                             createResponse(client); // send a response
-//                             delete client; // delete the client after the response
-//                             close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
-//                             break ;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
+                while (1) {
+                    bytes_read = read(client_socket, buffer, sizeof(buffer));
+
+                    std::string HardcodedRequest = buffer; // hardcoded the string to work with for the response
+
+                    if (bytes_read < 0) {
+                        perror("Error reading from the client socket");
+                        break ;
+                    } else if (bytes_read == 0){
+                        std::cout << "Connection closed by the client." << std::endl;
+                        break ;
+                    }
+                    else {
+                        accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
+
+                        if (isRequestComplete(accumulatedRequestData)){
+                            Client* client = new Client(client_socket); // create a client class
+
+                            client->handleRequest(accumulatedRequestData, buffer); // parse the request with this client
+                            createResponse(client); // send a response
+                            delete client; // delete the client after the response
+                            close (client_socket); // close the connection (still need to delete the socket from the _client_sockets);
+                            break ;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 /* Create a socket */
 

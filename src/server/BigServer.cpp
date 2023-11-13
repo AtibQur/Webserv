@@ -68,7 +68,6 @@ void BigServer::setupNewEvents() {
     }
 }
 
-
 void BigServer::initEpoll() {
     _epoll = epoll_create1(0);
     if (_epoll < 0) {
