@@ -6,7 +6,6 @@ int Client::     parseRequest(std::string request, char* buffer) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    std::cout << "request" << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
@@ -39,7 +38,6 @@ int Client::     parseRequest(std::string request, char* buffer) {
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n
     // content length bepaalt of the body compleet is (als er een body is) 
-
 
     return (0);
 }

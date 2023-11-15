@@ -22,7 +22,7 @@ void Server::initServer() {
 }
 
 Server::~Server() {
-    std::cout << "Server closed" << std::endl;
+    // std::cout << "Server closed" << std::endl;
 }
 
 Server::Server(Server const &copy) {
@@ -53,7 +53,7 @@ void Server::clientAccept(int eventFd) {
 void Server::getRequest(int eventFd) {
 
     Client *client = new Client(getAcceptFd());
-    // client->readBuffer();
+    client->readBuffer();
     this->createResponse(client);
 }
 

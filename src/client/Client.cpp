@@ -58,6 +58,7 @@ void Client::readBuffer() {
             perror("Error reading from the client socket");
         } else if (bytes_read == 0){
             std::cout << "Connection closed by the client." << std::endl;
+            close (getSocketFd());
         }
         else
         {
@@ -65,8 +66,7 @@ void Client::readBuffer() {
             if (isRequestComplete(accumulatedRequestData)) 
             {
                 handleRequest(accumulatedRequestData, buffer); // parse the request with this client
-                // delete client ?
-                close (getSocketFd()); // close the connection
+                // close or delete client?
                 break ;
             }
         }

@@ -3,29 +3,58 @@
 /* Create a respond to the client */
 
 void Server::createResponse(Client* client) {
-    // try {
-    //     isPathAndMethodAllowed(client); // check if the path and method are in the config file
-    // } catch (const std::exception& e) {
-    //     createErrorResponse(e.what(), client);
-    //     return ;
-    // }
-    getMethod(client);
-
+    try {
+        isPathAndMethodAllowed(client);
+    } catch (const std::exception& e) {
+        createErrorResponse(e.what(), client);
+        return ;
+    }
+    int method = client->getNbMethod();
+    switch (method)
+    {
+        case 1:
+            getMethod(client);
+            break;
+        case 2:
+            postMethod();
+            break;
+        case 3:
+            break;
+        default:
+            std::cout << "default method" << std::endl;
+    }
 }
-    /* GET*/
+
+/* GET*/
 void Server::getMethod(Client* client) {
     const char* file;
     Location clientLocation = _conf->getLocation(client->getUri());
 
-    file = "docs/index.html";
+    if (client->getUri() == "/")
+        file = "docs/index.html";
+    else if (client->getUri() == "/upload")
+        file = "docs/upload.html";
+    else 
+        file = "docs/error_pages/404.html";
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+
     htmlFile.close();
+    if (file == "docs/error_pages/404.html") {
+        std::string response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;;
+        send(client->getSocketFd(), response.c_str(), response.size(), 0);
+    }
 
-    std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-    send(client->getSocketFd(), response.c_str(), response.size(), 0);
 
+    std::ifstream indexFile("docs/index.html");
+    if (!indexFile.is_open()) {
+        char response[] = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
+        send(client->getSocketFd(), response, strlen(response), 0);
+    } else {
+        std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+        send(client->getSocketFd(), response.c_str(), response.size(), 0);
+    }
     printf("------------------Response sent-------------------\n");
 }
 
@@ -47,7 +76,7 @@ bool Server::isPathAndMethodAllowed(Client *client)
     }
     throw std::invalid_argument("400");
 }
-
+# define stdendl std::endl
 
 void Server::createErrorResponse(const std::string& errorMessage, Client *client)
 {

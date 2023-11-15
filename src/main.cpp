@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    std::cout << "server is running..." << std::endl;
     std::vector<Config> conf = confloop(argv[1]);
     BigServer bigServer(conf);
 
