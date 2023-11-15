@@ -122,8 +122,6 @@ void Location::outputLocation() {
         std::cout << "index: " << _index << std::endl;
     if (!_methods.empty()) {
         std::cout << "methods: " << std::endl;
-        for (std::string method : _methods)
-            std::cout << method << std::endl;
     }
     if (!_path.empty())
         std::cout << "path: " << _path << std::endl;

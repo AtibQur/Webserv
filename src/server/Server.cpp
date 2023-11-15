@@ -12,8 +12,8 @@ Server::Server(Config *conf) : _server_fd(-1), _conf(conf) {
 }
 
 void Server::initServer() {
-    this->initSocketFd();
     this->initAddress();
+    this->initSocketFd();
     this->initSocketOpt();
     this->initNonBlock();
     this->BindSocket();
@@ -42,8 +42,8 @@ Server& Server::operator=(Server const &copy) {
 
 void Server::clientAccept(int eventFd) {
 
-    _acceptFd = accept(eventFd, (struct sockaddr *)&_client_address, (socklen_t *)&_addrlen);
-    if (_acceptFd < 0)
+    _acceptFd = accept(eventFd, (struct sockaddr *)&_client_address, &_addrlen);
+    if (_acceptFd == -1)
     {
         perror("client Accept() error");
         exit(EXIT_FAILURE);
@@ -53,7 +53,7 @@ void Server::clientAccept(int eventFd) {
 void Server::getRequest(int eventFd) {
 
     Client *client = new Client(getAcceptFd());
-    client->readBuffer();
+    // client->readBuffer();
     this->createResponse(client);
 }
 
@@ -61,7 +61,7 @@ void Server::getRequest(int eventFd) {
 
 void Server::initSocketFd() {
     _server_fd =  socket(AF_INET, SOCK_STREAM, 0);
-    if (_server_fd < 0) {
+    if (_server_fd == -1) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
@@ -74,7 +74,7 @@ void Server::initSocketOpt() {
 
     // reuseaddr
     int opt = setsockopt(getSockFd(), SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)); // handle signals (ctrl+C)
-    if (opt < 0) {
+    if (opt == -1) {
         perror("setsockopt() failed");
         close(getSockFd());
         exit(EXIT_FAILURE);
@@ -105,7 +105,7 @@ void Server::initAddress() {
 /* Bind socket to server address*/
 
 void Server::BindSocket() {
-    if (bind(getSockFd(), (struct sockaddr *)&_server_address, sizeof(this->_server_address)) < 0) {
+    if (bind(getSockFd(), (struct sockaddr *)&_server_address, sizeof(this->_server_address)) == -1) {
         perror("bind failed");
         close(getSockFd());
         exit(EXIT_FAILURE);
@@ -115,7 +115,7 @@ void Server::BindSocket() {
 /* listen to incoming socket connection and have a max amount of people in queue */
 
 void Server::ListenToSocket() {
-    if (listen(getSockFd(), SOMAXCONN) < 0) {
+    if (listen(getSockFd(), 20) == -1) {
         perror("listen() failed");
         close(getSockFd());
         exit(EXIT_FAILURE);

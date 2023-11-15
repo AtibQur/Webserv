@@ -9,11 +9,11 @@ class Config;
 class Server {
     private:
         int                 _server_fd;
-        int                 _addrlen;
         int                 _epoll;
         int                 _acceptFd;
         struct sockaddr_in  _server_address,
                             _client_address;
+        socklen_t           _addrlen;
         Config              *_conf;
         // int                 _MAX_EVENTS;
         // std::vector<int>    _client_sockets; // To keep track of client sockets

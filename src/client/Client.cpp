@@ -49,6 +49,7 @@ void Client::readBuffer() {
     char buffer[1024] = {0};
     ssize_t bytes_read;
     std::string accumulatedRequestData;
+    std::string hardcodedrequest;
 
     while (1)
     {
@@ -64,7 +65,7 @@ void Client::readBuffer() {
             if (isRequestComplete(accumulatedRequestData)) 
             {
                 handleRequest(accumulatedRequestData, buffer); // parse the request with this client
-                // delete client;
+                // delete client ?
                 close (getSocketFd()); // close the connection
                 break ;
             }
