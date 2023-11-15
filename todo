@@ -1,25 +1,15 @@
-// niet perse in volgorde
-* Zorg dat epoll meerdere connecties kan handelen;
-* Maak client class;
-* Maak config parser {
-    * Zorg dat main loop werkt voor meerdere servers;
-    * Maak server constructor die alles initialzieert;
-}
-* Maak parser voor client requests;
-* Zorg dat de client fd geconnect wordt met de server fd;
-
 // request parser
-Approach:
 1. Data lezen in stukken in een while(1) loop 
 2. parse de header en check voor \r\n\r\n. Met dit kan je ervan uitgaan dat de request header compleet is
 3. Kijk naar de content-length. als het er is, is er een body. De length geeft aan hoeveel data er in de body zit en is een indicatie hoeveel data je al hebt ontvangen
 4. Parse de request body (alleen bij post requests). Blijf de data in chuncks lezen, wanneer de binnengekomende length matched met de content-length, is de gehele request compleet.
 
-// voor cgi and post
+// cgi and post
 pipe aanmaken en de write kant toevoegen aan epoll
 wanneer de epoll klaar is kan het een request handelen
-
 1. CGi request binnen
 2. de body duppen naar STDIN
 3. excev naar een python script dat de inpout naar STDOUT convert
 4. van STDOUT naar response naar de client
+
+// juiste response sturen
