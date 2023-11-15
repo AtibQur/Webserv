@@ -18,7 +18,8 @@ void Server::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
-            postMethod();
+            postMethod(client);
+            std::cout << client->getUri() << std::endl;
             break;
         case 3:
             std::cout << "DELETE method" << std::endl;
