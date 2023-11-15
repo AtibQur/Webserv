@@ -1,10 +1,9 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-class Client
-{
+class Client {
 private:
-    int clientSocket;
+    // int clientSocket;
 
 	// request line information
 	std::string _method;
@@ -14,12 +13,17 @@ private:
 	std::map <std::string, std::string> headerMap;
 	// request body
 	std::string _boundary;
+	int 		_socketFd;
+
+	std::string _requestBuffer;
 public:
     Client();
-    Client(int client_socket);
+    Client(int newSocketFd);
     ~Client();
     Client(Client const &copy);
     Client &operator=(Client const &copy);
+
+	void readBuffer();
 
 	// parser
     void	saveClientRequest(char* buffer, int client_socket);
@@ -29,10 +33,13 @@ public:
 	void	createErrorResponse(const std::string& errorMessage);
 	int		parseRequest(std::string request, char* buffer);
 
+	bool isRequestComplete(std::string accumulatedRequestData);
+	int getSocketFd() const { return this->_socketFd; };
+
 	// getters
-	int			getClientSocket() { return clientSocket; };
+	// int			getClientSocket() { return clientSocket; };
 	std::string getMethod() { return _method; };
-  int			getNbMethod();
+	int			getNbMethod();
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
 };

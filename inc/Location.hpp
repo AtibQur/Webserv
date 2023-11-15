@@ -11,7 +11,7 @@ private:
 
 public:
     // STRUCTORS
-    Location() {};
+    Location();
     Location(std::string index, std::vector<std::string> methods, std::string path);
     ~Location() {};
 

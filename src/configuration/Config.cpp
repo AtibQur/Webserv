@@ -34,7 +34,7 @@ Config::Config(std::vector<std::string> lines) : max_body_size(1000000) {
         findVarName(lines[index], index);
         index++;
     }
-    outputConfig();
+    // outputConfig();
 }
 
 /*
@@ -191,3 +191,11 @@ void Config::outputLines() {
     for (std::string line : _lines)
         std::cout << line << std::endl;
 }
+
+Location Config::getLocation(std::string path) 
+{
+    if (_locations.find(path) != _locations.end())
+        return (_locations[path]);
+    Location nullLoaction;
+    return (nullLoaction);
+};

@@ -9,37 +9,47 @@ class Config;
 class Server {
     private:
         int                 _server_fd;
-        int                 _new_socket;
-        struct sockaddr_in  _address;
-        int _addrlen = sizeof(_address);
+        int                 _epoll;
+        int                 _acceptFd;
+        struct sockaddr_in  _server_address,
+                            _client_address;
+        socklen_t           _addrlen;
         Config              *_conf;
+        // int                 _MAX_EVENTS;
+        // std::vector<int>    _client_sockets; // To keep track of client sockets
 
-        int                 _epoll_fd;
-        int                 _MAX_EVENTS;
-        int                 _MAX_CLIENTS;
-        std::vector<int>    _client_sockets; // To keep track of client sockets
-        int                 _optval;
-        
     public:
         Server();
+        Server(std::vector<Config> conf);
         Server(Config *conf);
         ~Server();
         Server(Server const &copy);
         Server &operator=(Server const &copy);
 
-        void Start();
-        void CreateSocket();
-        void BindSocketToPort();
+        void initServer();
+        // void Start();
+        void initSocketFd();
+        void initAddress();
+        void initSocketOpt();
+        void initNonBlock();
+        void BindSocket();
         void ListenToSocket();
-        void initEpoll();
+
+        void initServerEpoll(int epoll);
+        void clientAccept(int eventFd);
+        void getRequest(int eventFd);
+
+        // GETTERS
+        int getSockFd() const {return this->_server_fd; };
+        int getAcceptFd() const { return this->_acceptFd; };
 
         // response 
-        bool isRequestComplete(std::string accumulatedRequestData);
         void createResponse(Client* client);
+        void createErrorResponse(const std::string& errorMessage, Client *client);
 
         // get method functions
         void getMethod(Client* client);
-        int isMethodAllowed(Client* client);
+        bool isPathAndMethodAllowed(Client* client);
         // post method functions
         void postMethod();
 

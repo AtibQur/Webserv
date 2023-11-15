@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/epoll.h>
+#include <fcntl.h>
 
 /* CPP Libraries */
 #include <iostream>
@@ -25,8 +26,6 @@
 #include "Client.hpp"
 #include "Response.hpp"
 #include "Location.hpp"
-
-/* config info */
-#define PORT 8080
+#include "BigServer.hpp"
 
 void ExitWithMessage(std::string message);

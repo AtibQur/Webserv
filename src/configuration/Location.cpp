@@ -1,5 +1,10 @@
 #include "Location.hpp"
 
+Location::Location(){
+    _path = "";
+    _index = "";
+}
+
 Location::Location(std::string index, std::vector<std::string> methods, std::string path) {
     _index = index;
     _methods = methods;
@@ -117,8 +122,6 @@ void Location::outputLocation() {
         std::cout << "index: " << _index << std::endl;
     if (!_methods.empty()) {
         std::cout << "methods: " << std::endl;
-        for (std::string method : _methods)
-            std::cout << method << std::endl;
     }
     if (!_path.empty())
         std::cout << "path: " << _path << std::endl;
