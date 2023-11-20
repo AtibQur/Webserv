@@ -56,6 +56,8 @@ void Client::readBuffer() {
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
         if (bytes_read < 0) {
             perror("Error reading from the client socket");
+            close (getSocketFd());
+            break ;
         } else if (bytes_read == 0){
             std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
