@@ -14,12 +14,10 @@ void Server::createResponse(Client* client) {
     switch (method)
     {
         case 1:
-            std::cout << "GET method" << std::endl;
             getMethod(client);
             break;
         case 2:
             postMethod(client);
-            std::cout << client->getUri() << std::endl;
             break;
         case 3:
             std::cout << "DELETE method" << std::endl;
@@ -31,16 +29,12 @@ void Server::createResponse(Client* client) {
     /* GET*/
 void Server::getMethod(Client* client) {
     const char* file;
+    std::string stringfile;
     Location clientLocation = _conf->getLocation(client->getUri());
 
-    std::cout << "INDEX: " << clientLocation.getIndex() << std::endl;
-    
-    if (client->getUri() == "/")
-        file = "docs/index.html";
-    else if (client->getUri() == "/upload")
-        file = "docs/upload.html";
-    else 
-        file = "docs/error_pages/404.html";
+    stringfile = "docs/" + clientLocation.getIndex();
+    file = stringfile.c_str();
+
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
