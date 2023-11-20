@@ -51,7 +51,7 @@ class Server {
         void getMethod(Client* client);
         bool isPathAndMethodAllowed(Client* client);
         // post method functions
-        void postMethod();
+        void postMethod(Client *client);
 
 };
 

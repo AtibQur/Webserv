@@ -6,6 +6,7 @@ int Client::     parseRequest(std::string request, char* buffer) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
+    // std::cout << "the request: " << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
@@ -14,7 +15,7 @@ int Client::     parseRequest(std::string request, char* buffer) {
     if (!checkMethod(tmp)){
         throw std::invalid_argument("405 Method Not Allowed");
     }
-    _method = tmp;
+    _method = tmp; 
     getline (httpRequest, tmp, ' ');
 
     if (tmp.empty())
@@ -32,7 +33,6 @@ int Client::     parseRequest(std::string request, char* buffer) {
         std::cout << "the request is not complete" << std::endl;
         return 1;
     }
-
     // parse header
 
     // response zin eindigt met /r/n

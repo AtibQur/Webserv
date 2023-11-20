@@ -16,7 +16,7 @@ void Server::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
-            postMethod();
+            postMethod(client);
             break;
         case 3:
             break;
@@ -28,14 +28,12 @@ void Server::createResponse(Client* client) {
 /* GET*/
 void Server::getMethod(Client* client) {
     const char* file;
+    std::string stringfile;
     Location clientLocation = _conf->getLocation(client->getUri());
 
-    if (client->getUri() == "/")
-        file = "docs/index.html";
-    else if (client->getUri() == "/upload")
-        file = "docs/upload.html";
-    else 
-        file = "docs/error_pages/404.html";
+    stringfile = "docs/" + clientLocation.getIndex();
+    file = stringfile.c_str();
+
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
