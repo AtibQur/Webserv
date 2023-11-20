@@ -2,7 +2,7 @@
 
 /* Parse the client request */
 
-int Client::parseRequest(std::string request, char* buffer) {
+int Client::     parseRequest(std::string request, char* buffer) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
@@ -33,16 +33,13 @@ int Client::parseRequest(std::string request, char* buffer) {
         std::cout << "the request is not complete" << std::endl;
         return 1;
     }
-    std::cout << getUri() << std::endl;
-    std::cout << getProtocol() << std::endl;
-    std::cout << getMethod() << std::endl;
     // parse header
-    // std::cout << "the rest:" << request << std::endl;
-    return (0);
 
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n
     // content length bepaalt of the body compleet is (als er een body is) 
+
+    return (0);
 }
 
 // check if the requestline is valid
