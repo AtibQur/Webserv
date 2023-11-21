@@ -75,7 +75,6 @@ void Client::readBuffer() {
             {
                 handleRequest(accumulatedRequestData, buffer, post); // parse the request with this client
                 // close or delete client?
-                close (getSocketFd());
                 break ;
             }
         }

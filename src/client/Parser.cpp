@@ -28,26 +28,49 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         throw std::invalid_argument("400 Bad Request: Only protocol HTTP/1.1 is allowed");
     _protocol = tmp;
 
-    std::cout << "the request line is valid" << std::endl;
     // start header
 
-    if (request.find("\r\n\r\n") == std::string::npos && !post){
+    if (request.find("\r\n\r\n") == std::string::npos){
         std::cout << "the request is not complete" << std::endl;
         return 1;
-    } else
+    } else if (_method == "GET"){
+        std::cout << "the request is complete" << std::endl;
         return 0;
-    // parse header
-
-    ssize_t index;
-    while (getline(httpRequest, tmp)) {
-        if (tmp == "--" + _boundary)
-            break ;
-        if (index = tmp.find("boundary="))
-            _boundary = tmp.substr(index);
-        else if (index = tmp.find("Content-Length: "))
-            _contentLength = std::stoi(tmp.substr(index + 16));
     }
+    // parse header
+    while (getline(httpRequest, tmp)) {
+        if (tmp.find("--" + _boundary) != std::string::npos)
+            break ;
+        if (tmp.find("boundary=") != std::string::npos) {
+            _boundary = tmp.substr(tmp.find("boundary") + 9);
+        }
+        if (tmp.find("Content-Length:") != std::string::npos) {
+            _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
+        }
+    }
+    getline(httpRequest, tmp);
+    getline(httpRequest, tmp);
+    getline(httpRequest, tmp);
+    getline(httpRequest, tmp);
 
+
+
+    std::ofstream bodyfile;
+    // parse body
+
+    bodyfile.open ("root/body.txt");
+    while (getline(httpRequest, tmp)) {
+        if (tmp.find(_boundary + "--") != std::string::npos)
+            break ;
+        bodyfile << tmp << std::endl;
+    }
+    bodyfile.close();
+
+    // std::ifstream in_file("root/body.txt", std::ios::binary);
+    // in_file.seekg(0, std::ios::end);
+    // int file_size = in_file.tellg();
+    // std::cout<<"Size of the file is"<<" "<< file_size<<" "<<"bytes";
+    // std::cout << _contentLength << std::endl;
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n
     // content length bepaalt of the body compleet is (als er een body is) 

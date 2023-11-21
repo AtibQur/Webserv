@@ -13,8 +13,7 @@ private:
 	std::map <std::string, std::string> headerMap;
 	// request body
 	std::string _boundary;
-	ssize_t		_contentLength;
-	std::string _body;
+	long long	_contentLength;
 
 	int 		_socketFd;
 
