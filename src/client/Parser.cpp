@@ -2,11 +2,12 @@
 
 /* Parse the client request */
 
-int Client::     parseRequest(std::string request, char* buffer) {
+int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // std::cout << "the request: " << request << std::endl;
+
+    // std::cout << "the request is: " << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
@@ -29,11 +30,23 @@ int Client::     parseRequest(std::string request, char* buffer) {
 
     std::cout << "the request line is valid" << std::endl;
     // start header
-    if (request.find("\r\n\r\n") == std::string::npos){
+
+    if (request.find("\r\n\r\n") == std::string::npos && !post){
         std::cout << "the request is not complete" << std::endl;
         return 1;
-    }
+    } else
+        return 0;
     // parse header
+
+    ssize_t index;
+    while (getline(httpRequest, tmp)) {
+        if (tmp == "--" + _boundary)
+            break ;
+        if (index = tmp.find("boundary="))
+            _boundary = tmp.substr(index);
+        else if (index = tmp.find("Content-Length: "))
+            _contentLength = std::stoi(tmp.substr(index + 16));
+    }
 
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n

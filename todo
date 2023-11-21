@@ -13,3 +13,9 @@ wanneer de epoll klaar is kan het een request handelen
 4. van STDOUT naar response naar de client
 
 // juiste response sturen
+
+check content length for post keep looping till no bytes read
+
+alles onder boundary copy naar file naam filename in root
+
+goed!

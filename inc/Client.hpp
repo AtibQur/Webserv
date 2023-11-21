@@ -13,6 +13,9 @@ private:
 	std::map <std::string, std::string> headerMap;
 	// request body
 	std::string _boundary;
+	ssize_t		_contentLength;
+	std::string _body;
+
 	int 		_socketFd;
 
 	std::string _requestBuffer;
@@ -27,13 +30,13 @@ public:
 
 	// parser
     void	saveClientRequest(char* buffer, int client_socket);
-	int		handleRequest(std::string request, char *buffer);
+	int		handleRequest(std::string request, char *buffer, ssize_t post);
 	bool	checkRequestLine(std::string httpRequest);
 	bool	checkMethod(std::string tmp);
 	void	createErrorResponse(const std::string& errorMessage);
-	int		parseRequest(std::string request, char* buffer);
+	int		parseRequest(std::string request, char* buffer, ssize_t post);
 
-	bool isRequestComplete(std::string accumulatedRequestData);
+	bool isRequestComplete(std::string accumulatedRequestData, ssize_t post);
 	int getSocketFd() const { return this->_socketFd; };
 
 	// getters
