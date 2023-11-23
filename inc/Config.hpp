@@ -26,7 +26,7 @@ private:
 
 public:
     // STRUCTORS
-    Config() : max_body_size(1000000) {};
+    Config() : max_body_size(1000000), _root("root") {};
     Config(std::vector<std::string> lines);
     ~Config() {};
 

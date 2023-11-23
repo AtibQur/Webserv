@@ -2,12 +2,37 @@
 
 /* Parse the client request */
 
+std::string subTillQuotation(std::string str, size_t index) {
+    std::string tmp = "";
+    size_t pos = str.find("\"", index + 10);
+    if (pos != std::string::npos) {
+        tmp = str.substr(index, pos - index);
+    }
+    return tmp;
+}
+
+std::string subTillBackR(std::string str, size_t index) {
+    std::string tmp = "";
+    size_t pos = str.find("\r", index);
+    if (pos != std::string::npos) {
+        tmp = str.substr(index, pos - index);
+    }
+    return tmp;
+}
+
+void Client::checkBytesInFIle() {
+    std::ifstream in_file("root/body.txt", std::ios::binary);
+    in_file.seekg(0, std::ios::end);
+    int file_size = in_file.tellg();
+    std::cout<<"Size of the file is"<<" "<< file_size<<" "<<"bytes";
+}
+
 int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
 
-    // std::cout << "the request is: " << request << std::endl;
+    std::cout << "the request is: " << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
@@ -49,28 +74,26 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         }
     }
     getline(httpRequest, tmp);
+    if (tmp.find("filename=") != std::string::npos)
+        _fileNameBody = subTillQuotation(tmp, tmp.find("filename=") + 10);
     getline(httpRequest, tmp);
+    if (tmp.find("Content-Type:") != std::string::npos)
+        _contentType = subTillBackR(tmp, tmp.find("Content-Type:") + 14);
     getline(httpRequest, tmp);
+    std::cout << tmp << std::endl;
     getline(httpRequest, tmp);
 
+    // std::ofstream bodyfile;
+    // // parse body
 
+    // bodyfile.open ("root/body.txt");
+    // while (getline(httpRequest, tmp)) {
+    //     if (tmp.find(_boundary + "--") != std::string::npos)
+    //         break ;
+    //     bodyfile << tmp << std::endl;
+    // }
+    // bodyfile.close();
 
-    std::ofstream bodyfile;
-    // parse body
-
-    bodyfile.open ("root/body.txt");
-    while (getline(httpRequest, tmp)) {
-        if (tmp.find(_boundary + "--") != std::string::npos)
-            break ;
-        bodyfile << tmp << std::endl;
-    }
-    bodyfile.close();
-
-    // std::ifstream in_file("root/body.txt", std::ios::binary);
-    // in_file.seekg(0, std::ios::end);
-    // int file_size = in_file.tellg();
-    // std::cout<<"Size of the file is"<<" "<< file_size<<" "<<"bytes";
-    // std::cout << _contentLength << std::endl;
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n
     // content length bepaalt of the body compleet is (als er een body is) 

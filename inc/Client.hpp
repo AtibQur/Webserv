@@ -14,6 +14,8 @@ private:
 	// request body
 	std::string _boundary;
 	long long	_contentLength;
+	std::string _fileNameBody;
+	std::string _contentType;
 
 	int 		_socketFd;
 
@@ -44,6 +46,8 @@ public:
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
+
+	void Client::checkBytesInFile();
 };
 
 #endif
