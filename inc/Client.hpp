@@ -1,6 +1,8 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+class Location;
+
 class Client {
 private:
     // int clientSocket;
@@ -16,13 +18,15 @@ private:
 	long long	_contentLength;
 	std::string _fileNameBody;
 	std::string _contentType;
+	std::map <std::string, std::string> _error_pages;
+	std::map <std::string, Location> _location;
 
 	int 		_socketFd;
 
 	std::string _requestBuffer;
 public:
     Client();
-    Client(int newSocketFd);
+    Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations);
     ~Client();
     Client(Client const &copy);
     Client &operator=(Client const &copy);

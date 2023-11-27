@@ -52,7 +52,7 @@ void Server::clientAccept(int eventFd) {
 
 void Server::getRequest(int eventFd) {
 
-    Client *client = new Client(getAcceptFd());
+    Client *client = new Client(getAcceptFd(), _conf->getErrorPages(), _conf->getLocations());
     client->readBuffer();
     this->createResponse(client);
 }

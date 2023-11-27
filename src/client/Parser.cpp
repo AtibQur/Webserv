@@ -2,18 +2,9 @@
 
 /* Parse the client request */
 
-std::string subTillQuotation(std::string str, size_t index) {
+std::string subTillChar(std::string str, size_t index, char c) {
     std::string tmp = "";
-    size_t pos = str.find("\"", index + 10);
-    if (pos != std::string::npos) {
-        tmp = str.substr(index, pos - index);
-    }
-    return tmp;
-}
-
-std::string subTillBackR(std::string str, size_t index) {
-    std::string tmp = "";
-    size_t pos = str.find("\r", index);
+    size_t pos = str.find(c, index);
     if (pos != std::string::npos) {
         tmp = str.substr(index, pos - index);
     }
@@ -32,7 +23,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::string tmp;
 
 
-    std::cout << "the request is: " << request << std::endl;
+    // std::cout << "the request is: " << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
@@ -66,25 +57,36 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     while (getline(httpRequest, tmp)) {
         if (tmp.find("--" + _boundary) != std::string::npos)
             break ;
-        if (tmp.find("boundary=") != std::string::npos) {
+        if (tmp.find("Content-Type:") != std::string::npos) {
+            _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, ';');
             _boundary = tmp.substr(tmp.find("boundary") + 9);
         }
         if (tmp.find("Content-Length:") != std::string::npos) {
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
+    if (_contentLength == 0)
+        throw std::invalid_argument("400 Bad Request: Content-Length is 0");
+    if (_contentType.empty())
+        throw std::invalid_argument("400 Bad Request: Content-Type is empty");
+    if (_boundary.empty())
+        throw std::invalid_argument("400 Bad Request: Boundary is empty");
+    if (_contentLength > 1000000) // needs to be updated from conf file
+        throw std::invalid_argument("413 Payload Too Large: Content-Length is too large");
+    if (_contentType != "multipart/form-data")
+        return (0); // for when its text or www-form-urlencoded
+
     getline(httpRequest, tmp);
     if (tmp.find("filename=") != std::string::npos)
-        _fileNameBody = subTillQuotation(tmp, tmp.find("filename=") + 10);
+        _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
     getline(httpRequest, tmp);
     if (tmp.find("Content-Type:") != std::string::npos)
-        _contentType = subTillBackR(tmp, tmp.find("Content-Type:") + 14);
+        _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
     getline(httpRequest, tmp);
-    std::cout << tmp << std::endl;
     getline(httpRequest, tmp);
 
     // std::ofstream bodyfile;
-    // // parse body
+    // // // parse body
 
     // bodyfile.open ("root/body.txt");
     // while (getline(httpRequest, tmp)) {
