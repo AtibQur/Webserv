@@ -14,13 +14,13 @@ private:
 	// header information
 	std::map <std::string, std::string> headerMap;
 	// request body
+	std::string _body;
 	std::string _boundary;
 	long long	_contentLength;
 	std::string _fileNameBody;
 	std::string _contentType;
 	std::map <std::string, std::string> _error_pages;
 	std::map <std::string, Location> _location;
-	std::string _body;
 
 	int 		_socketFd;
 

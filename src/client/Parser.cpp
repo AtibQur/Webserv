@@ -106,16 +106,25 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     // if (tmp.find("Content-Type:") != std::string::npos)
     //     _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
 
-    // std::ofstream bodyfile;
+    std::stringstream ss(_body);
+    std::string read;
+    std::ofstream bodyfile;
     // // // parse body
 
-    // bodyfile.open ("root/body.txt");
-    // while (getline(httpRequest, tmp)) {
-    //     if (tmp.find(_boundary + "--") != std::string::npos)
-    //         break ;
-    //     bodyfile << tmp << std::endl;
-    // }
-    // bodyfile.close();
+    bodyfile.open ("root/body");
+    while (getline(ss, read, '\n'))
+		{
+			if (read.compare("--" + _boundary + "\r") == 0) {
+				break;
+			}
+			if (read.compare("--" + _boundary + "--\r") == 0)
+			{
+				break;
+			}
+			bodyfile << read;
+			bodyfile << std::endl;
+		}
+    bodyfile.close();
 
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n
