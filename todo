@@ -22,4 +22,5 @@ goed!
 
 Kijk of hij loopt tot nieuw line;
 if so parse alles erna naar _body 
+kijk ff hoe dit werkt met string allocation en max sizes blabla
 daarna pars naar file
