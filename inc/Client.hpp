@@ -47,7 +47,7 @@ public:
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
 
-	void Client::checkBytesInFile();
+	void checkBytesInFile();
 };
 
 #endif

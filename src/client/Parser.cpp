@@ -20,7 +20,7 @@ std::string subTillBackR(std::string str, size_t index) {
     return tmp;
 }
 
-void Client::checkBytesInFIle() {
+void Client::checkBytesInFile() {
     std::ifstream in_file("root/body.txt", std::ios::binary);
     in_file.seekg(0, std::ios::end);
     int file_size = in_file.tellg();
