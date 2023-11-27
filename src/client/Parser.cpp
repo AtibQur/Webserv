@@ -18,6 +18,21 @@ void Client::checkBytesInFile() {
     std::cout<<"Size of the file is"<<" "<< file_size<<" "<<"bytes";
 }
 
+void ptn(std::string str) {
+    std::cout << str << std::endl;
+    int i = 0;
+    while (str[i]) {
+        if (str[i] == '\r')
+            std::cout << "r";
+        else if (str[i] == '\n')
+            std::cout << "n";
+        else
+            std::cout << str[i];
+        i++;
+        break ;
+    }
+}
+
 int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
@@ -82,8 +97,9 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     getline(httpRequest, tmp);
     if (tmp.find("Content-Type:") != std::string::npos)
         _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
+     getline(httpRequest, tmp);
     getline(httpRequest, tmp);
-    getline(httpRequest, tmp);
+
 
     // std::ofstream bodyfile;
     // // // parse body

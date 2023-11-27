@@ -19,3 +19,7 @@ check content length for post keep looping till no bytes read
 alles onder boundary copy naar file naam filename in root
 
 goed!
+
+Kijk of hij loopt tot nieuw line;
+if so parse alles erna naar _body 
+daarna pars naar file
