@@ -20,6 +20,7 @@ private:
 	std::string _contentType;
 	std::map <std::string, std::string> _error_pages;
 	std::map <std::string, Location> _location;
+	std::string _body;
 
 	int 		_socketFd;
 

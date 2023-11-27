@@ -91,15 +91,20 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     if (_contentType != "multipart/form-data")
         return (0); // for when its text or www-form-urlencoded
 
-    getline(httpRequest, tmp);
-    if (tmp.find("filename=") != std::string::npos)
-        _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
-    getline(httpRequest, tmp);
-    if (tmp.find("Content-Type:") != std::string::npos)
-        _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
-     getline(httpRequest, tmp);
-    getline(httpRequest, tmp);
-
+    // parse body
+    while (getline(httpRequest, tmp)) {
+        if (tmp.find(_boundary + "--") != std::string::npos)
+            break ;
+        _body.append(tmp);
+        _body.append("\n");
+    }
+    std::cout << "the body is: " << _body << std::endl;
+    // getline(httpRequest, tmp);
+    // if (tmp.find("filename=") != std::string::npos)
+    //     _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
+    // getline(httpRequest, tmp);
+    // if (tmp.find("Content-Type:") != std::string::npos)
+    //     _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
 
     // std::ofstream bodyfile;
     // // // parse body
