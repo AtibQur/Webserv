@@ -34,14 +34,41 @@ void BigServer::loopEvents() {
         event = _events[i];
         _eventFd = event.data.fd;
         int index = findServerIndex(_eventFd);
-        if (index < 0) {
-            perror("Index not found");
-            exit(EXIT_FAILURE);
-        }
-        _server[index].clientAccept(_eventFd);
-        _server[index].getRequest(_eventFd);
+        if (index >= 0)
+            ConnectNewClient(index, _eventFd);
+        // else if (event.events & EPOLLIN) 
+        // {
+            _server[index].getRequest(_eventFd); // client
+            std::cout << "get request" << std::endl;
+        // } 
+        // else if (event.events & EPOLLOUT) 
+        // {
+            _server[index].sendResponse(_eventFd);
+            std::cout << "send response" << std::endl;
+        // }
     }
 }
+
+void BigServer::ConnectNewClient(int index, int eventFd) 
+{
+    _server[index].clientAccept(eventFd);
+    _server[index].createNewClient();
+}
+
+// void BigServer::loopEvents() {
+//     struct epoll_event event;
+//     for (int i = 0; i < _num_events; i++) {
+//         event = _events[i];
+//         _eventFd = event.data.fd;
+//         int index = findServerIndex(_eventFd);
+//         if (index < 0) {
+//             perror("Index not found");
+//             exit(EXIT_FAILURE);
+//         }
+//         _server[index].clientAccept(_eventFd);
+//         _server[index].getRequest(_eventFd);
+//     }
+// }
 
 int BigServer::findServerIndex(int eventFd) {
     int index = 0;
@@ -75,7 +102,7 @@ void BigServer::initEpoll() {
         event.events = EPOLLIN;
         event.data.fd = server.getSockFd();
         if (epoll_ctl(_epoll, EPOLL_CTL_ADD, server.getSockFd(), &event) < 0) {
-            perror("epoll_ctl");
+            perror("epoll_ctl"); 
             exit(EXIT_FAILURE);
         }
         server.initServerEpoll(_epoll);

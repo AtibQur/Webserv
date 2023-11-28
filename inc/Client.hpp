@@ -1,6 +1,8 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+class Server;
+
 class Client {
 private:
     // int clientSocket;
@@ -23,20 +25,21 @@ public:
     Client(Client const &copy);
     Client &operator=(Client const &copy);
 
-	void readBuffer();
+	void readBuffer(Server* server);
 
 	// parser
     void	saveClientRequest(char* buffer, int client_socket);
-	int		handleRequest(std::string request, char *buffer);
+	void	handleRequest(Server* server, std::string request);
 	bool	checkRequestLine(std::string httpRequest);
 	bool	checkMethod(std::string tmp);
-	void	createErrorResponse(const std::string& errorMessage);
-	int		parseRequest(std::string request, char* buffer);
+	int		parseRequest(std::string request);
 
 	bool isRequestComplete(std::string accumulatedRequestData);
 	int getSocketFd() const { return this->_socketFd; };
 
 	// getters
+	std::string getRequestBuffer() const { return this->_requestBuffer; };
+
 	// int			getClientSocket() { return clientSocket; };
 	std::string getMethod() { return _method; };
 	int			getNbMethod();

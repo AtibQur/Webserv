@@ -29,6 +29,7 @@ public:
     void setupNewEvents();
     void loopEvents();
     void ConnectNewClient(int index, int eventFd);
+    void clientAccept(int eventFd);
 
     int findServerIndex(int eventFd);
     int getEpoll() { return this->_epoll; };

@@ -50,11 +50,21 @@ void Server::clientAccept(int eventFd) {
     }
 }
 
+void Server::createNewClient(){
+    _client = new Client(getAcceptFd());
+    std::cout << "client created: " << _client->getSocketFd() << std::endl;
+}
+
 void Server::getRequest(int eventFd) {
 
-    Client *client = new Client(getAcceptFd());
-    client->readBuffer();
-    this->createResponse(client);
+    // Client *client = new Client(getAcceptFd());
+    _client->readBuffer(this); // and respond
+}
+
+void Server::sendResponse(int eventFd){
+
+    _client->handleRequest(this, _client->getRequestBuffer());
+    std::cout << "send an response" << std::endl;
 }
 
 /* Create a socket */

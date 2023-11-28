@@ -20,20 +20,6 @@ Client& Client::operator=(Client const &copy) {
     return *this;
 }
 
-int Client::handleRequest(std::string request, char *buffer) {
-    try {
-        parseRequest(request, buffer);
-    } catch (const std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
-        createErrorResponse(e.what());
-    }
-    return (0);
-}
-
-void Client::createErrorResponse(const std::string& errorMessage) {
-    std::cout << "response: " << std::endl;
-}
-
 int Client::getNbMethod() { 
     if (_method == "GET") 
         return 1; 
@@ -44,13 +30,14 @@ int Client::getNbMethod() {
     return (0);
 }
 
-void Client::readBuffer() {
+void Client::readBuffer(Server* server) {
 
     char buffer[1024] = {0};
     ssize_t bytes_read;
     std::string accumulatedRequestData;
     std::string hardcodedrequest;
 
+    std::cout << "request: " << buffer << std::endl;
     while (1)
     {
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
@@ -61,14 +48,15 @@ void Client::readBuffer() {
         } else if (bytes_read == 0){
             std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
+            break ;
         }
         else
         {
-            accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
-            if (isRequestComplete(accumulatedRequestData)) 
+            _requestBuffer.append(buffer, bytes_read); // append the request and break when it's complete
+            if (isRequestComplete(_requestBuffer)) 
             {
-                handleRequest(accumulatedRequestData, buffer); // parse the request with this client
-                // close or delete client?
+                // handleRequest(server, _requestBuffer); // parse the request with this client
+                std::cout<< "complete" << std::endl;
                 break ;
             }
         }
@@ -86,4 +74,14 @@ bool Client::isRequestComplete(std::string accumulatedRequestData){
         std::cout << "the request is complete" << std::endl;
         return true;
     }
+}
+
+void Client::handleRequest(Server* server, std::string request) {
+    try {
+        parseRequest(request);
+    } catch (const std::exception& e) {
+        server->createErrorResponse(e.what(), this);
+        return ;
+    }
+    server->createResponse(this);
 }

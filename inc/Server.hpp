@@ -15,8 +15,8 @@ class Server {
                             _client_address;
         socklen_t           _addrlen;
         Config              *_conf;
-        // int                 _MAX_EVENTS;
-        // std::vector<int>    _client_sockets; // To keep track of client sockets
+
+        Client*             _client;
 
     public:
         Server();
@@ -37,11 +37,14 @@ class Server {
 
         void initServerEpoll(int epoll);
         void clientAccept(int eventFd);
+        void createNewClient();
         void getRequest(int eventFd);
+        void	sendResponse(int eventFd);
 
         // GETTERS
         int getSockFd() const {return this->_server_fd; };
         int getAcceptFd() const { return this->_acceptFd; };
+        Client* getServerClient() const { return this->_client; };
 
         // response 
         void createResponse(Client* client);
