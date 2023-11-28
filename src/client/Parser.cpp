@@ -92,38 +92,33 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         return (0); // for when its text or www-form-urlencoded
 
     // parse body
+    getline(httpRequest, tmp);
+    if (tmp.find("filename=") != std::string::npos)
+        _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
+    getline(httpRequest, tmp);
+    if (tmp.find("Content-Type:") != std::string::npos)
+        _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
+    getline(httpRequest, tmp);
+
     while (getline(httpRequest, tmp)) {
         if (tmp.find(_boundary + "--") != std::string::npos)
             break ;
         _body.append(tmp);
         _body.append("\n");
     }
-    std::cout << "the body is: " << _body << std::endl;
-    // getline(httpRequest, tmp);
-    // if (tmp.find("filename=") != std::string::npos)
-    //     _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
-    // getline(httpRequest, tmp);
-    // if (tmp.find("Content-Type:") != std::string::npos)
-    //     _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
 
     std::stringstream ss(_body);
     std::string read;
     std::ofstream bodyfile;
     // // // parse body
 
-    bodyfile.open ("root/body");
-    while (getline(ss, read, '\n'))
-		{
-			if (read.compare("--" + _boundary + "\r") == 0) {
+    bodyfile.open ("root/" + _fileNameBody, std::ios::out | std::ios::binary);
+    while (getline(ss, read, '\n')) {
+			if (read.compare("--" + _boundary + "--") == 0)
 				break;
-			}
-			if (read.compare("--" + _boundary + "--\r") == 0)
-			{
-				break;
-			}
 			bodyfile << read;
 			bodyfile << std::endl;
-		}
+	}
     bodyfile.close();
 
     // response zin eindigt met /r/n
