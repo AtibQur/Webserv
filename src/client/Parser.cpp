@@ -2,11 +2,43 @@
 
 /* Parse the client request */
 
-int Client::     parseRequest(std::string request, char* buffer) {
+std::string subTillChar(std::string str, size_t index, char c) {
+    std::string tmp = "";
+    size_t pos = str.find(c, index);
+    if (pos != std::string::npos) {
+        tmp = str.substr(index, pos - index);
+    }
+    return tmp;
+}
+
+void Client::checkBytesInFile() {
+    std::ifstream in_file("root/body.txt", std::ios::binary);
+    in_file.seekg(0, std::ios::end);
+    int file_size = in_file.tellg();
+    std::cout<<"Size of the file is"<<" "<< file_size<<" "<<"bytes";
+}
+
+void ptn(std::string str) {
+    std::cout << str << std::endl;
+    int i = 0;
+    while (str[i]) {
+        if (str[i] == '\r')
+            std::cout << "r";
+        else if (str[i] == '\n')
+            std::cout << "n";
+        else
+            std::cout << str[i];
+        i++;
+        break ;
+    }
+}
+
+int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // std::cout << "the request: " << request << std::endl;
+
+    // std::cout << "the request is: " << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
@@ -27,13 +59,67 @@ int Client::     parseRequest(std::string request, char* buffer) {
         throw std::invalid_argument("400 Bad Request: Only protocol HTTP/1.1 is allowed");
     _protocol = tmp;
 
-    std::cout << "the request line is valid" << std::endl;
     // start header
+
     if (request.find("\r\n\r\n") == std::string::npos){
         std::cout << "the request is not complete" << std::endl;
         return 1;
+    } else if (_method == "GET"){
+        std::cout << "the request is complete" << std::endl;
+        return 0;
     }
     // parse header
+    while (getline(httpRequest, tmp)) {
+        if (tmp.find("--" + _boundary) != std::string::npos)
+            break ;
+        if (tmp.find("Content-Type:") != std::string::npos) {
+            _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, ';');
+            _boundary = tmp.substr(tmp.find("boundary") + 9);
+        }
+        if (tmp.find("Content-Length:") != std::string::npos) {
+            _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
+        }
+    }
+    if (_contentLength == 0)
+        throw std::invalid_argument("400 Bad Request: Content-Length is 0");
+    if (_contentType.empty())
+        throw std::invalid_argument("400 Bad Request: Content-Type is empty");
+    if (_boundary.empty())
+        throw std::invalid_argument("400 Bad Request: Boundary is empty");
+    if (_contentLength > 1000000) // needs to be updated from conf file
+        throw std::invalid_argument("413 Payload Too Large: Content-Length is too large");
+    if (_contentType != "multipart/form-data")
+        return (0); // for when its text or www-form-urlencoded
+
+    // parse body
+    getline(httpRequest, tmp);
+    if (tmp.find("filename=") != std::string::npos)
+        _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
+    getline(httpRequest, tmp);
+    if (tmp.find("Content-Type:") != std::string::npos)
+        _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
+    getline(httpRequest, tmp);
+
+    while (getline(httpRequest, tmp)) {
+        if (tmp.find(_boundary + "--") != std::string::npos)
+            break ;
+        _body.append(tmp);
+        _body.append("\n");
+    }
+
+    std::stringstream ss(_body);
+    std::string read;
+    std::ofstream bodyfile;
+    // // // parse body
+
+    bodyfile.open ("root/" + _fileNameBody, std::ios::out | std::ios::binary);
+    while (getline(ss, read, '\n')) {
+			if (read.compare("--" + _boundary + "--") == 0)
+				break;
+			bodyfile << read;
+			bodyfile << std::endl;
+	}
+    bodyfile.close();
 
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n

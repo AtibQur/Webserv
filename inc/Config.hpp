@@ -26,7 +26,7 @@ private:
 
 public:
     // STRUCTORS
-    Config() : max_body_size(1000000) {};
+    Config() : max_body_size(1000000), _root("root") {};
     Config(std::vector<std::string> lines);
     ~Config() {};
 
@@ -54,6 +54,8 @@ public:
     Location getLocation(std::string path);
     unsigned long long getMaxBodySize() { return max_body_size; };
     std::string getErrorPage(std::string code) { return _error_pages[code]; };
+    std::map<std::string, std::string> getErrorPages() { return _error_pages; };
+    std::map<std::string, Location> getLocations() { return _locations; };
 
 };
 
