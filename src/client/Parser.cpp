@@ -65,7 +65,6 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         std::cout << "the request is not complete" << std::endl;
         return 1;
     } else if (_method == "GET"){
-        std::cout << "the request is complete" << std::endl;
         return 0;
     }
     // parse header
@@ -112,7 +111,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::ofstream bodyfile;
     // // // parse body
 
-    bodyfile.open ("root/" + _fileNameBody, std::ios::out | std::ios::binary);
+    bodyfile.open ("root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
 			if (read.compare("--" + _boundary + "--") == 0)
 				break;
