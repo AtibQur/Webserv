@@ -13,3 +13,60 @@ wanneer de epoll klaar is kan het een request handelen
 4. van STDOUT naar response naar de client
 
 // juiste response sturen
+
+check content length for post keep looping till no bytes read
+
+alles onder boundary copy naar file naam filename in root
+
+goed!
+
+Kijk of hij loopt tot nieuw line;
+if so parse alles erna naar _body 
+kijk ff hoe dit werkt met string allocation en max sizes blabla
+daarna pars naar file
+
+///////////////////////////////////////////////////////////////////////
+
+for (int i = 0; i < numEvents; ++i) {
+    if (events[i].data.fd == serverSocket) {
+        // Handle new connections (already handled in the previous example)
+    } else {
+        // Handle data from clients
+        if (events[i].events & EPOLLIN) {
+            // Read data from the client
+            char buffer[1024];
+            int bytesRead = recv(events[i].data.fd, buffer, sizeof(buffer), 0);
+
+            if (bytesRead > 0) {
+                // Process the received data (you can replace this with your own logic)
+                buffer[bytesRead] = '\0';
+                std::cout << "Received data from client " << events[i].data.fd << ": " << buffer << std::endl;
+            } else if (bytesRead == 0) {
+                // Connection closed by the client
+                std::cout << "Client " << events[i].data.fd << " disconnected." << std::endl;
+                close(events[i].data.fd);
+                epoll_ctl(epollFd, EPOLL_CTL_DEL, events[i].data.fd, nullptr);
+            } else {
+                // Error in recv
+                perror("Error in recv");
+                close(events[i].data.fd);
+                epoll_ctl(epollFd, EPOLL_CTL_DEL, events[i].data.fd, nullptr);
+            }
+        }
+
+        if (events[i].events & EPOLLOUT) {
+            // Write data to the client
+            const char* message = "Hello, client!";
+            int bytesWritten = send(events[i].data.fd, message, strlen(message), 0);
+
+            if (bytesWritten == -1) {
+                // Error in send
+                perror("Error in send");
+                close(events[i].data.fd);
+                epoll_ctl(epollFd, EPOLL_CTL_DEL, events[i].data.fd, nullptr);
+            } else {
+                std::cout << "Sent data to client " << events[i].data.fd << ": " << message << std::endl;
+            }
+        }
+    }
+}

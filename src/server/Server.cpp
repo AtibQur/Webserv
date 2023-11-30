@@ -42,29 +42,34 @@ Server& Server::operator=(Server const &copy) {
 
 void Server::clientAccept(int eventFd) {
 
-    _acceptFd = accept(eventFd, (struct sockaddr *)&_client_address, &_addrlen);
-    if (_acceptFd == -1)
+    std::cout << eventFd << "\n";
+    _clientAcceptFd = accept(eventFd, (struct sockaddr *)&_client_address, &_addrlen);
+    if (_clientAcceptFd == -1)
     {
         perror("client Accept() error");
         exit(EXIT_FAILURE);
     }
 }
 
-void Server::createNewClient(){
-    _client = new Client(getAcceptFd());
-    std::cout << "client created: " << _client->getSocketFd() << std::endl;
+void Server::createNewClient() {
+    Client *newClient = new Client(getAcceptFd(), _conf->getErrorPages(), _conf->getLocations());
+
+    struct epoll_event event;
+
+    event.events = EPOLLIN | EPOLLOUT;
+    event.data.fd = getAcceptFd();
+    if (epoll_ctl(_epoll, EPOLL_CTL_ADD, getAcceptFd(), &event) < 0){
+        perror("epoll_ctl read error");
+    }
 }
 
-void Server::getRequest(int eventFd) {
-
-    // Client *client = new Client(getAcceptFd());
-    _client->readBuffer(this); // and respond
+void Server::getRequest(struct epoll_event &event) {
+    client->readBuffer(this);
 }
 
-void Server::sendResponse(int eventFd){
-
-    _client->handleRequest(this, _client->getRequestBuffer());
-    std::cout << "send an response" << std::endl;
+void Server::sendResponse(struct epoll_event &event){
+    // _client->handleRequest(this, _client->getRequestBuffer());
+    this->createResponse(client);
 }
 
 /* Create a socket */

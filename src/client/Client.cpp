@@ -1,9 +1,12 @@
 #include "../../inc/main.hpp"
 
-Client::Client() : _socketFd(-1), _requestBuffer("") {
+Client::Client() : _socketFd(-1), _requestBuffer(""), _boundary("UNSET") {
+    std::cout << "hey" << "\n";
 }
 
-Client::Client(int newSocketFd) : _socketFd(newSocketFd) {
+Client::Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) : _socketFd(newSocketFd), _boundary("UNSET") {
+    _error_pages = ErrorPages;
+    _location = Locations;
 }
 
 Client::~Client() {
@@ -31,13 +34,13 @@ int Client::getNbMethod() {
 }
 
 void Client::readBuffer(Server* server) {
-
+    ssize_t post = 0;
+    ssize_t i = 0;
     char buffer[1024] = {0};
     ssize_t bytes_read;
     std::string accumulatedRequestData;
     std::string hardcodedrequest;
 
-    std::cout << "request: " << buffer << std::endl;
     while (1)
     {
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
@@ -48,24 +51,33 @@ void Client::readBuffer(Server* server) {
         } else if (bytes_read == 0){
             std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
-            break ;
+        } else if (i = 0) {
+            if (buffer[0] == 'P' && buffer[1] == 'O' && buffer[2] == 'S' && buffer[3] == 'T' && buffer[4] == ' ')
+                post = 1;
         }
         else
         {
-            _requestBuffer.append(buffer, bytes_read); // append the request and break when it's complete
-            if (isRequestComplete(_requestBuffer)) 
+            accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
+            if (bytes_read == 1024)
+                continue ;
+            if (isRequestComplete(accumulatedRequestData, post)) 
             {
-                // handleRequest(server, _requestBuffer); // parse the request with this client
-                std::cout<< "complete" << std::endl;
+                handleRequest(server , accumulatedRequestData, buffer, post);
                 break ;
             }
         }
+        i++;
     }
 }
 
-bool Client::isRequestComplete(std::string accumulatedRequestData){
+bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post){
     ssize_t requestEnd;
-    requestEnd = accumulatedRequestData.find("\r\n\r\n");
+    std::string boundary;
+    ssize_t startOfBoundary = accumulatedRequestData.find("boundary=");
+    if (post)
+        requestEnd = accumulatedRequestData.find("\r\n\r\n");
+    else
+        requestEnd = accumulatedRequestData.find("\r\n\r\n");
     if (requestEnd == std::string::npos){
         std::cout << "the request is not complete" << std::endl;
         return false;
@@ -76,12 +88,10 @@ bool Client::isRequestComplete(std::string accumulatedRequestData){
     }
 }
 
-void Client::handleRequest(Server* server, std::string request) {
+void Client::handleRequest(Server *server, std::string request, char *buffer, ssize_t post) {
     try {
-        parseRequest(request);
+        parseRequest(request, buffer, post);
     } catch (const std::exception& e) {
         server->createErrorResponse(e.what(), this);
-        return ;
     }
-    server->createResponse(this);
 }

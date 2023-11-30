@@ -36,16 +36,16 @@ void BigServer::loopEvents() {
         int index = findServerIndex(_eventFd);
         if (index >= 0)
             ConnectNewClient(index, _eventFd);
+
         // else if (event.events & EPOLLIN) 
         // {
-            _server[index].getRequest(_eventFd); // client
-            std::cout << "get request" << std::endl;
+            _server[index].getRequest(event);
         // } 
         // else if (event.events & EPOLLOUT) 
-        // {
-            _server[index].sendResponse(_eventFd);
-            std::cout << "send response" << std::endl;
+        // {    
+            // _server[index].sendResponse(event); // fix error responses and put it in this 
         // }
+
     }
 }
 

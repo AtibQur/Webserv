@@ -78,6 +78,7 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
     std::cout << errorMessage << "\n";
 
     file = _conf->getErrorPage(errorMessage);
+    std::cout << file << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
@@ -90,21 +91,24 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
     };
 
     for (int i = 0; i < 4; i++) {
-        switch (i) {
-            case 1:
-                response = "HTTP/1.1 400 Bad Request\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-                break;
-            case 2:
-                response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-                break;
-            case 3:
-                response = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-                break;
-            case 4:
-                response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-                break;
+        if (file == array[i]) {
+            switch (i) {
+                case 0:
+                    response = "HTTP/1.1 400 Bad Request\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    break;
+                case 1:
+                    response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    break;
+                case 2:
+                    response = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    break;
+                case 3:
+                    response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    break;
+            }
         }
     }
+    std::cout << "!response: " << response << std::endl;
     send(client->getSocketFd(), response.c_str(), response.size(), 0);
     printf("------------------Error Response sent-------------------\n");
 }

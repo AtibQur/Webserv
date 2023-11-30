@@ -10,13 +10,14 @@ class Server {
     private:
         int                 _server_fd;
         int                 _epoll;
-        int                 _acceptFd;
+        int                  _clientAcceptFd;
         struct sockaddr_in  _server_address,
                             _client_address;
         socklen_t           _addrlen;
         Config              *_conf;
 
         Client*             _client;
+        std::string         _response;
 
     public:
         Server();
@@ -38,12 +39,12 @@ class Server {
         void initServerEpoll(int epoll);
         void clientAccept(int eventFd);
         void createNewClient();
-        void getRequest(int eventFd);
-        void	sendResponse(int eventFd);
+        void getRequest(struct epoll_event &event);
+        void sendResponse(struct epoll_event &event);
 
         // GETTERS
         int getSockFd() const {return this->_server_fd; };
-        int getAcceptFd() const { return this->_acceptFd; };
+        int getAcceptFd() const { return this-> _clientAcceptFd; };
         Client* getServerClient() const { return this->_client; };
 
         // response 
