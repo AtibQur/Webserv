@@ -89,6 +89,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         throw std::invalid_argument("413 Payload Too Large: Content-Length is too large");
     if (_contentType != "multipart/form-data")
         return (0); // for when its text or www-form-urlencoded
+    std::cout << _contentType << std::endl;
 
     // parse body
     getline(httpRequest, tmp);

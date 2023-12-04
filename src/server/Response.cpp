@@ -62,9 +62,15 @@ void Server::getMethod(Client* client) {
 bool Server::isPathAndMethodAllowed(Client *client)
 {
     Location clientLocation = _conf->getLocation(client->getUri());
+    std::cout << "hier" << std::endl;
     if (clientLocation.getPath().empty())
     {
         throw std::invalid_argument("404");
+    }
+    if ("/root/" + access(client->getUri().c_str(), F_OK) == 0)
+    {
+        std::cout << client->getUri() << std::endl;
+        return true;
     }
     std::vector<std::string> methods = clientLocation.getMethods();
     if (methods.empty())
