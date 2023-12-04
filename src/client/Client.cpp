@@ -1,12 +1,19 @@
 #include "../../inc/main.hpp"
 
-Client::Client() : _socketFd(-1), _requestBuffer(""), _boundary("UNSET") {
-    std::cout << "hey" << "\n";
+Client::Client() : _requestBuffer(""), _boundary("UNSET") {
+    m_socketFd = -1;
 }
 
-Client::Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) : _socketFd(newSocketFd), _boundary("UNSET") {
+Client::Client(const Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) : _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
+
+    m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
+    if (m_socketFd == -1)
+    {
+        perror("client Accept() error");
+        exit(EXIT_FAILURE);
+    }
 }
 
 Client::~Client() {
@@ -18,7 +25,7 @@ Client::Client(Client const &copy) {
 }
 
 Client& Client::operator=(Client const &copy) {
-    this->_socketFd = copy._socketFd;
+    this->m_socketFd = copy.m_socketFd;
     this->_requestBuffer = copy._requestBuffer;
     return *this;
 }
@@ -33,7 +40,7 @@ int Client::getNbMethod() {
     return (0);
 }
 
-void Client::readBuffer(Server* server) {
+void Client::readBuffer() {
     ssize_t post = 0;
     ssize_t i = 0;
     char buffer[1024] = {0};
@@ -62,12 +69,29 @@ void Client::readBuffer(Server* server) {
                 continue ;
             if (isRequestComplete(accumulatedRequestData, post)) 
             {
-                handleRequest(server , accumulatedRequestData, buffer, post);
+                // modify epoll
+                modifyEpoll(this);
+                std::cout << "request: " << accumulatedRequestData << std::endl;
+                // handleRequest(server , accumulatedRequestData, buffer, post);
                 break ;
             }
         }
         i++;
     }
+}
+
+void Client::modifyEpoll(Socket *ptr){
+    struct epoll_event event;
+    event.events = EPOLLOUT;
+
+    event.data.ptr = ptr;
+
+    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, m_socketFd, &event) == -1) {
+        perror("epoll_ctl mod out"); 
+        exit(EXIT_FAILURE);
+    }
+
+    std::cout << "modified epoll" << std::endl;
 }
 
 bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post){

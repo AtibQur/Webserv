@@ -10,12 +10,13 @@ class BigServer
 {
 private:
     std::vector<Config> _config;
-    std::vector<Server> _server;
+    std::vector<Server *> _server;
 
     int _epoll;
     int _num_events;
     int _MAX_EVENTS;
     int _eventFd;
+
 
     struct epoll_event _events[10];
 
@@ -28,7 +29,7 @@ public:
     void initEpoll();
     void setupNewEvents();
     void loopEvents();
-    void ConnectNewClient(int index, int eventFd);
+    void ConnectNewClient(Server *server, int eventFd);
     void clientAccept(int eventFd);
 
     int findServerIndex(int eventFd);

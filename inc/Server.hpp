@@ -6,9 +6,8 @@
 class Client;
 class Config;
 
-class Server {
+class Server : public Socket {
     private:
-        int                 _server_fd;
         int                 _epoll;
         int                  _clientAcceptFd;
         struct sockaddr_in  _server_address,
@@ -38,15 +37,17 @@ class Server {
 
         void initServerEpoll(int epoll);
         void clientAccept(int eventFd);
+        void AddClientToEpoll();
         void createNewClient();
         void getRequest(struct epoll_event &event);
         void sendResponse(struct epoll_event &event);
 
         // GETTERS
-        int getSockFd() const {return this->_server_fd; };
+        Config *getConf() const { return this->_conf; };
+        int getSockFd() const {return this->m_socketFd; };
         int getAcceptFd() const { return this-> _clientAcceptFd; };
         Client* getServerClient() const { return this->_client; };
-
+        int getEpoll() const { return this->_epoll; };
         // response 
         void createResponse(Client* client);
         void createErrorResponse(const std::string& errorMessage, Client *client);

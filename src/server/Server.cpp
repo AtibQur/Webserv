@@ -7,7 +7,8 @@ Server::Server() {
 }
 
 
-Server::Server(Config *conf) : _server_fd(-1), _conf(conf) {
+Server::Server(Config *conf) : _conf(conf) {
+    m_socketFd = -1;
     this->initServer();
 }
 
@@ -30,7 +31,7 @@ Server::Server(Server const &copy) {
 }
 
 Server& Server::operator=(Server const &copy) {
-    this->_server_fd = copy._server_fd;
+    this->m_socketFd = copy.m_socketFd;
     this->_addrlen = copy._addrlen;
     this->_server_address = copy._server_address;
     this->_conf = copy._conf;
@@ -40,43 +41,32 @@ Server& Server::operator=(Server const &copy) {
     return *this;
 }
 
-void Server::clientAccept(int eventFd) {
+// void Server::createNewClient() {
+//     Client *newClient = new Client(getAcceptFd(), _conf->getErrorPages(), _conf->getLocations());
 
-    std::cout << eventFd << "\n";
-    _clientAcceptFd = accept(eventFd, (struct sockaddr *)&_client_address, &_addrlen);
-    if (_clientAcceptFd == -1)
-    {
-        perror("client Accept() error");
-        exit(EXIT_FAILURE);
-    }
-}
+//     struct epoll_event event;
 
-void Server::createNewClient() {
-    Client *newClient = new Client(getAcceptFd(), _conf->getErrorPages(), _conf->getLocations());
+//     event.events = EPOLLIN;
+//     event.data.fd = getAcceptFd();
+//     if (epoll_ctl(_epoll, EPOLL_CTL_ADD, getAcceptFd(), &event) < 0){
+//         perror("epoll_ctl read error");
+//     }
+// }
 
-    struct epoll_event event;
+// void Server::getRequest(struct epoll_event &event) {
+//     client->readBuffer(this);
+// }
 
-    event.events = EPOLLIN | EPOLLOUT;
-    event.data.fd = getAcceptFd();
-    if (epoll_ctl(_epoll, EPOLL_CTL_ADD, getAcceptFd(), &event) < 0){
-        perror("epoll_ctl read error");
-    }
-}
-
-void Server::getRequest(struct epoll_event &event) {
-    client->readBuffer(this);
-}
-
-void Server::sendResponse(struct epoll_event &event){
-    // _client->handleRequest(this, _client->getRequestBuffer());
-    this->createResponse(client);
-}
+// void Server::sendResponse(struct epoll_event &event){
+//     // _client->handleRequest(this, _client->getRequestBuffer());
+//     this->createResponse(client);
+// }
 
 /* Create a socket */
 
 void Server::initSocketFd() {
-    _server_fd =  socket(AF_INET, SOCK_STREAM, 0);
-    if (_server_fd == -1) {
+    m_socketFd =  socket(AF_INET, SOCK_STREAM, 0);
+    if (m_socketFd == -1) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
