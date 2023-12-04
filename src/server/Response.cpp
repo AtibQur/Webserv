@@ -86,6 +86,7 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
 
     file = _conf->getErrorPage(errorMessage);
     std::ifstream htmlFile(file);
+    std::cout << "file: " << file << stdendl;
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     htmlFile.close();
