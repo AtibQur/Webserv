@@ -111,7 +111,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::ofstream bodyfile;
     // // // parse body
 
-    bodyfile.open ("root/" + _fileNameBody);
+    bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
 			if (read.compare("--" + _boundary + "--") == 0)
 				break;
