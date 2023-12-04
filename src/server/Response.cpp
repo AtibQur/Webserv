@@ -62,12 +62,11 @@ void Server::getMethod(Client* client) {
 bool Server::isPathAndMethodAllowed(Client *client)
 {
     Location clientLocation = _conf->getLocation(client->getUri());
-    std::cout << "hier" << std::endl;
     if (clientLocation.getPath().empty())
     {
         throw std::invalid_argument("404");
     }
-    if ("/root/" + access(client->getUri().c_str(), F_OK) == 0)
+    if ("/root/" + access(client->getUri().c_str(), R_OK) == 0)
     {
         std::cout << client->getUri() << std::endl;
         return true;
@@ -92,7 +91,6 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
 
     file = _conf->getErrorPage(errorMessage);
     std::ifstream htmlFile(file);
-    std::cout << "file: " << file << stdendl;
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     htmlFile.close();
