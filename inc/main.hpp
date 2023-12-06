@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 #include <fcntl.h>
+#include <algorithm>
 
 /* CPP Libraries */
 #include <iostream>

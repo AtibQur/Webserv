@@ -107,11 +107,13 @@ void Location::setAtrributes(std::vector<std::string> variables) {
 
 void Location::setMethods(std::vector<std::string> variables, int &index) {
     std::string methods = trim(variables[++index]);
+    std::transform(methods.begin(), methods.end(), methods.begin(), ::toupper);
     while (methods == "GET" || methods == "POST" || methods == "DELETE") {
         _methods.push_back(methods);
         if (index + 1 == variables.size())
             break;
         methods = variables[++index];
+        std::transform(methods.begin(), methods.end(), methods.begin(), ::toupper);
     }
 }
 

@@ -19,6 +19,7 @@ std::vector<Config> confloop(std::string file_name) {
         conf.push_back(conf_temp);
         // continue searching for server blocks from old end index till none are found
 		start = confParser.findServerBlock(end, end);
+        conf_temp.outputConfig();
 	}
     if (conf.empty()) {
         ExitWithMessage("Error: no server blocks found in config file");
