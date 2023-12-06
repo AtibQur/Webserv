@@ -133,7 +133,7 @@ void Config::setRoot(std::string value) {
     if (fs::exists(value) && fs::is_directory(value)) {
         _root = value;
     } else {
-        root = "root";
+        _root = "root";
     }
 }
 
