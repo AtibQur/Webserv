@@ -21,7 +21,7 @@ void Client::checkBytesInFile() {
     std::ifstream in_file("root/body.txt", std::ios::binary);
     in_file.seekg(0, std::ios::end);
     int file_size = in_file.tellg();
-    std::cout<<"Size of the file is"<<" "<< file_size <<" "<<"bytes";
+    std::cout<<"Size of the file is "<< file_size <<" bytes";
 }
 
 void ptn(std::string str) {
@@ -92,8 +92,10 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         throw std::invalid_argument("400 Bad Request: Content-Type is empty");
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
-    if (_contentLength > 1000000) // needs to be updated from conf file
+    if (_contentLength > _maxBodySize) { // needs to be updated from conf file
+        std::cout << "conlen: " << _contentLength << std::endl;
         throw std::invalid_argument("413 Payload Too Large: Content-Length is too large");
+    }
     if (_contentType != "multipart/form-data")
         return (0); // for when its text or www-form-urlencoded
 

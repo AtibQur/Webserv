@@ -149,9 +149,14 @@ void Config::setErrorPage(std::string error_code, int &index, int line_i) {
 }
 
 void Config::setMaxBodySize(std::string value) {
-    if (toupper(value[value.size() - 1]) == 'B')
-        value.pop_back();
     char multiplier = 'M';
+    if (toupper(value[value.size() - 1]) == 'B') {
+            if (isdigit(value[value.size() - 2])) {
+                _client_max_body_size = std::stoull(value.substr(0, value.size() - 1));
+                return ;
+            }
+        value.pop_back();
+    }
     if (isalpha(value[value.size() - 1])) { 
         multiplier = toupper(value[value.size() - 1]);
         value.pop_back();
@@ -199,7 +204,7 @@ void Config::outputConfig() {
         std::cout << "path: " << it->first << std::endl;
         it->second.outputLocation();
     }
-    std::cout << "client__client_max_body_size: " << _client_max_body_size << std::endl;
+    std::cout << "client_max_body_size: " << _client_max_body_size << std::endl;
     std::cout << "error_pages: " << std::endl;
     for (auto it = _error_pages.begin(); it != _error_pages.end(); it++) {
         std::cout << "error_code: " << it->first << std::endl;
