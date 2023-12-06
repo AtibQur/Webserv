@@ -51,6 +51,7 @@ public:
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
+	std::string getFileNameBody() { return _fileNameBody; };
 
 	void checkBytesInFile();
 };

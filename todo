@@ -20,7 +20,7 @@ alles onder boundary copy naar file naam filename in root
 
 goed!
 
-Kijk of hij loopt tot nieuw line;
-if so parse alles erna naar _body 
-kijk ff hoe dit werkt met string allocation en max sizes blabla
-daarna pars naar file
+FIX METHODS
+empty when in is path and method allowed
+after posting
+autoindex directory listing

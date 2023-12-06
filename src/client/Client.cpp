@@ -97,7 +97,6 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
         return false;
     }
     else {
-        std::cout << "the request is complete" << std::endl;
         return true;
     }
 }
