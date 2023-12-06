@@ -155,7 +155,6 @@ void Config::setMaxBodySize(std::string value) {
         _client_max_body_size *= 1000000000; // you get it
     else
         _client_max_body_size *= 1000000; // default is megabyte
-    std::cout << "max body size: " << _client_max_body_size << std::endl;
 }
 
 /*

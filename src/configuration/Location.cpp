@@ -1,14 +1,17 @@
 #include "Location.hpp"
+#include <filesystem>
 
 Location::Location(){
     _path = "";
     _index = "";
+    _autoindex = false;
 }
 
 Location::Location(std::string index, std::vector<std::string> methods, std::string path) {
     _index = index;
     _methods = methods;
     _path = path;
+    _autoindex = false;
 }
 
 // SETTERS
@@ -97,8 +100,20 @@ void Location::setAtrributes(std::vector<std::string> variables) {
             _index = variables[++i];
         else if (variables[i] == "methods")
             setMethods(variables, i);
+        else if (variables[i] == "autoindex")
+            setAutoIndex(variables[++i]);
         i++;
     }
+}
+
+void Location::setAutoIndex(std::string value) {
+    std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+    if (value == "ON")
+        _autoindex = true;
+    else if (value == "OFF")
+        _autoindex = false;
+    else
+        _autoindex = false;
 }
 
 /*
@@ -117,9 +132,14 @@ void Location::setMethods(std::vector<std::string> variables, int &index) {
     }
 }
 
+void Location::ListDirectory() {
+    
+}
+
 // OUTPUT
 
 void Location::outputLocation() {
+    ListDirectory();
     if (!_index.empty())
         std::cout << "index: " << _index << std::endl;
     if (!_methods.empty()) {
@@ -127,6 +147,7 @@ void Location::outputLocation() {
         for (auto it = _methods.begin(); it != _methods.end(); it++)
             std::cout << *it << std::endl;
     }
+    std::cout << "autoindex: " << _autoindex << std::endl;
     if (!_path.empty())
         std::cout << "path: " << _path << std::endl;
 }
