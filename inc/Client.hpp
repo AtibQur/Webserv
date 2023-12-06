@@ -17,6 +17,7 @@ private:
 	std::string _uri;
 	std::string _protocol;
 	// header information
+	
 	std::map <std::string, std::string> headerMap;
 	// request body
 	std::string _body;

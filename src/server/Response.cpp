@@ -1,8 +1,13 @@
 #include "../../inc/main.hpp"
 
 /* Create a respond to the client */
+Response::Response() : _socketFd(0), _filePath("") {}
 
-void Server::createResponse(Client* client) {
+Response::Response(int SocketFd, std::string filePath) : _socketFd(SocketFd), _filePath(filePath) {
+
+}
+
+void Response::createResponse(Client* client) {
     try {
         isPathAndMethodAllowed(client);
     } catch (const std::exception& e) {
@@ -13,10 +18,9 @@ void Server::createResponse(Client* client) {
     switch (method)
     {
         case 1:
-            getMethod(client);
+            getMethod();
             break;
         case 2:
-            // postMethod(client);
             break;
         case 3:
             break;
@@ -26,14 +30,11 @@ void Server::createResponse(Client* client) {
 }
 
 /* GET*/
-void Server::getMethod(Client* client) {
+void Response::getMethod() {
     const char* file;
-    std::string stringfile;
     std::string response;
-    Location clientLocation = _conf->getLocation(client->getUri());
 
-    stringfile = "docs/" + clientLocation.getIndex();
-    file = stringfile.c_str();
+    file = _filePath.c_str();
 
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
@@ -45,12 +46,11 @@ void Server::getMethod(Client* client) {
     }
     htmlFile.close();
 
-    std::cout << response << std::endl;
-    send(client->getSocketFd(), response.c_str(), response.size(), 0);
+    send(_socketFd, response.c_str(), response.size(), 0);
     printf("------------------Response sent-------------------\n");
 }
 
-bool Server::isPathAndMethodAllowed(Client *client)
+bool Response::isPathAndMethodAllowed(Client *client)
 {
     Location clientLocation = _conf->getLocation(client->getUri());
     if (clientLocation.getPath().empty())
@@ -75,7 +75,7 @@ bool Server::isPathAndMethodAllowed(Client *client)
 }
 # define stdendl std::endl
 
-void Server::createErrorResponse(const std::string& errorMessage, Client *client)
+void Response::createErrorResponse(const std::string& errorMessage, Client *client)
 {
     std::string file;
     std::string response;
@@ -114,6 +114,6 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
         }
     }
     std::cout << "!response: " << response << std::endl;
-    send(client->getSocketFd(), response.c_str(), response.size(), 0);
+    send(_socketFd, response.c_str(), response.size(), 0);
     printf("------------------Error Response sent-------------------\n");
 }

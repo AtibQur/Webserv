@@ -28,6 +28,7 @@ Client::~Client() {
 Client& Client::operator=(Client const &copy) {
     this->m_socketFd = copy.m_socketFd;
     this->_requestBuffer = copy._requestBuffer;
+    this->_response = copy._response;
     return *this;
 }
 
@@ -116,33 +117,50 @@ void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
     try {
         parseRequest(request, buffer, post);
     } catch (const std::exception& e) {
-        // createErrorResponse(e.what(), this);
+        Location clientLocation = m_server.getConf()->getLocation(getUri());
+        std::string file = "docs/" + clientLocation.getIndex();
+        Response error(getSocketFd(), file);
+
+        error.setConf(m_server.getConf());
+        _response = error;
+        _response.createErrorResponse(e.what(), this);
     }
 }
 
-void Client::sendResponse(){
+void Client::sendResponse() {
 
-    const char* file;
-    std::string stringfile;
-    std::string response;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
+    std::string file = "docs/" + clientLocation.getIndex();
 
-    stringfile = "docs/" + clientLocation.getIndex();
-    file = stringfile.c_str();
+    Response clientResponse(getSocketFd(), file);
 
-    std::ifstream htmlFile(file);
-    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+    clientResponse.setConf(m_server.getConf());
+    _response = clientResponse;
+    
+    std::cout << "HELLO" << std::endl;
+    _response.createResponse(this);
+    // _response.getMethod();
+    // const char* file;
+    // std::string stringfile;
+    // std::string response;
+    // Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    if (!htmlFile.is_open()) {
-        response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
-    } else {
-        response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-    }
-    htmlFile.close();
+    // stringfile = "docs/" + clientLocation.getIndex();
+    // file = stringfile.c_str();
 
-    std::cout << response << std::endl;
-    send(getSocketFd(), response.c_str(), response.size(), 0);
-    printf("------------------Response sent-------------------\n");
+    // std::ifstream htmlFile(file);
+    // std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+
+    // if (!htmlFile.is_open()) {
+    //     response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
+    // } else {
+    //     response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+    // }
+    // htmlFile.close();
+
+    // std::cout << response << std::endl;
+    // send(getSocketFd(), response.c_str(), response.size(), 0);
+    // printf("------------------Response sent-------------------\n");
 
 
     modifyEpoll(this, EPOLLIN, getSocketFd());

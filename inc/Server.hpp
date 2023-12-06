@@ -16,7 +16,7 @@ class Server : public Socket {
         Config              *_conf;
 
         Client*             _client;
-        // std::string         _response;
+        std::string         _response;
 
     public:
         Server();
@@ -53,10 +53,10 @@ class Server : public Socket {
         void createErrorResponse(const std::string& errorMessage, Client *client);
 
         // get method functions
-        void getMethod(Client* client);
-        bool isPathAndMethodAllowed(Client* client);
+        // void getMethod(Client* client);
+        // bool isPathAndMethodAllowed(Client* client);
         // post method functions
-        void postMethod(Client *client);
+        // void postMethod(Client *client);
 
 };
 
