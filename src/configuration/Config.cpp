@@ -1,5 +1,7 @@
 #include "Config.hpp"
 
+namespace fs = std::filesystem;
+
 /* TO BE IMPLEMENTED 
     Config::Config() {
         this->config_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)] = parsed_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)];
@@ -90,7 +92,7 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
                     _index = value;
                     break;
                 case 3:
-                    _root = value;
+                    setRoot(value);
                     break;
                 case 4:
                     setLocation(value, index);
@@ -124,6 +126,14 @@ void Config::setServerName(std::string server_name, int &index, int line_i) {
         name = "";
         while (it != line.end() && (*it == ' ' || *it == '\t'))
             it++;
+    }
+}
+
+void Config::setRoot(std::string value) {
+    if (fs::exists(value) && fs::is_directory(value)) {
+        _root = value;
+    } else {
+        root = "root";
     }
 }
 
