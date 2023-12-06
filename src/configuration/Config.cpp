@@ -26,7 +26,7 @@
     retrieving the values for each key and storing them in the class object
 */
 
-Config::Config(std::vector<std::string> lines) : max_body_size(1000000) {
+Config::Config(std::vector<std::string> lines) : _client_max_body_size(1000000) {
     _lines = lines;
     std::string var = "";
     int index = 0;
@@ -73,7 +73,7 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
         "index",
         "root",
         "location",
-        "max_body_size",
+        "client_max_body_size",
         "error_page"
     };
 
@@ -139,7 +139,22 @@ void Config::setErrorPage(std::string error_code, int &index, int line_i) {
 }
 
 void Config::setMaxBodySize(std::string value) {
-    max_body_size = std::stoull(value) * 1000000; // mutiply by a million to convert it to megabyte
+    if (toupper(value[value.size() - 1]) == 'B')
+        value.pop_back();
+    char multiplier = 'M';
+    if (isalpha(value[value.size() - 1])) { 
+        multiplier = toupper(value[value.size() - 1]);
+        value.pop_back();
+    }
+    _client_max_body_size = std::stoull(value);
+    if (multiplier == 'K')
+        _client_max_body_size *= 1000; // mutiply by a thousand to convert it to kilobyte
+    else if (multiplier == 'M')
+        _client_max_body_size *= 1000000; // mutiply by a million to convert it to megabyte
+    else if (multiplier == 'G')
+        _client_max_body_size *= 1000000000; // you get it
+    else
+        _client_max_body_size *= 1000000; // default is megabyte
 }
 
 /*
@@ -174,7 +189,7 @@ void Config::outputConfig() {
         std::cout << "path: " << it->first << std::endl;
         it->second.outputLocation();
     }
-    std::cout << "max_body_size: " << max_body_size << std::endl;
+    std::cout << "client__client_max_body_size: " << _client_max_body_size << std::endl;
     std::cout << "error_pages: " << std::endl;
     for (auto it = _error_pages.begin(); it != _error_pages.end(); it++) {
         std::cout << "error_code: " << it->first << std::endl;
