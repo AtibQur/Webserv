@@ -1,10 +1,11 @@
 #include "../../inc/main.hpp"
 
-Client::Client() : _requestBuffer(""), _boundary("UNSET") {
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
     m_socketFd = -1;
 }
 
-Client::Client(const Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) : _boundary("UNSET") {
+Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) \
+    : m_server(server), _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
 
@@ -20,9 +21,9 @@ Client::~Client() {
     std::cout << "Client removed" << std::endl;
 }
 
-Client::Client(Client const &copy) {
-    *this = copy;
-}
+// Client::Client(Client const &copy) {
+//     *this = copy;
+// }
 
 Client& Client::operator=(Client const &copy) {
     this->m_socketFd = copy.m_socketFd;
@@ -58,6 +59,7 @@ void Client::readBuffer() {
         } else if (bytes_read == 0){
             std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
+            break ;
         } else if (i = 0) {
             if (buffer[0] == 'P' && buffer[1] == 'O' && buffer[2] == 'S' && buffer[3] == 'T' && buffer[4] == ' ')
                 post = 1;
@@ -70,9 +72,8 @@ void Client::readBuffer() {
             if (isRequestComplete(accumulatedRequestData, post)) 
             {
                 // modify epoll
-                modifyEpoll(this);
-                std::cout << "request: " << accumulatedRequestData << std::endl;
-                // handleRequest(server , accumulatedRequestData, buffer, post);
+                modifyEpoll(this, EPOLLOUT, getSocketFd());
+                handleRequest(accumulatedRequestData, buffer, post);
                 break ;
             }
         }
@@ -80,13 +81,13 @@ void Client::readBuffer() {
     }
 }
 
-void Client::modifyEpoll(Socket *ptr){
+void Client::modifyEpoll(Socket *ptr, int events, int fd){
     struct epoll_event event;
-    event.events = EPOLLOUT;
+    event.events = events;
 
     event.data.ptr = ptr;
 
-    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, m_socketFd, &event) == -1) {
+    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
     }
@@ -107,15 +108,42 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
         return false;
     }
     else {
-        std::cout << "the request is complete" << std::endl;
         return true;
     }
 }
 
-void Client::handleRequest(Server *server, std::string request, char *buffer, ssize_t post) {
+void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
     try {
         parseRequest(request, buffer, post);
     } catch (const std::exception& e) {
-        server->createErrorResponse(e.what(), this);
+        // createErrorResponse(e.what(), this);
     }
+}
+
+void Client::sendResponse(){
+
+    const char* file;
+    std::string stringfile;
+    std::string response;
+    Location clientLocation = m_server.getConf()->getLocation(getUri());
+
+    stringfile = "docs/" + clientLocation.getIndex();
+    file = stringfile.c_str();
+
+    std::ifstream htmlFile(file);
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+
+    if (!htmlFile.is_open()) {
+        response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
+    } else {
+        response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+    }
+    htmlFile.close();
+
+    std::cout << response << std::endl;
+    send(getSocketFd(), response.c_str(), response.size(), 0);
+    printf("------------------Response sent-------------------\n");
+
+
+    modifyEpoll(this, EPOLLIN, getSocketFd());
 }

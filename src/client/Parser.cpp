@@ -4,9 +4,15 @@
 
 std::string subTillChar(std::string str, size_t index, char c) {
     std::string tmp = "";
-    size_t pos = str.find(c, index);
-    if (pos != std::string::npos) {
-        tmp = str.substr(index, pos - index);
+    size_t pos1 = str.find('\r', index);
+    size_t pos2 = str.find(c, index);
+    if (pos1 != std::string::npos || pos2 != std::string::npos) {
+        if (pos1 < pos2) {
+            tmp = str.substr(index, pos1 - index);
+        }
+        else {
+            tmp = str.substr(index, pos2 - index);
+        }
     }
     return tmp;
 }
@@ -15,7 +21,7 @@ void Client::checkBytesInFile() {
     std::ifstream in_file("root/body.txt", std::ios::binary);
     in_file.seekg(0, std::ios::end);
     int file_size = in_file.tellg();
-    std::cout<<"Size of the file is"<<" "<< file_size<<" "<<"bytes";
+    std::cout<<"Size of the file is"<<" "<< file_size <<" "<<"bytes";
 }
 
 void ptn(std::string str) {
@@ -38,7 +44,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::string tmp;
 
 
-    // std::cout << "the request is: " << request << std::endl;
+    std::cout << "the request is: " << request << std::endl;
     // check if there is valid request line
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400");
@@ -65,7 +71,6 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         std::cout << "the request is not complete" << std::endl;
         return 1;
     } else if (_method == "GET"){
-        std::cout << "the request is complete" << std::endl;
         return 0;
     }
     // parse header
@@ -74,6 +79,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
             break ;
         if (tmp.find("Content-Type:") != std::string::npos) {
             _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, ';');
+            std::cout << "^" << _contentType << "^" << std::endl;
             _boundary = tmp.substr(tmp.find("boundary") + 9);
         }
         if (tmp.find("Content-Length:") != std::string::npos) {
@@ -112,7 +118,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::ofstream bodyfile;
     // // // parse body
 
-    bodyfile.open ("root/" + _fileNameBody, std::ios::out | std::ios::binary);
+    bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
 			if (read.compare("--" + _boundary + "--") == 0)
 				break;

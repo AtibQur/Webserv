@@ -70,3 +70,9 @@ for (int i = 0; i < numEvents; ++i) {
         }
     }
 }
+/////////////////////////////
+
+FIX METHODS
+empty when in is path and method allowed
+after posting
+autoindex directory listing

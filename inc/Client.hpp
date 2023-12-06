@@ -10,6 +10,8 @@ class Client : public Socket {
 private:
     // int clientSocket;
 
+	const Server &m_server;
+	Response	_response;
 	// request line information
 	std::string _method;
 	std::string _uri;
@@ -31,19 +33,20 @@ private:
 	std::string _requestBuffer;
 public:
     Client();
-    Client(const Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
+    Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
     ~Client();
-    Client(Client const &copy);
+    // Client(Client const &copy);
     Client &operator=(Client const &copy);
 
+	void	sendResponse();
 	void	readBuffer();
 	void	createErrorResponse(const std::string& errorMessage);
-	void	modifyEpoll(Socket *ptr);
+	void	modifyEpoll(Socket *ptr, int events, int fd);
 
 	// parser
     void	saveClientRequest(char* buffer, int client_socket);
 	bool	checkMethod(std::string tmp);
-	void	handleRequest(Server *server, std::string request, char *buffer, ssize_t post);
+	void	handleRequest(std::string request, char *buffer, ssize_t post);
 	bool	checkRequestLine(std::string httpRequest);
 	int		parseRequest(std::string request, char* buffer, ssize_t post);
 
@@ -59,6 +62,7 @@ public:
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
+	std::string getFileNameBody() { return _fileNameBody; };
 
 	void checkBytesInFile();
 };

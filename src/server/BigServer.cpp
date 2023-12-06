@@ -55,15 +55,13 @@ void BigServer::loopEvents() {
                 std::cout << "new client" << std::endl;
                 ConnectNewClient(server, _eventFd);
             }
-            // _server[index].getRequest(event);
         } 
         else if (event.events & EPOLLOUT) 
         {    
             if (Client *client = dynamic_cast<Client *>(epollPtr)){
                 std::cout << "client creating response" << std::endl;
-                exit (0);
+                client->sendResponse();
             }
-            // _server[index].sendResponse(event); // fix error responses and put it in this 
         }
 
     }

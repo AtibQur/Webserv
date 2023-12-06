@@ -16,7 +16,7 @@ class Server : public Socket {
         Config              *_conf;
 
         Client*             _client;
-        std::string         _response;
+        // std::string         _response;
 
     public:
         Server();

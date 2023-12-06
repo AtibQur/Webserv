@@ -16,7 +16,7 @@ void Server::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
-            postMethod(client);
+            // postMethod(client);
             break;
         case 3:
             break;
@@ -56,6 +56,11 @@ bool Server::isPathAndMethodAllowed(Client *client)
     if (clientLocation.getPath().empty())
     {
         throw std::invalid_argument("404");
+    }
+    if ("/root/" + access(client->getUri().c_str(), R_OK) == 0)
+    {
+        std::cout << client->getUri() << std::endl;
+        return true;
     }
     std::vector<std::string> methods = clientLocation.getMethods();
     if (methods.empty())
