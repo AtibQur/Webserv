@@ -35,26 +35,13 @@ void BigServer::loopEvents() {
     for (int i = 0; i < _num_events; i++) {
 
         event = _events[i];
-        // _eventFd = event.data.fd;
-
         epollPtr = static_cast<Socket *>(event.data.ptr);
         if (epollPtr == nullptr)
             std::cout << "epollPtr error" << std::endl;
-    
-        // int index = findServerIndex(_eventFd);
-        // if (index >= 0)
-        //     ConnectNewClient(index, _eventFd);
 
         if (event.events & EPOLLIN) 
         {   
-            if (Client *client = dynamic_cast<Client *>(epollPtr)){
-                std::cout << "existing client ready for read" << "\n";
-                client->readBuffer();
-            }
-            if (Server *server = dynamic_cast<Server *>(epollPtr)){
-                std::cout << "new client" << std::endl;
-                ConnectNewClient(server, _eventFd);
-            }
+           ConnectClient(epollPtr);
         } 
         else if (event.events & EPOLLOUT) 
         {    
@@ -63,7 +50,17 @@ void BigServer::loopEvents() {
                 client->sendResponse();
             }
         }
+    }
+}
 
+void BigServer::ConnectClient(Socket *ptr) {
+    if (Client *client = dynamic_cast<Client *>(ptr)){
+        std::cout << "existing client ready for read" << "\n";
+        client->readBuffer();
+    }
+    if (Server *server = dynamic_cast<Server *>(ptr)){
+        std::cout << "new client" << std::endl;
+        ConnectNewClient(server, _eventFd);
     }
 }
 
