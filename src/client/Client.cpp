@@ -3,9 +3,10 @@
 Client::Client() : _socketFd(-1), _requestBuffer(""), _boundary("UNSET") {
 }
 
-Client::Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) : _socketFd(newSocketFd), _boundary("UNSET") {
+Client::Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations, long long maxBodySize) : _socketFd(newSocketFd), _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
+    _maxBodySize = maxBodySize;
 }
 
 Client::~Client() {

@@ -40,6 +40,7 @@ public:
     void setServerName(std::string server_name, int &index, int line_i);
     void setMaxBodySize(std::string value);
     void setErrorPage(std::string value, int &index, int line_i);
+    void setRoot(std::string value);
 
     // OUTPUT
     void outputConfig();

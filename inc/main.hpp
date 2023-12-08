@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <unordered_map>
+#include <filesystem>
 
 /* Header inclusions */
 #include "Server.hpp"

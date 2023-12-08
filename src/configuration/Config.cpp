@@ -1,5 +1,7 @@
 #include "Config.hpp"
 
+namespace fs = std::filesystem;
+
 /* TO BE IMPLEMENTED 
     Config::Config() {
         this->config_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)] = parsed_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)];
@@ -90,7 +92,7 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
                     _index = value;
                     break;
                 case 3:
-                    _root = value;
+                    setRoot(value);
                     break;
                 case 4:
                     setLocation(value, index);
@@ -127,6 +129,14 @@ void Config::setServerName(std::string server_name, int &index, int line_i) {
     }
 }
 
+void Config::setRoot(std::string value) {
+    if (fs::exists(value) && fs::is_directory(value)) {
+        _root = value;
+    } else {
+        _root = "root";
+    }
+}
+
 void Config::setErrorPage(std::string error_code, int &index, int line_i) {
     std::string page;
     std::string line = _lines[index].substr(line_i); // start from index where page is
@@ -139,9 +149,14 @@ void Config::setErrorPage(std::string error_code, int &index, int line_i) {
 }
 
 void Config::setMaxBodySize(std::string value) {
-    if (toupper(value[value.size() - 1]) == 'B')
-        value.pop_back();
     char multiplier = 'M';
+    if (toupper(value[value.size() - 1]) == 'B') {
+            if (isdigit(value[value.size() - 2])) {
+                _client_max_body_size = std::stoull(value.substr(0, value.size() - 1));
+                return ;
+            }
+        value.pop_back();
+    }
     if (isalpha(value[value.size() - 1])) { 
         multiplier = toupper(value[value.size() - 1]);
         value.pop_back();
@@ -189,7 +204,7 @@ void Config::outputConfig() {
         std::cout << "path: " << it->first << std::endl;
         it->second.outputLocation();
     }
-    std::cout << "client__client_max_body_size: " << _client_max_body_size << std::endl;
+    std::cout << "client_max_body_size: " << _client_max_body_size << std::endl;
     std::cout << "error_pages: " << std::endl;
     for (auto it = _error_pages.begin(); it != _error_pages.end(); it++) {
         std::cout << "error_code: " << it->first << std::endl;

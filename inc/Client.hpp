@@ -21,13 +21,14 @@ private:
 	std::string _contentType;
 	std::map <std::string, std::string> _error_pages;
 	std::map <std::string, Location> _location;
+	long long _maxBodySize;
 
 	int 		_socketFd;
 
 	std::string _requestBuffer;
 public:
     Client();
-    Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations);
+    Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations, long long maxBodySize);
     ~Client();
     Client(Client const &copy);
     Client &operator=(Client const &copy);
