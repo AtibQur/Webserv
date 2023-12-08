@@ -8,15 +8,17 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 #include <fcntl.h>
-
 /* CPP Libraries */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <stdexcept>
 #include <unordered_map>
+#include <filesystem>
 
 /* Header inclusions */
 #include "Server.hpp"

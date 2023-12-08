@@ -41,29 +41,6 @@ Server& Server::operator=(Server const &copy) {
     return *this;
 }
 
-// void Server::createNewClient() {
-//     Client *newClient = new Client(getAcceptFd(), _conf->getErrorPages(), _conf->getLocations());
-
-//     struct epoll_event event;
-
-//     event.events = EPOLLIN;
-//     event.data.fd = getAcceptFd();
-//     if (epoll_ctl(_epoll, EPOLL_CTL_ADD, getAcceptFd(), &event) < 0){
-//         perror("epoll_ctl read error");
-//     }
-// }
-
-// void Server::getRequest(struct epoll_event &event) {
-//     client->readBuffer(this);
-// }
-
-// void Server::sendResponse(struct epoll_event &event){
-//     // _client->handleRequest(this, _client->getRequestBuffer());
-//     this->createResponse(client);
-// }
-
-/* Create a socket */
-
 void Server::initSocketFd() {
     m_socketFd =  socket(AF_INET, SOCK_STREAM, 0);
     if (m_socketFd == -1) {

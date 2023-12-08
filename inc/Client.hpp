@@ -27,6 +27,7 @@ private:
 	std::string _contentType;
 	std::map <std::string, std::string> _error_pages;
 	std::map <std::string, Location> _location;
+	long long _maxBodySize;
 
     struct sockaddr_storage m_client_address {};
     socklen_t m_addrlen{sizeof(m_client_address)};
