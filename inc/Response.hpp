@@ -8,22 +8,27 @@ class Client;
 class Response
 {
 private:
-    std::string response;
-    int         _socketFd;
-    std::string _filePath;
-    Config     *_conf;
+    std::string     _response;
+    std::string     _errorCode;
+    int             _socketFd;
+    std::string     _filePath;
+    Config          *_conf;
 
 public:
     Response();
-    Response(int socketFd, std::string filePath);
+    Response(int socketFd, std::string error);
     ~Response() {;};
 
-    void getMethod();
-    void createResponse(Client* client);
-    bool isPathAndMethodAllowed(Client* client);
-    void createErrorResponse(const std::string& errorMessage, Client *client);
+    void    getMethod();
+    void    createResponse(Client* client);
+    bool    isPathAndMethodAllowed(Client* client);
+    void    createErrorResponse(const std::string& errorMessage);
 
-    void setConf(Config *conf) { _conf = conf; };
+    // GETTERS
+    std::string getError() { return _errorCode; };
+
+    // SETTERS
+    void    setConf(Config *conf) { _conf = conf; };
 };
 
 #endif

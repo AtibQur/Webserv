@@ -74,7 +74,7 @@ void Client::readBuffer() {
             {
                 // modify epoll
                 modifyEpoll(this, EPOLLOUT, getSocketFd());
-                handleRequest(accumulatedRequestData, buffer, post);
+                handleRequest(accumulatedRequestData, buffer, post); 
                 break ;
             }
         }
@@ -92,7 +92,6 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
     }
-
     std::cout << "modified epoll" << std::endl;
 }
 
@@ -116,52 +115,54 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
 void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
     try {
         parseRequest(request, buffer, post);
+        isPathAndMethodAllowed();
     } catch (const std::exception& e) {
-        Location clientLocation = m_server.getConf()->getLocation(getUri());
-        std::string file = "docs/" + clientLocation.getIndex();
-        Response error(getSocketFd(), file);
-
+        Response error(getSocketFd(), e.what());
         error.setConf(m_server.getConf());
         _response = error;
-        _response.createErrorResponse(e.what(), this);
     }
+}
+
+bool Client::isPathAndMethodAllowed()
+{
+    Location clientLocation = m_server.getConf()->getLocation(getUri());
+    if (clientLocation.getPath().empty())
+    {
+        throw std::invalid_argument("404");
+    }
+    if ("/root/" + access(getUri().c_str(), R_OK) == 0)
+    {
+        std::cout << getUri() << std::endl;
+        return true;
+    }
+    std::vector<std::string> methods = clientLocation.getMethods();
+    if (methods.empty())
+        throw std::invalid_argument("400");
+    std::vector<std::string>::iterator it = methods.begin();
+    for (it; it < methods.end(); it++)
+    {
+        if (getMethod() == *it)
+            return true;
+    }
+    throw std::invalid_argument("400");
 }
 
 void Client::sendResponse() {
 
-    Location clientLocation = m_server.getConf()->getLocation(getUri());
-    std::string file = "docs/" + clientLocation.getIndex();
+    if (_response.getError().size() == 3){
+        _response.createErrorResponse(_response.getError());
+    }
+    else {
+        Location clientLocation = m_server.getConf()->getLocation(getUri());
+        std::string file = "docs/" + clientLocation.getIndex();
+        Response clientResponse(getSocketFd(), file);
 
-    Response clientResponse(getSocketFd(), file);
+        clientResponse.setConf(m_server.getConf());
+        _response = clientResponse;
 
-    clientResponse.setConf(m_server.getConf());
-    _response = clientResponse;
-    
-    std::cout << "HELLO" << std::endl;
-    _response.createResponse(this);
-    // _response.getMethod();
-    // const char* file;
-    // std::string stringfile;
-    // std::string response;
-    // Location clientLocation = m_server.getConf()->getLocation(getUri());
-
-    // stringfile = "docs/" + clientLocation.getIndex();
-    // file = stringfile.c_str();
-
-    // std::ifstream htmlFile(file);
-    // std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
-
-    // if (!htmlFile.is_open()) {
-    //     response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
-    // } else {
-    //     response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-    // }
-    // htmlFile.close();
-
-    // std::cout << response << std::endl;
-    // send(getSocketFd(), response.c_str(), response.size(), 0);
-    // printf("------------------Response sent-------------------\n");
-
-
+        _response.createResponse(this);
+    }
     modifyEpoll(this, EPOLLIN, getSocketFd());
+    Response res;
+    _response = res;
 }

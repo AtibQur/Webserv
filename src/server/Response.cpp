@@ -1,19 +1,19 @@
 #include "../../inc/main.hpp"
 
 /* Create a respond to the client */
-Response::Response() : _socketFd(0), _filePath("") {}
+Response::Response() : _socketFd(0), _filePath(""), _errorCode("") {}
 
-Response::Response(int SocketFd, std::string filePath) : _socketFd(SocketFd), _filePath(filePath) {
-
+Response::Response(int SocketFd, std::string error) : _socketFd(SocketFd), _errorCode(error) {
+    _filePath = error;
 }
 
 void Response::createResponse(Client* client) {
-    try {
-        isPathAndMethodAllowed(client);
-    } catch (const std::exception& e) {
-        createErrorResponse(e.what(), client);
-        return ;
-    }
+    // try {
+    //     isPathAndMethodAllowed(client);
+    // } catch (const std::exception& e) {
+    //     createErrorResponse(e.what(), client);
+    //     return ;
+    // }
     int method = client->getNbMethod();
     switch (method)
     {
@@ -40,7 +40,7 @@ void Response::getMethod() {
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
     if (!htmlFile.is_open()) {
-        response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
+        response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 14\n\nFile not found";
     } else {
         response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
     }
@@ -50,37 +50,12 @@ void Response::getMethod() {
     printf("------------------Response sent-------------------\n");
 }
 
-bool Response::isPathAndMethodAllowed(Client *client)
-{
-    Location clientLocation = _conf->getLocation(client->getUri());
-    if (clientLocation.getPath().empty())
-    {
-        throw std::invalid_argument("404");
-    }
-    if ("/root/" + access(client->getUri().c_str(), R_OK) == 0)
-    {
-        std::cout << client->getUri() << std::endl;
-        return true;
-    }
-    std::vector<std::string> methods = clientLocation.getMethods();
-    if (methods.empty())
-        throw std::invalid_argument("400");
-    std::vector<std::string>::iterator it = methods.begin();
-    for (it; it < methods.end(); it++)
-    {
-        if (client->getMethod() == *it)
-            return true;
-    }
-    throw std::invalid_argument("400");
-}
-# define stdendl std::endl
-
-void Response::createErrorResponse(const std::string& errorMessage, Client *client)
+void Response::createErrorResponse(const std::string& errorMessage)
 {
     std::string file;
     std::string response;
 
-    std::cout << errorMessage << "\n";
+    std::cout << "error: " << errorMessage << "\n";
 
     file = _conf->getErrorPage(errorMessage);
     std::cout << file << std::endl;
@@ -113,7 +88,6 @@ void Response::createErrorResponse(const std::string& errorMessage, Client *clie
             }
         }
     }
-    std::cout << "!response: " << response << std::endl;
     send(_socketFd, response.c_str(), response.size(), 0);
     printf("------------------Error Response sent-------------------\n");
 }
