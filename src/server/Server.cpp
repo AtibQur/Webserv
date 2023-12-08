@@ -7,7 +7,8 @@ Server::Server() {
 }
 
 
-Server::Server(Config *conf) : _server_fd(-1), _conf(conf) {
+Server::Server(Config *conf) : _conf(conf) {
+    m_socketFd = -1;
     this->initServer();
 }
 
@@ -30,7 +31,7 @@ Server::Server(Server const &copy) {
 }
 
 Server& Server::operator=(Server const &copy) {
-    this->_server_fd = copy._server_fd;
+    this->m_socketFd = copy.m_socketFd;
     this->_addrlen = copy._addrlen;
     this->_server_address = copy._server_address;
     this->_conf = copy._conf;
@@ -40,28 +41,9 @@ Server& Server::operator=(Server const &copy) {
     return *this;
 }
 
-void Server::clientAccept(int eventFd) {
-
-    _acceptFd = accept(eventFd, (struct sockaddr *)&_client_address, &_addrlen);
-    if (_acceptFd == -1)
-    {
-        perror("client Accept() error");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void Server::getRequest(int eventFd) {
-
-    Client *client = new Client(getAcceptFd(), _conf->getErrorPages(), _conf->getLocations(), _conf->getMaxBodySize());
-    client->readBuffer();
-    this->createResponse(client);
-}
-
-/* Create a socket */
-
 void Server::initSocketFd() {
-    _server_fd =  socket(AF_INET, SOCK_STREAM, 0);
-    if (_server_fd == -1) {
+    m_socketFd =  socket(AF_INET, SOCK_STREAM, 0);
+    if (m_socketFd == -1) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }

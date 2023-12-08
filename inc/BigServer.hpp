@@ -9,8 +9,8 @@ class Server;
 class BigServer
 {
 private:
-    std::vector<Config> _config;
-    std::vector<Server> _server;
+    std::vector<Config>     _config;
+    std::vector<Server *>   _server;
 
     int _epoll;
     int _num_events;
@@ -24,15 +24,15 @@ public:
     BigServer(std::vector<Config> config);
     ~BigServer();
 
-    void runBigServer();
-    void initEpoll();
-    void setupNewEvents();
-    void loopEvents();
-    void ConnectNewClient(int index, int eventFd);
+    void    runBigServer();
+    void    initEpoll();
+    void    setupNewEvents();
+    void    loopEvents();
+    void    ConnectClient(Socket *ptr);
+    void    ConnectNewClient(Server *server, int eventFd);
 
-    int findServerIndex(int eventFd);
-    int getEpoll() { return this->_epoll; };
-
+    int     findServerIndex(int eventFd);
+    int     getEpoll() { return this->_epoll; };
 };
 
 #endif
