@@ -19,6 +19,7 @@ public:
     Response(int socketFd, std::string error);
     ~Response() {;};
 
+    void    postMethod(Client* client);
     void    getMethod();
     void    createResponse(Client* client);
     bool    isPathAndMethodAllowed(Client* client);
