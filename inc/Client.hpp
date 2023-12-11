@@ -1,60 +1,68 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#include "main.hpp"
+
 class Location;
+class Server;
 
-class Client {
+class Client : public Socket {
 private:
-    // int clientSocket;
+	const Server						 &m_server;
+	Response							_response;
 
-	// request line information
-	std::string _method;
-	std::string _uri;
-	std::string _protocol;
-	// header information
+	std::string 						_method;
+	std::string 						_uri;
+	std::string 						_protocol;
 	std::map <std::string, std::string> headerMap;
-	// request body
-	std::string _body;
-	std::string _boundary;
-	long long	_contentLength;
-	std::string _fileNameBody;
-	std::string _contentType;
+
+	std::string 						_body;
+	std::string 						_boundary;
+	long long							_contentLength;
+	std::string 						_fileNameBody;
+	std::string 						_contentType;
 	std::map <std::string, std::string> _error_pages;
-	std::map <std::string, Location> _location;
-	long long _maxBodySize;
+	long long							_maxBodySize;
+	std::map <std::string, Location>	_location;
 
-	int 		_socketFd;
+    struct sockaddr_storage 			m_client_address {};
+    socklen_t 							m_addrlen{sizeof(m_client_address)};
+	std::string 						_requestBuffer;
 
-	std::string _requestBuffer;
 public:
     Client();
-    Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations, long long maxBodySize);
+    Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
     ~Client();
-    Client(Client const &copy);
     Client &operator=(Client const &copy);
 
-	void readBuffer();
+	// REQUEST AND RESPONSE 
+	void		readBuffer();
+	bool		isPathAndMethodAllowed();
+	void		modifyEpoll(Socket *ptr, int events, int fd);
+	void		createErrorResponse(const std::string& errorMessage);
+	void		sendResponse();
 
-	// parser
-    void	saveClientRequest(char* buffer, int client_socket);
-	int		handleRequest(std::string request, char *buffer, ssize_t post);
-	bool	checkRequestLine(std::string httpRequest);
-	bool	checkMethod(std::string tmp);
-	void	createErrorResponse(const std::string& errorMessage);
-	int		parseRequest(std::string request, char* buffer, ssize_t post);
+	// PARSER
+    void		saveClientRequest(char* buffer, int client_socket);
+	bool		checkMethod(std::string tmp);
+	void		handleRequest(std::string request, char *buffer, ssize_t post);
+	bool		checkRequestLine(std::string httpRequest);
+	int			parseRequest(std::string request, char* buffer, ssize_t post);
+	bool		isRequestComplete(std::string accumulatedRequestData, ssize_t post);
+	void		checkBytesInFile();
 
-	bool isRequestComplete(std::string accumulatedRequestData, ssize_t post);
-	int getSocketFd() const { return this->_socketFd; };
-
-	// getters
-	// int			getClientSocket() { return clientSocket; };
+	// GETTERS
+	int			getSocketFd() const { return this->m_socketFd; };
+	std::string getRequestBuffer() const { return this->_requestBuffer; };
 	std::string getMethod() { return _method; };
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
 
-	void checkBytesInFile();
+	// SETTERS
+	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
+
 };
 
 #endif

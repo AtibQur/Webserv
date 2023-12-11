@@ -11,6 +11,7 @@ SRC_DIR = src
 INC := -I $(INCLUDE_DIR)
 
 SRCS = 	main.cpp \
+		server/Socket.cpp \
 		server/Server.cpp \
 		server/Response.cpp \
 		server/BigServer.cpp \

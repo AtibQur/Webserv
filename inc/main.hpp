@@ -29,5 +29,6 @@
 #include "Response.hpp"
 #include "Location.hpp"
 #include "BigServer.hpp"
+#include "Socket.hpp"
 
 void ExitWithMessage(std::string message);

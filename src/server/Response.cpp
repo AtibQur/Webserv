@@ -1,22 +1,26 @@
 #include "../../inc/main.hpp"
 
 /* Create a respond to the client */
+Response::Response() : _socketFd(0), _filePath(""), _errorCode("") {}
 
-void Server::createResponse(Client* client) {
-    try {
-        isPathAndMethodAllowed(client);
-    } catch (const std::exception& e) {
-        createErrorResponse(e.what(), client);
-        return ;
-    }
+Response::Response(int SocketFd, std::string error) : _socketFd(SocketFd), _errorCode(error) {
+    _filePath = error;
+}
+
+void Response::createResponse(Client* client) {
+    // try {
+    //     isPathAndMethodAllowed(client);
+    // } catch (const std::exception& e) {
+    //     createErrorResponse(e.what(), client);
+    //     return ;
+    // }
     int method = client->getNbMethod();
     switch (method)
     {
         case 1:
-            getMethod(client);
+            getMethod();
             break;
         case 2:
-            postMethod(client);
             break;
         case 3:
             break;
@@ -26,70 +30,35 @@ void Server::createResponse(Client* client) {
 }
 
 /* GET*/
-void Server::getMethod(Client* client) {
+void Response::getMethod() {
     const char* file;
-    std::string stringfile;
-    Location clientLocation = _conf->getLocation(client->getUri());
+    std::string response;
 
-    stringfile = "docs/" + clientLocation.getIndex();
-    file = stringfile.c_str();
+    file = _filePath.c_str();
 
     std::ifstream htmlFile(file);
-
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
-    htmlFile.close();
-    if (file == "docs/error_pages/404.html") {
-        std::string response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;;
-        send(client->getSocketFd(), response.c_str(), response.size(), 0);
-    }
-    if (file == "docs/error_pages/404.html") {
-        std::string response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;;
-        send(client->getSocketFd(), response.c_str(), response.size(), 0);
-    }
-
-    std::ifstream indexFile("docs/index.html");
-    if (!indexFile.is_open()) {
-        char response[] = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 13\n\nFile not found";
-        send(client->getSocketFd(), response, strlen(response), 0);
+    if (!htmlFile.is_open()) {
+        response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 14\n\nFile not found";
     } else {
-        std::string response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
-        send(client->getSocketFd(), response.c_str(), response.size(), 0);
+        response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
     }
+    htmlFile.close();
+
+    send(_socketFd, response.c_str(), response.size(), 0);
     printf("------------------Response sent-------------------\n");
 }
 
-bool Server::isPathAndMethodAllowed(Client *client)
-{
-    Location clientLocation = _conf->getLocation(client->getUri());
-    if (clientLocation.getPath().empty())
-    {
-        throw std::invalid_argument("404");
-    }
-    if ("/root/" + access(client->getUri().c_str(), R_OK) == 0)
-    {
-        std::cout << client->getUri() << std::endl;
-        return true;
-    }
-    std::vector<std::string> methods = clientLocation.getMethods();
-    if (methods.empty())
-        throw std::invalid_argument("400");
-    std::vector<std::string>::iterator it = methods.begin();
-    for (it; it < methods.end(); it++)
-    {
-        if (client->getMethod() == *it)
-            return true;
-    }
-    throw std::invalid_argument("400");
-}
-# define stdendl std::endl
-
-void Server::createErrorResponse(const std::string& errorMessage, Client *client)
+void Response::createErrorResponse(const std::string& errorMessage)
 {
     std::string file;
     std::string response;
 
+    std::cout << "error: " << errorMessage << "\n";
+
     file = _conf->getErrorPage(errorMessage);
+    std::cout << file << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
@@ -119,5 +88,6 @@ void Server::createErrorResponse(const std::string& errorMessage, Client *client
             }
         }
     }
-    send(client->getSocketFd(), response.c_str(), response.size(), 0);
+    send(_socketFd, response.c_str(), response.size(), 0);
+    printf("------------------Error Response sent-------------------\n");
 }

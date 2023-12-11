@@ -1,40 +1,35 @@
 #include "../../inc/main.hpp"
 
-Client::Client() : _socketFd(-1), _requestBuffer(""), _boundary("UNSET") {
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
+    m_socketFd = -1;
 }
 
-Client::Client(int newSocketFd, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations, long long maxBodySize) : _socketFd(newSocketFd), _boundary("UNSET") {
+Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) \
+    : m_server(server), _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
-    _maxBodySize = maxBodySize;
+
+    m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
+    if (m_socketFd == -1)
+    {
+        perror("client Accept() error");
+        exit(EXIT_FAILURE);
+    }
 }
 
 Client::~Client() {
     std::cout << "Client removed" << std::endl;
 }
 
-Client::Client(Client const &copy) {
-    *this = copy;
-}
+// Client::Client(Client const &copy) {
+//     *this = copy;
+// }
 
 Client& Client::operator=(Client const &copy) {
-    this->_socketFd = copy._socketFd;
+    this->m_socketFd = copy.m_socketFd;
     this->_requestBuffer = copy._requestBuffer;
+    this->_response = copy._response;
     return *this;
-}
-
-int Client::handleRequest(std::string request, char *buffer, ssize_t post) {
-    try {
-        parseRequest(request, buffer, post);
-    } catch (const std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
-        createErrorResponse(e.what());
-    }
-    return (0);
-}
-
-void Client::createErrorResponse(const std::string& errorMessage) {
-    std::cout << "response: " << std::endl;
 }
 
 int Client::getNbMethod() { 
@@ -65,6 +60,7 @@ void Client::readBuffer() {
         } else if (bytes_read == 0){
             std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
+            break ;
         } else if (i = 0) {
             if (buffer[0] == 'P' && buffer[1] == 'O' && buffer[2] == 'S' && buffer[3] == 'T' && buffer[4] == ' ')
                 post = 1;
@@ -76,13 +72,27 @@ void Client::readBuffer() {
                 continue ;
             if (isRequestComplete(accumulatedRequestData, post)) 
             {
-                handleRequest(accumulatedRequestData, buffer, post); // parse the request with this client
-                // close or delete client?
+                // modify epoll
+                modifyEpoll(this, EPOLLOUT, getSocketFd());
+                handleRequest(accumulatedRequestData, buffer, post); 
                 break ;
             }
         }
         i++;
     }
+}
+
+void Client::modifyEpoll(Socket *ptr, int events, int fd){
+    struct epoll_event event;
+    event.events = events;
+
+    event.data.ptr = ptr;
+
+    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
+        perror("epoll_ctl mod out"); 
+        exit(EXIT_FAILURE);
+    }
+    std::cout << "modified epoll" << std::endl;
 }
 
 bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post){
@@ -100,4 +110,59 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
     else {
         return true;
     }
+}
+
+void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
+    try {
+        parseRequest(request, buffer, post);
+        isPathAndMethodAllowed();
+    } catch (const std::exception& e) {
+        Response error(getSocketFd(), e.what());
+        error.setConf(m_server.getConf());
+        _response = error;
+    }
+}
+
+bool Client::isPathAndMethodAllowed()
+{
+    Location clientLocation = m_server.getConf()->getLocation(getUri());
+    if (clientLocation.getPath().empty())
+    {
+        throw std::invalid_argument("404");
+    }
+    if ("/root/" + access(getUri().c_str(), R_OK) == 0)
+    {
+        std::cout << getUri() << std::endl;
+        return true;
+    }
+    std::vector<std::string> methods = clientLocation.getMethods();
+    if (methods.empty())
+        throw std::invalid_argument("400");
+    std::vector<std::string>::iterator it = methods.begin();
+    for (it; it < methods.end(); it++)
+    {
+        if (getMethod() == *it)
+            return true;
+    }
+    throw std::invalid_argument("400");
+}
+
+void Client::sendResponse() {
+
+    if (_response.getError().size() == 3){
+        _response.createErrorResponse(_response.getError());
+    }
+    else {
+        Location clientLocation = m_server.getConf()->getLocation(getUri());
+        std::string file = "docs/" + clientLocation.getIndex();
+        Response clientResponse(getSocketFd(), file);
+
+        clientResponse.setConf(m_server.getConf());
+        _response = clientResponse;
+
+        _response.createResponse(this);
+    }
+    modifyEpoll(this, EPOLLIN, getSocketFd());
+    Response res;
+    _response = res;
 }
