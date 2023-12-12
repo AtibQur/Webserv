@@ -43,6 +43,7 @@ void Response::getMethod() {
     std::string response;
 
     file = _filePath.c_str();
+    std::cout << file << std::endl;
 
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
