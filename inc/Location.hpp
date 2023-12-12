@@ -30,7 +30,7 @@ public:
     std::string getIndex();
     std::vector<std::string> getMethods();
     std::string getPath();
-    bool getAutoIndex();
+    bool getAutoIndex() { return _autoindex; };
 
     // OUTPUT
     void outputLocation();

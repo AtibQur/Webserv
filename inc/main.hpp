@@ -8,8 +8,10 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 #include <fcntl.h>
-/* CPP Libraries */
+#include <sys/stat.h>
+#include <dirent.h>
 
+/* CPP Libraries */
 #include <iostream>
 #include <fstream>
 #include <sstream>

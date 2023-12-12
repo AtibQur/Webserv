@@ -154,7 +154,7 @@ void Client::sendResponse() {
     }
     else {
         Location clientLocation = m_server.getConf()->getLocation(getUri());
-        std::string file = "docs/" + clientLocation.getIndex();
+        std::string file = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
         Response clientResponse(getSocketFd(), file);
 
         clientResponse.setConf(m_server.getConf());
