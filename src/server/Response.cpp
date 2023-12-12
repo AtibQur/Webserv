@@ -36,7 +36,6 @@ void Response::getMethod(Client *client) {
 
     Location location = _conf->getLocation(client->getUri());
     file = _filePath.c_str();
-
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
@@ -60,7 +59,17 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
 
     listing += "<ul>";
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
-        listing += "<li>" + entry.path().filename().string() + "</li>";
+        std::cout << entry.path() << std::endl;
+
+        if (std::filesystem::is_directory(entry.path())) {
+            // std::cout << entry.path().filename().string() + " " + generateDirectoryListing(entry.path().string()) << std::endl;
+            // listing += "<li>[DIR] " + entry.path().filename().string() + generateDirectoryListing(entry.path().string()) + "</li>";
+            std::cout << "<li>[DIR] " + entry.path().filename().string() << std::endl;
+            listing += "<li>[DIR] " + entry.path().filename().string();
+            listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string());
+        } else {
+            listing += "<li>" + entry.path().filename().string() + "</li>";
+        }
     }
     listing += "</ul>";
 
