@@ -62,9 +62,6 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
         std::cout << entry.path() << std::endl;
 
         if (std::filesystem::is_directory(entry.path())) {
-            // std::cout << entry.path().filename().string() + " " + generateDirectoryListing(entry.path().string()) << std::endl;
-            // listing += "<li>[DIR] " + entry.path().filename().string() + generateDirectoryListing(entry.path().string()) + "</li>";
-            std::cout << "<li>[DIR] " + entry.path().filename().string() << std::endl;
             listing += "<li>[DIR] " + entry.path().filename().string();
             listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string());
         } else {
