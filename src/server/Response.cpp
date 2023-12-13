@@ -18,7 +18,7 @@ void Response::createResponse(Client* client) {
     switch (method)
     {
         case 1:
-            getMethod();
+            getMethod(client);
             break;
         case 2:
             break;
@@ -30,18 +30,21 @@ void Response::createResponse(Client* client) {
 }
 
 /* GET*/
-void Response::getMethod() {
+void Response::getMethod(Client *client) {
     const char* file;
     std::string response;
 
+    Location location = _conf->getLocation(client->getUri());
     file = _filePath.c_str();
-
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
     if (!htmlFile.is_open()) {
         response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 14\n\nFile not found";
     } else {
+        if (location.getAutoIndex()) {
+            fileContent += generateDirectoryListing(location.getPath());
+        }
         response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
     }
     htmlFile.close();
@@ -50,6 +53,27 @@ void Response::getMethod() {
     printf("------------------Response sent-------------------\n");
 }
 
+/* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN*/
+std::string Response::generateDirectoryListing(std::string dirPath) {
+    std::string listing;
+
+    listing += "<ul>";
+    for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
+        std::cout << entry.path() << std::endl;
+
+        if (std::filesystem::is_directory(entry.path())) {
+            listing += "<li>[DIR] " + entry.path().filename().string();
+            listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string());
+        } else {
+            listing += "<li>" + entry.path().filename().string() + "</li>";
+        }
+    }
+    listing += "</ul>";
+
+    return listing;
+}
+
+/* RETURN ERROR WHEN REQUEST IS WRONG*/
 void Response::createErrorResponse(const std::string& errorMessage)
 {
     std::string file;
