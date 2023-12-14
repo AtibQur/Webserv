@@ -77,7 +77,6 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
             break ;
         if (tmp.find("Content-Type:") != std::string::npos) {
             _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, ';');
-            std::cout << "^" << _contentType << "^" << std::endl;
             _boundary = tmp.substr(tmp.find("boundary") + 9);
         }
         if (tmp.find("Content-Length:") != std::string::npos) {
@@ -90,11 +89,14 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
         throw std::invalid_argument("400 Bad Request: Content-Type is empty");
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
+    std::cout << _maxBodySize << std::endl;
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
         throw std::invalid_argument("413 Payload Too Large: Content-Length is too large");
     }
-    if (_contentType != "multipart/form-data")
+    if (_contentType != "multipart/form-data") {
         return (0); // for when its text or www-form-urlencoded
+    }
+        
 
     // parse body
     getline(httpRequest, tmp);
@@ -120,10 +122,10 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
 
     bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
-			if (read.compare("--" + _boundary + "--") == 0)
-				break;
-			bodyfile << read;
-			bodyfile << std::endl;
+		if (read.compare("--" + _boundary + "--") == 0)
+			break;
+		bodyfile << read;
+		bodyfile << std::endl;
 	}
     bodyfile.close();
 

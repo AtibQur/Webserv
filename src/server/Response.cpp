@@ -21,6 +21,7 @@ void Response::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
+            postMethod(client);
             break;
         case 3:
             break;
@@ -30,6 +31,23 @@ void Response::createResponse(Client* client) {
 }
 
 /* POST */
+void Response::postMethod(Client *client) {
+    const char* file;
+    std::string response;
+
+    Location location = _conf->getLocation(client->getUri());
+    file = _filePath.c_str();
+    std::cout << file << std::endl;
+
+    std::ifstream htmlFile(file);
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+    response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+    htmlFile.close();
+
+    send(_socketFd, response.c_str(), response.size(), 0);
+    printf("------------------Response sent-------------------\n");
+}
+
 /* GET*/
 void Response::getMethod(Client *client) {
     const char* file;
