@@ -19,11 +19,11 @@ public:
     Response(int socketFd, std::string error);
     ~Response() {;};
 
-    void    postMethod(Client* client);
-    void    getMethod();
+    void    getMethod(Client *client);
     void    createResponse(Client* client);
     bool    isPathAndMethodAllowed(Client* client);
     void    createErrorResponse(const std::string& errorMessage);
+    std::string generateDirectoryListing(std::string dirPath);
 
     // GETTERS
     std::string getError() { return _errorCode; };
