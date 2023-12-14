@@ -157,6 +157,7 @@ void Config::setMaxBodySize(std::string value) {
             }
         value.pop_back();
     }
+    std::cout << value << std::endl;
     if (isalpha(value[value.size() - 1])) { 
         multiplier = toupper(value[value.size() - 1]);
         value.pop_back();

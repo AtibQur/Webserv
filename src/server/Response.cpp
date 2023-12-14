@@ -21,6 +21,7 @@ void Response::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
+            postMethod(client);
             break;
         case 3:
             break;
@@ -30,6 +31,11 @@ void Response::createResponse(Client* client) {
 }
 
 /* POST */
+void Response::postMethod(Client *client) {
+    // empty
+    system("curl parrot.live");
+}
+
 /* GET*/
 void Response::getMethod(Client *client) {
     const char* file;

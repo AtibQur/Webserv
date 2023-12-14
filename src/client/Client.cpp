@@ -4,10 +4,11 @@ Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
     m_socketFd = -1;
 }
 
-Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) \
+Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations) \
     : m_server(server), _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
+    _maxBodySize = server.getConf()->getMaxBodySize();
 
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
     if (m_socketFd == -1)
@@ -92,7 +93,7 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
     }
-    std::cout << "modified epoll" << std::endl;
+    // std::cout << "modified epoll" << std::endl;
 }
 
 bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post){
