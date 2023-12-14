@@ -116,6 +116,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::string read;
     std::ofstream bodyfile;
     // // // parse body
+    Location location = _location[_uri];
 
     bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {

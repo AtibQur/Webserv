@@ -29,6 +29,7 @@ void Response::createResponse(Client* client) {
     }
 }
 
+/* POST */
 /* GET*/
 void Response::getMethod(Client *client) {
     const char* file;
@@ -36,6 +37,8 @@ void Response::getMethod(Client *client) {
 
     Location location = _conf->getLocation(client->getUri());
     file = _filePath.c_str();
+    std::cout << file << std::endl;
+
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
