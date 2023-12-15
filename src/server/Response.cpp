@@ -21,12 +21,18 @@ void Response::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
+            postMethod(client);
             break;
         case 3:
             break;
         default:
             std::cout << "default method" << std::endl;
     }
+}
+
+/* POST*/
+void Response::postMethod(Client *client) {
+    std::string response = "HTTP/1.1 302 FOUND\nLocation: root/index.html\n\n";
 }
 
 /* GET*/
