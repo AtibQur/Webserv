@@ -1,5 +1,7 @@
 #include "../../inc/main.hpp"
 
+namespace fs = std::filesystem;
+
 Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
     m_socketFd = -1;
 }
@@ -128,9 +130,13 @@ bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     std::cout << "hi:" << getUri() << std::endl;
+    std::cout << "Location: O" << clientLocation.getPath() << "0" << std::endl;
+    // if (fs::exists("root" + getUri()) && fs::is_directory("root" + getUri()))
+        
+    if (!fs::exists("root" + getUri()))
+        throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
     {
-        std::cout << "FOUUUTUTTTT" << std::endl;
         throw std::invalid_argument("404");
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
