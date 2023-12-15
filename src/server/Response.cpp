@@ -59,19 +59,26 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
 
     listing += "<ul>";
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
-        std::cout << entry.path() << std::endl;
+        listing += "<li>";
 
         if (std::filesystem::is_directory(entry.path())) {
-            listing += "<li>[DIR] " + entry.path().filename().string();
-            listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string());
+            listing += "[DIR] " + entry.path().filename().string();  // Show directory
+            listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string()); // Show list items underneath directory recursively
         } else {
-            listing += "<li>" + entry.path().filename().string() + "</li>";
+            if (entry.path().extension() == ".html") {
+                listing += "<a href=\"http://localhost:8080/" + entry.path().filename().string() + "\">" + entry.path().filename().string() + "</a>";
+
+            } else {
+                listing += entry.path().filename().string();
+            }
         }
+        listing += "</li>";
     }
     listing += "</ul>";
 
     return listing;
 }
+
 
 /* RETURN ERROR WHEN REQUEST IS WRONG*/
 void Response::createErrorResponse(const std::string& errorMessage)
