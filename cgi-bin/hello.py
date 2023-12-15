@@ -2,7 +2,7 @@
 
 import cgi
 
-print ("Content-type:text/html\r\n\r\n")
+# print ("Content-type:text/html\r\n\r\n")
 print ('<html>')
 print ('<head>')
 print ('<title>Hello Word - First CGI Program</title>')

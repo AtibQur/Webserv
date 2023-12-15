@@ -127,8 +127,10 @@ void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
 bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
+    std::cout << "hi:" << getUri() << std::endl;
     if (clientLocation.getPath().empty())
     {
+        std::cout << "FOUUUTUTTTT" << std::endl;
         throw std::invalid_argument("404");
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
