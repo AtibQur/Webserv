@@ -21,19 +21,12 @@ void Response::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
-            postMethod(client);
             break;
         case 3:
             break;
         default:
             std::cout << "default method" << std::endl;
     }
-}
-
-/* POST */
-void Response::postMethod(Client *client) {
-    // empty
-    system("curl parrot.live");
 }
 
 /* GET*/
@@ -43,8 +36,6 @@ void Response::getMethod(Client *client) {
 
     Location location = _conf->getLocation(client->getUri());
     file = _filePath.c_str();
-    std::cout << file << std::endl;
-
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
@@ -70,15 +61,22 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
         listing += "<li>";
 
+        std::string fileName = entry.path().filename().string();
+        std::string displayName = entry.path().stem().string(); // Remove extension
+        std::cout << "Display Name = " << displayName << std::endl;
+
         if (std::filesystem::is_directory(entry.path())) {
-            listing += "[DIR] " + entry.path().filename().string();  // Show directory
-            listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string()); // Show list items underneath directory recursively
+            listing += "[DIR] " + fileName;
+            if (entry.path().extension() == ".html") {
+                listing += "<a href=\"http://localhost:8080/" + dirPath + "/" + displayName + "\">" + fileName + "</a>";
+            } else {
+                listing += generateDirectoryListing(dirPath + "/" + fileName);
+            }
         } else {
             if (entry.path().extension() == ".html") {
-                listing += "<a href=\"http://localhost:8080/" + entry.path().filename().string() + "\">" + entry.path().filename().string() + "</a>";
-
+                listing += "<a href=\"http://localhost:8080/" + dirPath + "/" + displayName + "\">" + fileName + "</a>";
             } else {
-                listing += entry.path().filename().string();
+                listing += displayName;
             }
         }
         listing += "</li>";
@@ -87,6 +85,7 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
 
     return listing;
 }
+
 
 
 /* RETURN ERROR WHEN REQUEST IS WRONG*/
