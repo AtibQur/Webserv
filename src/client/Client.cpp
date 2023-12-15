@@ -4,10 +4,11 @@ Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
     m_socketFd = -1;
 }
 
-Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations ) \
+Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations) \
     : m_server(server), _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
+    _maxBodySize = server.getConf()->getMaxBodySize();
 
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
     if (m_socketFd == -1)
@@ -160,7 +161,7 @@ void Client::sendResponse() {
     }
     else {
         Location clientLocation = m_server.getConf()->getLocation(getUri());
-        std::string file = "docs/" + clientLocation.getIndex();
+        std::string file = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
         Response clientResponse(getSocketFd(), file);
 
         clientResponse.setConf(m_server.getConf());

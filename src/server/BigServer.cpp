@@ -80,7 +80,7 @@ void BigServer::connectNewClient(Server *server, int eventFd)
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "new client added to epoll" << std::endl;
+    // std::cout << "new client added to epoll" << std::endl;
 }
 
 void BigServer::outgoingResponse(Socket *ptr){

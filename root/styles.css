@@ -1,0 +1,20 @@
+h1 {
+    font-family: Times, serif;
+    color: #ff0000;
+    background-color: rgb(73, 201, 14);
+}
+
+h2 {
+    font-family: Times, serif;
+    color: #ffffff;
+    background-color: rgb(0, 0, 0);
+}
+
+p {
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: normal;
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+}
