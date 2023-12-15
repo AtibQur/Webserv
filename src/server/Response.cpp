@@ -40,16 +40,17 @@ void Response::getMethod(Client *client) {
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
     if (!htmlFile.is_open()) {
-        response = "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 14\n\nFile not found";
+        response = "HTTP/1.1 404 Not Found\nContent-Length: 14\n\nFile not found";
     } else {
         if (location.getAutoIndex()) {
             fileContent += generateDirectoryListing(location.getPath());
         }
-        response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+        response = "HTTP/1.1 200 OK\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
     }
     htmlFile.close();
 
     send(_socketFd, response.c_str(), response.size(), 0);
+    // std::cout << response.c_str() << std::endl;
     printf("------------------Response sent-------------------\n");
 }
 
@@ -113,16 +114,16 @@ void Response::createErrorResponse(const std::string& errorMessage)
         if (file == array[i]) {
             switch (i) {
                 case 0:
-                    response = "HTTP/1.1 400 Bad Request\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    response = "HTTP/1.1 400 Bad Request\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
                     break;
                 case 1:
-                    response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    response = "HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
                     break;
                 case 2:
-                    response = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    response = "HTTP/1.1 405 Method Not Allowed\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
                     break;
                 case 3:
-                    response = "HTTP/1.1 404 Not Found\nContent-Type: text/html\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
+                    response = "HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent;
                     break;
             }
         }

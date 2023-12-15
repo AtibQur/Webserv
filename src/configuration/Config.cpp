@@ -223,10 +223,23 @@ void Config::outputLines() {
         std::cout << line << std::endl;
 }
 
+std::string trimTillLastSlash(std::string path) {
+    std::string::iterator it = path.end();
+    while (it != path.begin() && *it != '/')
+        it--;
+    
+    return (path.substr(0, std::distance(path.begin(), it)));
+}
+
 Location Config::getLocation(std::string path) 
 {
-    if (_locations.find(path) != _locations.end())
-        return (_locations[path]);
-    Location nullLoaction;
-    return (nullLoaction);
+    if (path == "/")
+        return _locations[path];
+    while (1) {
+        if (_locations.find(path) != _locations.end())
+            return (_locations[path]);
+        if (path == "/" || path.empty())
+            return (_locations["/"]);
+        path = trimTillLastSlash(path);
+    }
 };
