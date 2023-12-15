@@ -21,19 +21,12 @@ void Response::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
-            postMethod(client);
             break;
         case 3:
             break;
         default:
             std::cout << "default method" << std::endl;
     }
-}
-
-/* POST */
-void Response::postMethod(Client *client) {
-    // empty
-    system("curl parrot.live");
 }
 
 /* GET*/
@@ -43,8 +36,6 @@ void Response::getMethod(Client *client) {
 
     Location location = _conf->getLocation(client->getUri());
     file = _filePath.c_str();
-    std::cout << file << std::endl;
-
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
@@ -69,19 +60,34 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
 
     listing += "<ul>";
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
-        std::cout << entry.path() << std::endl;
+        listing += "<li>";
+
+        std::string fileName = entry.path().filename().string();
+        std::string displayName = entry.path().stem().string(); // Remove extension
+        std::cout << "Display Name = " << displayName << std::endl;
 
         if (std::filesystem::is_directory(entry.path())) {
-            listing += "<li>[DIR] " + entry.path().filename().string();
-            listing += generateDirectoryListing(dirPath + "/" + entry.path().filename().string());
+            listing += "[DIR] " + fileName;
+            if (entry.path().extension() == ".html") {
+                listing += "<a href=\"http://localhost:8080/" + dirPath + "/" + displayName + "\">" + fileName + "</a>";
+            } else {
+                listing += generateDirectoryListing(dirPath + "/" + fileName);
+            }
         } else {
-            listing += "<li>" + entry.path().filename().string() + "</li>";
+            if (entry.path().extension() == ".html") {
+                listing += "<a href=\"http://localhost:8080/" + dirPath + "/" + displayName + "\">" + fileName + "</a>";
+            } else {
+                listing += displayName;
+            }
         }
+        listing += "</li>";
     }
     listing += "</ul>";
 
     return listing;
 }
+
+
 
 /* RETURN ERROR WHEN REQUEST IS WRONG*/
 void Response::createErrorResponse(const std::string& errorMessage)
