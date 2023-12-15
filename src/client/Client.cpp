@@ -42,6 +42,35 @@ int Client::getNbMethod() {
     return (0);
 }
 
+void Client::modifyEpoll(Socket *ptr, int events, int fd){
+    struct epoll_event event;
+    event.events = events;
+
+    event.data.ptr = ptr;
+
+    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
+        perror("epoll_ctl mod out"); 
+        exit(EXIT_FAILURE);
+    }
+    std::cout << "modified epoll" << std::endl;
+}
+
+void Client::receiveRequest() {
+    readBuffer();
+}
+
+void Client::handleRequest(std::string request, ssize_t post) {
+    try {
+        parseRequest(request, post);
+        isPathAndMethodAllowed();
+    } catch (const std::exception& e) {
+        std::cout << "this error: " << e.what() << std::endl;
+        Response error(getSocketFd(), e.what());
+        error.setConf(m_server.getConf());
+        _response = error;
+    }
+}
+
 void Client::readBuffer() {
     ssize_t post = 0;
     ssize_t i = 0;
@@ -74,25 +103,12 @@ void Client::readBuffer() {
             {
                 // modify epoll
                 modifyEpoll(this, EPOLLOUT, getSocketFd());
-                handleRequest(accumulatedRequestData, buffer, post); 
+                handleRequest(accumulatedRequestData, post);
                 break ;
             }
         }
         i++;
     }
-}
-
-void Client::modifyEpoll(Socket *ptr, int events, int fd){
-    struct epoll_event event;
-    event.events = events;
-
-    event.data.ptr = ptr;
-
-    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
-        perror("epoll_ctl mod out"); 
-        exit(EXIT_FAILURE);
-    }
-    std::cout << "modified epoll" << std::endl;
 }
 
 bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post){
@@ -109,17 +125,6 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
     }
     else {
         return true;
-    }
-}
-
-void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
-    try {
-        parseRequest(request, buffer, post);
-        isPathAndMethodAllowed();
-    } catch (const std::exception& e) {
-        Response error(getSocketFd(), e.what());
-        error.setConf(m_server.getConf());
-        _response = error;
     }
 }
 
@@ -149,6 +154,7 @@ bool Client::isPathAndMethodAllowed()
 
 void Client::sendResponse() {
 
+    // error
     if (_response.getError().size() == 3){
         _response.createErrorResponse(_response.getError());
     }

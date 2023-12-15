@@ -8,10 +8,11 @@ class Client;
 class Response
 {
 private:
-    std::string     _response;
     std::string     _errorCode;
     int             _socketFd;
     std::string     _filePath;
+    std::string     _head;
+    std::string     _content_type;
     Config          *_conf;
 
 public:

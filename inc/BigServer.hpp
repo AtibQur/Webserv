@@ -28,8 +28,9 @@ public:
     void    initEpoll();
     void    setupNewEvents();
     void    loopEvents();
-    void    ConnectClient(Socket *ptr);
-    void    ConnectNewClient(Server *server, int eventFd);
+    void    incomingRequest(Socket *ptr);
+    void    outgoingResponse(Socket *ptr);
+    void    connectNewClient(Server *server, int eventFd);
 
     int     findServerIndex(int eventFd);
     int     getEpoll() { return this->_epoll; };

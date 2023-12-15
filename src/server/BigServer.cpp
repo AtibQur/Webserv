@@ -41,33 +41,33 @@ void BigServer::loopEvents() {
 
         if (event.events & EPOLLIN) 
         {   
-           ConnectClient(epollPtr);
+            incomingRequest(epollPtr);
         } 
         else if (event.events & EPOLLOUT) 
-        {    
-            if (Client *client = dynamic_cast<Client *>(epollPtr)){
-                std::cout << "client creating response" << std::endl;
-                client->sendResponse();
-            }
+        {   
+            outgoingResponse(epollPtr);
         }
     }
 }
 
-void BigServer::ConnectClient(Socket *ptr) {
+void BigServer::incomingRequest(Socket *ptr) {
     if (Client *client = dynamic_cast<Client *>(ptr)){
         std::cout << "existing client ready for read" << "\n";
-        client->readBuffer();
+        client->receiveRequest();
     }
     if (Server *server = dynamic_cast<Server *>(ptr)){
         std::cout << "new client" << std::endl;
-        ConnectNewClient(server, _eventFd);
+        connectNewClient(server, _eventFd);
     }
 }
 
-void BigServer::ConnectNewClient(Server *server, int eventFd) 
+void BigServer::connectNewClient(Server *server, int eventFd) 
 {
     Client *client = new Client(*server, server->getConf()->getErrorPages(), server->getConf()->getLocations());
-    
+    if (!client) {
+        perror("no client connected");
+        return ;
+    }
     client->setEpoll(server->getEpoll());
     struct epoll_event event;
     event.events = EPOLLIN;
@@ -81,6 +81,13 @@ void BigServer::ConnectNewClient(Server *server, int eventFd)
     }
 
     std::cout << "new client added to epoll" << std::endl;
+}
+
+void BigServer::outgoingResponse(Socket *ptr){
+    if (Client *client = dynamic_cast<Client *>(ptr)){
+        std::cout << "client creating response" << std::endl;
+        client->sendResponse();
+    }
 }
 
 // void BigServer::ConnectNewClient(int index, int eventFd) 

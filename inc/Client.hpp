@@ -36,6 +36,7 @@ public:
     Client &operator=(Client const &copy);
 
 	// REQUEST AND RESPONSE 
+	void		receiveRequest();
 	void		readBuffer();
 	bool		isPathAndMethodAllowed();
 	void		modifyEpoll(Socket *ptr, int events, int fd);
@@ -45,9 +46,9 @@ public:
 	// PARSER
     void		saveClientRequest(char* buffer, int client_socket);
 	bool		checkMethod(std::string tmp);
-	void		handleRequest(std::string request, char *buffer, ssize_t post);
+	void		handleRequest(std::string request, ssize_t post);
 	bool		checkRequestLine(std::string httpRequest);
-	int			parseRequest(std::string request, char* buffer, ssize_t post);
+	int			parseRequest(std::string request, ssize_t post);
 	bool		isRequestComplete(std::string accumulatedRequestData, ssize_t post);
 	void		checkBytesInFile();
 
