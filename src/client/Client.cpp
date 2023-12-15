@@ -131,7 +131,6 @@ bool Client::isPathAndMethodAllowed()
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     std::cout << "hi:" << getUri() << std::endl;
     std::cout << "Location: O" << clientLocation.getPath() << "0" << std::endl;
-    // if (fs::exists("root" + getUri()) && fs::is_directory("root" + getUri()))
         
     if (!fs::exists("root" + getUri()))
         throw std::invalid_argument("404");
