@@ -55,11 +55,11 @@ void BigServer::loopEvents() {
 
 void BigServer::ConnectClient(Socket *ptr) {
     if (Client *client = dynamic_cast<Client *>(ptr)){
-        std::cout << "existing client ready for read" << "\n";
+        // std::cout << "existing client ready for read" << "\n";
         client->readBuffer();
     }
     if (Server *server = dynamic_cast<Server *>(ptr)){
-        std::cout << "new client" << std::endl;
+        // std::cout << "new client" << std::endl;
         ConnectNewClient(server, _eventFd);
     }
 }
@@ -80,7 +80,7 @@ void BigServer::ConnectNewClient(Server *server, int eventFd)
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "new client added to epoll" << std::endl;
+    // std::cout << "new client added to epoll" << std::endl;
 }
 
 // void BigServer::ConnectNewClient(int index, int eventFd) 

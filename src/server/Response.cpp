@@ -21,12 +21,19 @@ void Response::createResponse(Client* client) {
             getMethod(client);
             break;
         case 2:
+            postMethod(client);
             break;
         case 3:
             break;
         default:
             std::cout << "default method" << std::endl;
     }
+}
+
+/* POST */
+void Response::postMethod(Client *client) {
+    // empty
+    system("curl parrot.live");
 }
 
 /* GET*/
@@ -36,6 +43,8 @@ void Response::getMethod(Client *client) {
 
     Location location = _conf->getLocation(client->getUri());
     file = _filePath.c_str();
+    std::cout << file << std::endl;
+
     std::ifstream htmlFile(file);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
