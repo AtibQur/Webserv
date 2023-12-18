@@ -44,6 +44,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::string tmp;
 
     // check if there is valid request line
+    // std::cout << "request: " << request << std::endl;
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400");
     }
@@ -89,7 +90,6 @@ int Client::parseRequest(std::string request, ssize_t post) {
         throw std::invalid_argument("400 Bad Request: Content-Type is empty");
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
-    std::cout << _maxBodySize << std::endl;
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
         throw std::invalid_argument("413");
     }

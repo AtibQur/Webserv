@@ -33,14 +33,13 @@ void BigServer::loopEvents() {
     Socket *epollPtr{};
 
     for (int i = 0; i < _num_events; i++) {
-
         event = _events[i];
         epollPtr = static_cast<Socket *>(event.data.ptr);
         if (epollPtr == nullptr)
             std::cout << "epollPtr error" << std::endl;
 
         if (event.events & EPOLLIN) 
-        {   
+        {
             incomingRequest(epollPtr);
         } 
         else if (event.events & EPOLLOUT) 
