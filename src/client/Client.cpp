@@ -140,7 +140,6 @@ bool Client::isPathAndMethodAllowed()
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
-        std::cout << getUri() << std::endl;
         return true;
     }
     std::vector<std::string> methods = clientLocation.getMethods();
@@ -149,8 +148,11 @@ bool Client::isPathAndMethodAllowed()
     std::vector<std::string>::iterator it = methods.begin();
     for (it; it < methods.end(); it++)
     {
-        if (getMethod() == *it)
+        if (getMethod() == *it) 
+        {
+            std::cout << "goed" << std::endl;
             return true;
+        }
     }
     throw std::invalid_argument("400");
 }
@@ -161,8 +163,12 @@ void Client::sendResponse() {
         _response.createErrorResponse(_response.getError());
     }
     else {
+        std::string file;
         Location clientLocation = m_server.getConf()->getLocation(getUri());
-        std::string file = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
+        if (clientLocation.getPath() == getUri())
+            file = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
+        else
+            file = "root" + getUri();
         Response clientResponse(getSocketFd(), file);
 
         clientResponse.setConf(m_server.getConf());
