@@ -32,7 +32,11 @@ void Response::createResponse(Client* client) {
 
 /* POST*/
 void Response::postMethod(Client *client) {
-    std::string response = "HTTP/1.1 302 FOUND\nLocation: root/index.html\n\n";
+    std::string response = "HTTP/1.1 302 FOUND\nLocation: " + client->getFileNameBody() + "\n\n";
+    send(_socketFd, response.c_str(), response.size(), 0);
+    std::cout << response.c_str() << std::endl;
+    printf("------------------Response sent-------------------\n");
+
 }
 
 /* GET*/
@@ -56,6 +60,7 @@ void Response::getMethod(Client *client) {
     htmlFile.close();
 
     send(_socketFd, response.c_str(), response.size(), 0);
+    std::cout << response.c_str() << std::endl;
     // std::cout << response.c_str() << std::endl;
     printf("------------------Response sent-------------------\n");
 }
