@@ -129,9 +129,7 @@ void Client::handleRequest(std::string request, char *buffer, ssize_t post) {
 bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
-    std::cout << "hi:" << getUri() << std::endl;
-    std::cout << "Location: O" << clientLocation.getPath() << "0" << std::endl;
-        
+
     if (!fs::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
@@ -150,7 +148,6 @@ bool Client::isPathAndMethodAllowed()
     {
         if (getMethod() == *it) 
         {
-            std::cout << "goed" << std::endl;
             return true;
         }
     }

@@ -66,8 +66,6 @@ void Response::getMethod(Client *client) {
     htmlFile.close();
 
     send(_socketFd, response.c_str(), response.size(), 0);
-    std::cout << response.c_str() << std::endl;
-    // std::cout << response.c_str() << std::endl;
     printf("------------------Response sent-------------------\n");
 }
 

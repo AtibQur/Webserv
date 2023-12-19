@@ -95,8 +95,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     }
     if (_contentType != "multipart/form-data") {
         return (0); // for when its text or www-form-urlencoded
-    }
-        
+    } 
 
     // parse body
     getline(httpRequest, tmp);
@@ -122,8 +121,9 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
 
     bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
-		if (read.compare("--" + _boundary + "--") == 0)
+		if (read.compare("--" + _boundary + "--") == 0) {
 			break;
+        }
 		bodyfile << read;
 		bodyfile << std::endl;
 	}
