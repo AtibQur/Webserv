@@ -44,9 +44,9 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::string tmp;
 
     // check if there is valid request line
-    for (int i = 0; i < request.size() && i < 1000; i++) {
-        std::cout << request[i];
-    }
+    // for (int i = 0; i < request.size() && i < 1000; i++) {
+    //     std::cout << request[i];
+    // }
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400");
     }
@@ -101,8 +101,16 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
 
     // parse body
     getline(httpRequest, tmp);
-    if (tmp.find("filename=") != std::string::npos)
+    if (tmp.find("name=") != std::string::npos) {
+        if (subTillChar(tmp, tmp.find("name=") + 6, '\"') == "delete") {
+            _isDelete = true;
+            std::cout << "delete" << std::endl;
+            return (0);
+        }
+    }
+    if (tmp.find("filename=") != std::string::npos) {
         _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
+    }
     getline(httpRequest, tmp);
     if (tmp.find("Content-Type:") != std::string::npos)
         _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');

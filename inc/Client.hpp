@@ -20,6 +20,7 @@ private:
 	std::string 						_boundary;
 	long long							_contentLength;
 	std::string 						_fileNameBody;
+	bool								_isDelete;
 	std::string 						_contentType;
 	std::map <std::string, std::string> _error_pages;
 	long long							_maxBodySize;
