@@ -19,6 +19,7 @@ public:
     Response(int socketFd, std::string error);
     ~Response() {;};
 
+    void    deleteMethod(Client *client);
     void    getMethod(Client *client);
     void    postMethod(Client *client);
     void    createResponse(Client* client);

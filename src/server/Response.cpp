@@ -24,20 +24,25 @@ void Response::createResponse(Client* client) {
             postMethod(client);
             break;
         case 3:
-            // deleteMethod(client);
+            deleteMethod(client);
             break;
         default:
             std::cout << "default method" << std::endl;
     }
 }
 
+/* DELETE*/
+void Response::deleteMethod(Client *client) {
+    std::string response = "HTTP/1.1 200 OK\nContent-Length: 14\n\nFile deleted";
+    send(_socketFd, response.c_str(), response.size(), 0);
+    std::cout << "el deleto" << std::endl;
+}
+
 /* POST*/
 void Response::postMethod(Client *client) {
     std::string response = "HTTP/1.1 302 FOUND\nLocation: " + client->getFileNameBody() + "\n\n";
     send(_socketFd, response.c_str(), response.size(), 0);
-    std::cout << response.c_str() << std::endl;
-    printf("------------------Response sent-------------------\n");
-
+    getMethod(client);
 }
 
 /* GET*/
