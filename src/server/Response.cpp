@@ -24,6 +24,7 @@ void Response::createResponse(Client* client) {
             postMethod(client);
             break;
         case 3:
+            // deleteMethod(client);
             break;
         default:
             std::cout << "default method" << std::endl;
