@@ -44,7 +44,9 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     std::string tmp;
 
     // check if there is valid request line
-    std::cout << "request: " << request << std::endl;
+    for (int i = 0; i < request.size() && i < 1000; i++) {
+        std::cout << request[i];
+    }
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400");
     }

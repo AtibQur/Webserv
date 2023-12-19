@@ -1,6 +1,29 @@
----------------------------2114441823163457997643754793
------------------------------2114441823163457997643754793
------------------------------2114441823163457997643754793--
+POST /upload HTTP/1.1
+Host: localhost:8081
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: multipart/form-data; boundary=---------------------------368630789115348318143754917351
+Content-Length: 17967
+Origin: http://localhost:8081
+Connection: keep-alive
+Referer: http://localhost:8081/upload
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+
+-----------------------------368630789115348318143754917351
+Content-Disposition: form-data; name="filename"; filename="mario-gangster.jpg"
+Content-Type: image/jpeg
+
+����JFIF��*ExifII1Google���
+
+
+
+
 
 POST /upload HTTP/1.1
 Host: localhost:8081
@@ -8,20 +31,20 @@ User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:120.0) Gecko/20100101 Fir
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
 Accept-Encoding: gzip, deflate, br
-Referer: http://localhost:8081/upload
-Content-Type: multipart/form-data; boundary=---------------------------2114441823163457997643754793
-Content-Length: 73110
+Content-Type: multipart/form-data; boundary=---------------------------167594923720299790501949914586
+Content-Length: 17967
 Origin: http://localhost:8081
 Connection: keep-alive
+Referer: http://localhost:8081/upload
 Upgrade-Insecure-Requests: 1
 Sec-Fetch-Dest: document
 Sec-Fetch-Mode: navigate
 Sec-Fetch-Site: same-origin
 Sec-Fetch-User: ?1
 
------------------------------2114441823163457997643754793
-Content-Disposition: form-data; name="filename"; filename="gangster.jpg"
+-----------------------------167594923720299790501949914586
+Content-Disposition: form-data; name="filename"; filename="mario-gangster.jpg"
 Content-Type: image/jpeg
 
-����JFIFHH��C
-...
+����JFIF��*ExifII1Google���
+
