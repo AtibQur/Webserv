@@ -79,17 +79,9 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
 
         if (std::filesystem::is_directory(entry.path())) {
             listing += "[DIR] " + fileName;
-            if (entry.path().extension() == ".html") {
-                listing += "<a href=\"http://localhost:8080/" + dirPath + "/" + displayName + "\">" + fileName + "</a>";
-            } else {
                 listing += generateDirectoryListing(dirPath + "/" + fileName);
-            }
         } else {
-            if (entry.path().extension() == ".html") {
-                listing += "<a href=\"http://localhost:8080/" + dirPath + "/" + displayName + "\">" + fileName + "</a>";
-            } else {
-                listing += displayName;
-            }
+            listing += displayName;
         }
         listing += "</li>";
     }
