@@ -1,9 +1,9 @@
 #include "../../inc/main.hpp"
 
 /* Create a respond to the client */
-Response::Response() : _socketFd(0), _filePath(""), _errorCode("") {}
+Response::Response() : _socketFd(0), _filePath(""), _code("") {}
 
-Response::Response(int SocketFd, std::string error) : _socketFd(SocketFd), _errorCode(error) {
+Response::Response(int SocketFd, std::string error) : _socketFd(SocketFd), _code(error) {
     _filePath = error;
 }
 
@@ -27,10 +27,8 @@ void Response::createResponse(Client* client) {
 /* POST*/
 void Response::postMethod(Client *client) {
     std::string response = "HTTP/1.1 302 FOUND\nLocation: " + client->getFileNameBody() + "\n\n";
-    std::cout << "RESPONSE: " << response << std::endl;
     send(_socketFd, response.c_str(), response.size(), 0);
     getMethod(client);
-
 }
 
 /* GET*/
@@ -54,8 +52,6 @@ void Response::getMethod(Client *client) {
     htmlFile.close();
 
     send(_socketFd, response.c_str(), response.size(), 0);
-    std::cout << response.c_str() << std::endl;
-    // std::cout << response.c_str() << std::endl;
     printf("------------------Response sent-------------------\n");
 }
 
@@ -113,6 +109,9 @@ void Response::createErrorResponse(const std::string& errorMessage)
     };
 
      // 403 413 418 500 501 505
+     // HTTP/1.1
+     // HEADER
+     // content-length:
     for (int i = 0; i < 4; i++) {
         if (file == array[i]) {
             switch (i) {

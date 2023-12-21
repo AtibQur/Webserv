@@ -8,7 +8,7 @@ class Client;
 class Response
 {
 private:
-    std::string     _errorCode;
+    std::string     _code;
     int             _socketFd;
     std::string     _filePath;
     std::string     _head;
@@ -28,7 +28,7 @@ public:
     std::string generateDirectoryListing(std::string dirPath);
 
     // GETTERS
-    std::string getError() { return _errorCode; };
+    std::string getError() { return _code; };
 
     // SETTERS
     void    setConf(Config *conf) { _conf = conf; };
