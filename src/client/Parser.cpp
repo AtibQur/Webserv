@@ -135,7 +135,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
 		bodyfile << read;
 		bodyfile << std::endl;
 	}
-    
+
     bodyfile.close();
 
     // response zin eindigt met /r/n

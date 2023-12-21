@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "main.hpp"
 
 /* Create a respond to the client */
 Response::Response() : _socketFd(0), _filePath(""), _code("") {}
@@ -28,7 +28,6 @@ void Response::createResponse(Client* client) {
 /* DELETE*/
 void Response::deleteMethod(Client *client) {
     std::string filePath = "root/" + client->getFileNameBody();  // Replace with your actual file path
-    std::cout << "File path: " << filePath << std::endl;
     // Check if the file exists
     if (std::filesystem::exists(filePath)) {
         try {
