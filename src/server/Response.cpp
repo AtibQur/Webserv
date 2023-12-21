@@ -33,9 +33,22 @@ void Response::createResponse(Client* client) {
 
 /* DELETE*/
 void Response::deleteMethod(Client *client) {
-    std::string response = "HTTP/1.1 200 OK\nContent-Length: 14\n\nFile deleted";
-    send(_socketFd, response.c_str(), response.size(), 0);
-    std::cout << "el deleto" << std::endl;
+    std::string filePath = "root/" + client->getFileNameBody();  // Replace with your actual file path
+    std::cout << "File path: " << filePath << std::endl;
+    // Check if the file exists
+    if (std::filesystem::exists(filePath)) {
+        try {
+            // Remove the file
+            std::filesystem::remove(filePath);
+            std::cout << "File deleted successfully." << std::endl;
+        } catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "Error deleting the file: " << e.what() << std::endl;
+            getMethod(client);
+        }
+    } else {
+        std::cout << "File does not exist." << std::endl;
+    }
+    getMethod(client);
 }
 
 /* POST*/

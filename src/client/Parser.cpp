@@ -54,7 +54,7 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     if (!checkMethod(tmp)){
         throw std::invalid_argument("405");
     }
-    _method = tmp; 
+    _method = tmp;
     getline (httpRequest, tmp, ' ');
 
     if (tmp.empty())
@@ -103,9 +103,8 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     getline(httpRequest, tmp);
     if (tmp.find("name=") != std::string::npos) {
         if (subTillChar(tmp, tmp.find("name=") + 6, '\"') == "delete") {
+            _method = "DELETE";
             _isDelete = true;
-            std::cout << "delete" << std::endl;
-            return (0);
         }
     }
     if (tmp.find("filename=") != std::string::npos) {
@@ -114,6 +113,8 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
     getline(httpRequest, tmp);
     if (tmp.find("Content-Type:") != std::string::npos)
         _contentType = subTillChar(tmp, tmp.find("Content-Type:") + 14, '\r');
+    if (_method == "DELETE")
+        return (0);
     getline(httpRequest, tmp);
 
     while (getline(httpRequest, tmp)) {
