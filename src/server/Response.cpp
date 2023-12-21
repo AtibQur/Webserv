@@ -40,7 +40,7 @@ void Response::deleteMethod(Client *client) {
         try {
             // Remove the file
             std::filesystem::remove(filePath);
-            std::cout << "File deleted successfully." << std::endl;
+            // std::string response = "HTTP/1.1 202 Accepted\n";
         } catch (const std::filesystem::filesystem_error& e) {
             std::cerr << "Error deleting the file: " << e.what() << std::endl;
             getMethod(client);

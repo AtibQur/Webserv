@@ -132,12 +132,10 @@ int Client::parseRequest(std::string request, char* buffer, ssize_t post) {
 
     bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
-		if (read.compare("--" + _boundary + "--") == 0) {
-			break;
-        }
 		bodyfile << read;
 		bodyfile << std::endl;
 	}
+    
     bodyfile.close();
 
     // response zin eindigt met /r/n
