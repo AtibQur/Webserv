@@ -1,19 +1,13 @@
 #include "../../inc/main.hpp"
 
 /* Create a respond to the client */
-Response::Response() : _socketFd(0), _filePath(""), _errorCode("") {}
+Response::Response() : _socketFd(0), _filePath(""), _code("") {}
 
-Response::Response(int SocketFd, std::string error) : _socketFd(SocketFd), _errorCode(error) {
+Response::Response(int SocketFd, std::string error) : _socketFd(SocketFd), _code(error) {
     _filePath = error;
 }
 
 void Response::createResponse(Client* client) {
-    // try {
-    //     isPathAndMethodAllowed(client);
-    // } catch (const std::exception& e) {
-    //     createErrorResponse(e.what(), client);
-    //     return ;
-    // }
     int method = client->getNbMethod();
     switch (method)
     {
@@ -115,10 +109,7 @@ void Response::createErrorResponse(const std::string& errorMessage)
     std::string file;
     std::string response;
 
-    std::cout << "error: " << errorMessage << "\n";
-
     file = _conf->getErrorPage(errorMessage);
-    std::cout << file << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
@@ -130,6 +121,10 @@ void Response::createErrorResponse(const std::string& errorMessage)
         "docs/error_pages/fourofour.html"
     };
 
+     // 403 413 418 500 501 505
+     // HTTP/1.1
+     // HEADER
+     // content-length:
     for (int i = 0; i < 4; i++) {
         if (file == array[i]) {
             switch (i) {
@@ -151,3 +146,4 @@ void Response::createErrorResponse(const std::string& errorMessage)
     send(_socketFd, response.c_str(), response.size(), 0);
     printf("------------------Error Response sent-------------------\n");
 }
+
