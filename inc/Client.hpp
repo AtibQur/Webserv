@@ -52,6 +52,8 @@ public:
 	int			parseRequest(std::string request, ssize_t post);
 	bool		isRequestComplete(std::string accumulatedRequestData, ssize_t post);
 	void		checkBytesInFile();
+	bool 		checkForSpaces(std::string fileNameBody);
+	std::string convertFileName(std::string fileNameBody);
 
 	// GETTERS
 	int			getSocketFd() const { return this->m_socketFd; };

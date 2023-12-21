@@ -109,6 +109,11 @@ int Client::parseRequest(std::string request, ssize_t post) {
     }
     if (tmp.find("filename=") != std::string::npos) {
         _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
+        std::cout << "File name body ----> " << _fileNameBody << std::endl;
+        if (checkForSpaces(_fileNameBody)) {
+            _fileNameBody = convertFileName(_fileNameBody);
+            std::cout << "Convertje naam: " << _fileNameBody << std::endl;
+        }
     }
     getline(httpRequest, tmp);
     if (tmp.find("Content-Type:") != std::string::npos)
@@ -130,7 +135,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     // // // parse body
     Location location = _location[_uri];
 
-    bodyfile.open ("./root/" + _fileNameBody);
+    bodyfile.open ("./root/" + convertFileName(_fileNameBody));
     while (getline(ss, read, '\n')) {
 		if (read.compare("--" + _boundary + "--") == 0) {
 			break;
@@ -145,6 +150,27 @@ int Client::parseRequest(std::string request, ssize_t post) {
     // content length bepaalt of the body compleet is (als er een body is) 
 
     return (0);
+}
+
+std::string Client::convertFileName(std::string fileNameBody) {
+    for (size_t i = 0; i < fileNameBody.size(); i++) {
+        if (std::isspace(fileNameBody[i])) {
+            fileNameBody.replace(i, 1, "%20");
+            i += 2; // Skip the characters "%2" in the next iteration
+        }
+    }
+    return fileNameBody;
+}
+
+
+
+bool Client::checkForSpaces(std::string fileNameBody) {
+    for (size_t i = 0; i < fileNameBody.size(); i++) {
+        if (std::isspace(fileNameBody[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // check if the requestline is valid
