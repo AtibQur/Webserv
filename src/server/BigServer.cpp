@@ -85,7 +85,7 @@ void BigServer::connectNewClient(Server *server, int eventFd)
 void BigServer::outgoingResponse(Socket *ptr){
     if (Client *client = dynamic_cast<Client *>(ptr)){
         std::cout << "client creating response" << std::endl;
-        client->sendResponse();
+        client->handleResponse();
     }
 }
 
