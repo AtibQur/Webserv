@@ -86,7 +86,6 @@ std::string Response::generateDirectoryListing(std::string dirPath) {
 
         std::string fileName = entry.path().filename().string();
         std::string displayName = entry.path().stem().string(); // Remove extension
-        std::cout << "Display Name = " << displayName << std::endl;
 
         if (std::filesystem::is_directory(entry.path())) {
             listing += "[DIR] " + fileName;

@@ -55,7 +55,7 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
     }
-    std::cout << "modified epoll" << std::endl;
+    // std::cout << "modified epoll" << std::endl;
 }
 
 void Client::receiveRequest() {
@@ -90,7 +90,7 @@ void Client::readBuffer() {
             close (getSocketFd());
             break ;
         } else if (bytes_read == 0){
-            std::cout << "Connection closed by the client." << std::endl;
+            // std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
             break ;
         } else if (i = 0) {

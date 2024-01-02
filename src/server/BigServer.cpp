@@ -51,11 +51,11 @@ void BigServer::loopEvents() {
 
 void BigServer::incomingRequest(Socket *ptr) {
     if (Client *client = dynamic_cast<Client *>(ptr)){
-        std::cout << "existing client ready for read" << "\n";
+        // std::cout << "existing client ready for read" << "\n";
         client->receiveRequest();
     }
     if (Server *server = dynamic_cast<Server *>(ptr)){
-        std::cout << "new client" << std::endl;
+        // std::cout << "new client" << std::endl;
         connectNewClient(server, _eventFd);
     }
 }

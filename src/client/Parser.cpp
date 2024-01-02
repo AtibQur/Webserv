@@ -67,13 +67,13 @@ int Client::parseRequest(std::string request, ssize_t post) {
     _protocol = tmp;
 
     // start header
-
     if (request.find("\r\n\r\n") == std::string::npos){
         std::cout << "the request is not complete" << std::endl;
         return 1;
     } else if (_method == "GET"){
         return 0;
     }
+
     // parse header
     while (getline(httpRequest, tmp)) {
         if (tmp.find("--" + _boundary) != std::string::npos)
@@ -97,7 +97,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     }
     if (_contentType != "multipart/form-data") {
         return (0); // for when its text or www-form-urlencoded
-    } 
+    }
 
     // parse body
     getline(httpRequest, tmp);
@@ -107,12 +107,17 @@ int Client::parseRequest(std::string request, ssize_t post) {
             _isDelete = true;
         }
     }
+
     if (tmp.find("filename=") != std::string::npos) {
         _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
-        std::cout << "File name body ----> " << _fileNameBody << std::endl;
+        _fileNameBody = decodePercentEncoding(_fileNameBody); // Decode filename
+        std::cout << "File name body: " << _fileNameBody << std::endl;
         if (checkForSpaces(_fileNameBody)) {
-            _fileNameBody = convertFileName(_fileNameBody);
-            std::cout << "Convertje naam: " << _fileNameBody << std::endl;
+            _fileNameBody = urlEncode(_fileNameBody); // Encode spaces
+            std::cout << "Converted name: " << _fileNameBody << std::endl;
+
+            // fix transfer
+            transferData();
         }
     }
     getline(httpRequest, tmp);
@@ -132,10 +137,10 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream ss(_body);
     std::string read;
     std::ofstream bodyfile;
-    // // // parse body
+
     Location location = _location[_uri];
 
-    bodyfile.open ("./root/" + convertFileName(_fileNameBody));
+    bodyfile.open ("./root/" + decodePercentEncoding(_fileNameBody));
     while (getline(ss, read, '\n')) {
 		if (read.compare("--" + _boundary + "--") == 0) {
 			break;
@@ -147,22 +152,91 @@ int Client::parseRequest(std::string request, ssize_t post) {
 
     // response zin eindigt met /r/n
     // hele response eidigt met /r/n/r/n
-    // content length bepaalt of the body compleet is (als er een body is) 
+    // content length bepaalt of the body compleet is (als er een body is)
 
     return (0);
 }
 
-std::string Client::convertFileName(std::string fileNameBody) {
-    for (size_t i = 0; i < fileNameBody.size(); i++) {
-        if (std::isspace(fileNameBody[i])) {
-            fileNameBody.replace(i, 1, "%20");
-            i += 2; // Skip the characters "%2" in the next iteration
-        }
+int Client::transferData() {
+    std::string decodedFileName = "./root/" + decodePercentEncoding(_fileNameBody);
+    std::string encodedFileName = "./root/" + urlEncode(_fileNameBody);
+
+    std::cout << "Decoded file name: " << decodedFileName << std::endl;
+    std::cout << "Encoded file name: " << encodedFileName << std::endl;
+
+    // Open the source file for reading
+    std::ifstream sourceFile(decodedFileName);
+    // Check if the source file is open
+    if (!sourceFile.is_open()) {
+        std::cerr << "Error opening source file: " << decodedFileName << std::endl;
+        return 1;
     }
-    return fileNameBody;
+
+    // Open the destination file for writing
+    std::ofstream destinationFile(encodedFileName);
+    // Check if the destination file is open
+    if (!destinationFile.is_open()) {
+        std::cerr << "Error opening destination file: " << encodedFileName << std::endl;
+        return 1;
+    }
+
+    // Transfer data from source file to destination file
+    char ch;
+    while (sourceFile.get(ch)) {
+        destinationFile.put(ch);
+    }
+
+    // Close the files
+    sourceFile.close();
+    destinationFile.close();
+
+    std::cout << "File transfer complete." << std::endl;
+    return 0;
 }
 
+std::string Client::decodePercentEncoding(const std::string &encoded)
+{
+    std::string decoded{};
 
+    for (size_t i = 0; i < encoded.length(); ++i)
+    {
+        if (encoded[i] == '%' && i + 2 < encoded.length())
+        {
+            std::string hexValue = encoded.substr(i + 1, 2);
+            decoded += hexToChar(hexValue);
+            i += 2; // skip the next two characters
+        }
+        else
+            decoded += encoded[i];
+    }
+
+    return decoded;
+}
+
+std::string Client::urlEncode(const std::string& input) {
+       std::ostringstream encoded;
+
+    for (char c : input)
+    {
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') // Unreserved characters in RFC 3986
+            encoded << c;
+        else
+            encoded << '%' << std::uppercase << std::hex << ((c >> 4) & 0x0F) << (c & 0x0F);
+    }
+
+    return encoded.str();
+}
+
+char Client::hexToChar(const std::string &hex)
+{
+    int value{};
+    std::stringstream ss{};
+
+    ss << std::hex << hex;
+    ss >> value;
+
+    return static_cast<char>(value);
+}
 
 bool Client::checkForSpaces(std::string fileNameBody) {
     for (size_t i = 0; i < fileNameBody.size(); i++) {
