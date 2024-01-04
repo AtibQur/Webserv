@@ -55,7 +55,6 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
     }
-    std::cout << "modified epoll" << std::endl;
 }
 
 void Client::receiveRequest() {
