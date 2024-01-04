@@ -32,6 +32,7 @@ Config::Config(std::vector<std::string> lines) : _client_max_body_size(1000000) 
     _lines = lines;
     std::string var = "";
     int index = 0;
+    setDefaultErrorPages();
     while (index < lines.size()) {
         findVarName(lines[index], index);
         index++;
@@ -228,6 +229,18 @@ std::string trimTillLastSlash(std::string path) {
         it--;
     
     return (path.substr(0, std::distance(path.begin(), it)));
+}
+
+void Config::setDefaultErrorPages() {
+    _error_pages["400"] = "../../docs/error_pages/400.html";
+    _error_pages["401"] = "../../docs/error_pages/401.html";
+    _error_pages["403"] = "../../docs/error_pages/403.html";
+    _error_pages["404"] = "../../docs/error_pages/404.html";
+    _error_pages["405"] = "../../docs/error_pages/405.html";
+    _error_pages["413"] = "../../docs/error_pages/413.html";
+    _error_pages["500"] = "../../docs/error_pages/500.html";
+    _error_pages["501"] = "../../docs/error_pages/501.html";
+    _error_pages["505"] = "../../docs/error_pages/505.html";
 }
 
 Location Config::getLocation(std::string path) 
