@@ -140,7 +140,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
 
     Location location = _location[_uri];
 
-    bodyfile.open ("./root/" + decodePercentEncoding(_fileNameBody));
+    bodyfile.open ("./root/" + _fileNameBody);
     while (getline(ss, read, '\n')) {
 		if (read.compare("--" + _boundary + "--") == 0) {
 			break;
