@@ -41,6 +41,7 @@ public:
     void setMaxBodySize(std::string value);
     void setErrorPage(std::string value, int &index, int line_i);
     void setRoot(std::string value);
+    void setDefaultErrorPages();
 
     // OUTPUT
     void outputConfig();

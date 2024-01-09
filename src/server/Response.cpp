@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "main.hpp"
 
 /* Create a respond to the client */
 Response::Response() : _socketFd(0), _filePath(""), _code("") {}
@@ -27,20 +27,23 @@ void Response::createResponse(Client* client) {
 
 /* DELETE*/
 void Response::deleteMethod(Client *client) {
+    std::string response;
     std::string filePath = "root/" + client->getFileNameBody();  // Replace with your actual file path
-    std::cout << "File path: " << filePath << std::endl;
     // Check if the file exists
     if (std::filesystem::exists(filePath)) {
         try {
             // Remove the file
             std::filesystem::remove(filePath);
-            std::cout << "File deleted successfully." << std::endl;
+            response = "HTTP/1.1 202 Accepted\n";
+            send(_socketFd, response.c_str(), response.size(), 0);
+            // std::string response = "HTTP/1.1 202 Accepted\n";
         } catch (const std::filesystem::filesystem_error& e) {
-            std::cerr << "Error deleting the file: " << e.what() << std::endl;
+            response = "HTTP/1.1 500 Internal Server Error\n";
             getMethod(client);
         }
     } else {
-        std::cout << "File does not exist." << std::endl;
+        response = "HTTP/1.1 204 No Content\nContent-Length: 14\n\nFile not found";
+        send(_socketFd, response.c_str(), response.size(), 0);
     }
     getMethod(client);
 }
