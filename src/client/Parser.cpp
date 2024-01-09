@@ -114,9 +114,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
         std::cout << "File name body: " << _fileNameBody << std::endl;
         if (checkForSpaces(_fileNameBody)) {
             _fileNameBody = urlEncode(_fileNameBody); // Encode spaces
-            std::cout << "Converted name: " << _fileNameBody << std::endl;
 
-            // fix transfer
             transferData();
         }
     }
@@ -161,12 +159,8 @@ int Client::transferData() {
     std::string decodedFileName = "./root/" + decodePercentEncoding(_fileNameBody);
     std::string encodedFileName = "./root/" + urlEncode(_fileNameBody);
 
-    std::cout << "Decoded file name: " << decodedFileName << std::endl;
-    std::cout << "Encoded file name: " << encodedFileName << std::endl;
-
     // Open the source file for reading
     std::ifstream sourceFile(decodedFileName);
-    // Check if the source file is open
     if (!sourceFile.is_open()) {
         std::cerr << "Error opening source file: " << decodedFileName << std::endl;
         return 1;
@@ -174,7 +168,6 @@ int Client::transferData() {
 
     // Open the destination file for writing
     std::ofstream destinationFile(encodedFileName);
-    // Check if the destination file is open
     if (!destinationFile.is_open()) {
         std::cerr << "Error opening destination file: " << encodedFileName << std::endl;
         return 1;
@@ -190,7 +183,6 @@ int Client::transferData() {
     sourceFile.close();
     destinationFile.close();
 
-    std::cout << "File transfer complete." << std::endl;
     return 0;
 }
 
@@ -204,7 +196,7 @@ std::string Client::decodePercentEncoding(const std::string &encoded)
         {
             std::string hexValue = encoded.substr(i + 1, 2);
             decoded += hexToChar(hexValue);
-            i += 2; // skip the next two characters
+            i += 2;
         }
         else
             decoded += encoded[i];
@@ -218,7 +210,7 @@ std::string Client::urlEncode(const std::string& input) {
 
     for (char c : input)
     {
-        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') // Unreserved characters in RFC 3986
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
             encoded << c;
         else
             encoded << '%' << std::uppercase << std::hex << ((c >> 4) & 0x0F) << (c & 0x0F);
