@@ -89,7 +89,7 @@ void Client::readBuffer() {
             close (getSocketFd());
             break ;
         } else if (bytes_read == 0){
-            std::cout << "Connection closed by the client." << std::endl;
+            // std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
             break ;
         } else if (i = 0) {
