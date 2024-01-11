@@ -16,7 +16,7 @@ void    Response::setContent(std::string content) {
     m_response += content;
 }
 
-void    Response::setResponseTemp(std::string message)
+void    Response::setErrorResponse(std::string message)
 {
     m_response = message;
 }

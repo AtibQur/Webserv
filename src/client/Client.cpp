@@ -134,6 +134,8 @@ bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
+    std::cout << "PATH: " << getUri() << "\n";
+
     if (!fs::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
@@ -192,13 +194,13 @@ void Client::handleGetMethod()
 {
     Response clientResponse(m_socketFd, "200 OK");
 
-    std::string file;
+    std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     if (clientLocation.getPath() == getUri())
-        file = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
+        filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
     else
-        file = "root" + getUri();
-    std::ifstream htmlFile(file);
+        filePath = "root" + getUri();
+    std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
     if (!htmlFile.is_open()) {
@@ -224,7 +226,7 @@ std::string Client::generateDirectoryListing(std::string dirPath) {
 
         std::string fileName = entry.path().filename().string();
         std::string displayName = entry.path().stem().string(); // Remove extension
-        std::cout << "Display Name = " << displayName << std::endl;
+        // std::cout << "Display Name = " << displayName << std::endl;
 
         if (std::filesystem::is_directory(entry.path())) {
             listing += "[DIR] " + fileName;
@@ -285,22 +287,21 @@ void Client::createErrorResponse()
         "docs/error_pages/405.html",
         "docs/error_pages/fourofour.html"
     };
-
      // 403 413 418 500 501 505
     for (int i = 0; i < 4; i++) {
         if (file == array[i]) {
             switch (i) {
                 case 0:
-                    _response.setResponseTemp("HTTP/1.1 400 Bad Request\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    _response.setErrorResponse("HTTP/1.1 400 Bad Request\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
                     break;
                 case 1:
-                    _response.setResponseTemp("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
                     break;
                 case 2:
-                    _response.setResponseTemp("HTTP/1.1 405 Method Not Allowed\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    _response.setErrorResponse("HTTP/1.1 405 Method Not Allowed\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
                     break;
                 case 3:
-                    _response.setResponseTemp("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
                     break;
             }
         }
