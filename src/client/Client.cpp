@@ -1,7 +1,5 @@
 #include "../../inc/main.hpp"
 
-namespace fs = std::filesystem;
-
 Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
     m_socketFd = -1;
 }
@@ -55,7 +53,6 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
     }
-    std::cout << "modified epoll" << std::endl;
 }
 
 void Client::receiveRequest() {
@@ -89,7 +86,7 @@ void Client::readBuffer() {
             close (getSocketFd());
             break ;
         } else if (bytes_read == 0){
-            std::cout << "Connection closed by the client." << std::endl;
+            // std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
             break ;
         } else if (i = 0) {
@@ -136,7 +133,7 @@ bool Client::isPathAndMethodAllowed()
 
     std::cout << "PATH: " << getUri() << "\n";
 
-    if (!fs::exists("root" + getUri()))
+    if (!std::filesystem::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
     {

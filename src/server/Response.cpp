@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "main.hpp"
 
 /* Create a respond to the client */
 Response::Response() : m_response(""), _socketFd(0), _code("") {}

@@ -22,7 +22,7 @@ public:
     void        setResponse(std::string message);
     void        setContent(std::string content);
     void        sendResponse();
-    void        setConf(Config *conf) { _conf = conf; };
+    void        setConf(Config *conf) { _conf = conf; }
     void        setErrorResponse(std::string message);
 };
 

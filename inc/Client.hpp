@@ -52,6 +52,10 @@ public:
 	int			parseRequest(std::string request, ssize_t post);
 	bool		isRequestComplete(std::string accumulatedRequestData, ssize_t post);
 	void		checkBytesInFile();
+	bool 		checkForSpaces(std::string fileNameBody);
+	std::string urlEncode(const std::string& input);
+	std::string decodePercentEncoding(const std::string &encoded);
+	int			transferData();
 
 	// GETTERS
 	int			getSocketFd() const { return this->m_socketFd; };
@@ -61,7 +65,7 @@ public:
 	std::string getUri() { return _uri; };
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
-
+	char hexToChar(const std::string &hex);
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
