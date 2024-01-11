@@ -63,7 +63,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     getline (httpRequest, tmp);
     
     if (tmp.compare("HTTP/1.1\r")) // \r\n
-        throw std::invalid_argument("400");
+        throw std::invalid_argument("400 METHOD NOT ALLOWED");
     _protocol = tmp;
 
     // start header

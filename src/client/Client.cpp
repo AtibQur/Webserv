@@ -1,7 +1,5 @@
 #include "../../inc/main.hpp"
 
-namespace fs = std::filesystem;
-
 Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
     m_socketFd = -1;
 }
@@ -68,7 +66,6 @@ void Client::handleRequest(std::string request, ssize_t post) {
     } catch (const std::exception& e) {
         std::cout << "this error: " << e.what() << std::endl;
         Response error(getSocketFd(), e.what());
-        error.setConf(m_server.getConf());
         _response = error;
     }
 }
@@ -134,7 +131,9 @@ bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    if (!fs::exists("root" + getUri()))
+    std::cout << "PATH: " << getUri() << "\n";
+
+    if (!std::filesystem::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
     {
@@ -158,27 +157,152 @@ bool Client::isPathAndMethodAllowed()
     throw std::invalid_argument("400");
 }
 
-void Client::sendResponse() {
-
-    // error
-    if (_response.getError().size() == 3){
-        _response.createErrorResponse(_response.getError());
+void Client::handleResponse() 
+{
+    if (_response.getCode().empty())
+    {
+        int method = getNbMethod();
+        switch (method)
+        {
+            case 1:
+                handleGetMethod();
+                break;
+            case 2:
+                handlePostMethod();
+                break;
+            case 3:
+                handleDeleteMethod();
+                break;
+            default:
+                std::cout << "default method" << std::endl;
+        }
     }
-    else {
-        std::string file;
-        Location clientLocation = m_server.getConf()->getLocation(getUri());
-        if (clientLocation.getPath() == getUri())
-            file = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
-        else
-            file = "root" + getUri();
-        Response clientResponse(getSocketFd(), file);
-
-        clientResponse.setConf(m_server.getConf());
-        _response = clientResponse;
-
-        _response.createResponse(this);
+    else
+    {
+        createErrorResponse();
     }
     modifyEpoll(this, EPOLLIN, getSocketFd());
-    Response res; // clear response, I'll make a function for it
-    _response = res;
+    Response empty;
+    _response = empty;
 }
+
+/* GET */
+void Client::handleGetMethod()
+{
+    Response clientResponse(m_socketFd, "200 OK");
+
+    std::string filePath;
+    Location clientLocation = m_server.getConf()->getLocation(getUri());
+    if (clientLocation.getPath() == getUri())
+        filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
+    else
+        filePath = "root" + getUri();
+    std::ifstream htmlFile(filePath);
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+
+    if (!htmlFile.is_open()) {
+        clientResponse.setContent("14\n\nFile not found");
+    } else {
+        if (clientLocation.getAutoIndex()) {
+            fileContent += generateDirectoryListing(clientLocation.getPath());
+        }
+        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+    }
+    htmlFile.close();
+
+    clientResponse.sendResponse();
+}
+
+/* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
+std::string Client::generateDirectoryListing(std::string dirPath) {
+    std::string listing;
+
+    listing += "<ul>";
+    for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
+        listing += "<li>";
+
+        std::string fileName = entry.path().filename().string();
+        std::string displayName = entry.path().stem().string(); // Remove extension
+        // std::cout << "Display Name = " << displayName << std::endl;
+
+        if (std::filesystem::is_directory(entry.path())) {
+            listing += "[DIR] " + fileName;
+                listing += generateDirectoryListing(dirPath + "/" + fileName);
+        } else {
+            listing += displayName;
+        }
+        listing += "</li>";
+    }
+    listing += "</ul>";
+
+    return listing;
+}
+
+/* POST */
+void Client::handlePostMethod() 
+{
+    Response clientResponse(m_socketFd, "302 FOUND");
+    clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
+    clientResponse.sendResponse();
+    handleGetMethod();
+}
+
+/* DELETE */
+void Client::handleDeleteMethod() 
+{
+    std::string filePath = "root/" + getFileNameBody();  // Replace with your actual file path
+    std::cout << "File path: " << filePath << std::endl;
+    // Check if the file exists
+    if (std::filesystem::exists(filePath)) {
+        try {
+            // Remove the file
+            std::filesystem::remove(filePath);
+            std::cout << "File deleted successfully." << std::endl;
+        } catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "Error deleting the file: " << e.what() << std::endl;
+            handleGetMethod();
+        }
+    } else {
+        std::cout << "File does not exist." << std::endl;
+    }
+    handleGetMethod();
+}
+
+void Client::createErrorResponse()
+{
+    std::string file;
+    std::string response;
+
+    file = m_server.getConf()->getErrorPage(_response.getCode());
+    std::ifstream htmlFile(file);
+
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+    htmlFile.close();
+    std::string array[4] {
+        "docs/error_pages/400.html",
+        "docs/error_pages/404.html",
+        "docs/error_pages/405.html",
+        "docs/error_pages/fourofour.html"
+    };
+     // 403 413 418 500 501 505
+    for (int i = 0; i < 4; i++) {
+        if (file == array[i]) {
+            switch (i) {
+                case 0:
+                    _response.setErrorResponse("HTTP/1.1 400 Bad Request\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    break;
+                case 1:
+                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    break;
+                case 2:
+                    _response.setErrorResponse("HTTP/1.1 405 Method Not Allowed\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    break;
+                case 3:
+                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+                    break;
+            }
+        }
+    }
+    _response.sendResponse();
+}
+

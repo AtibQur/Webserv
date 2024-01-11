@@ -42,7 +42,7 @@ public:
 	bool		isPathAndMethodAllowed();
 	void		modifyEpoll(Socket *ptr, int events, int fd);
 	void		createErrorResponse(const std::string& errorMessage);
-	void		sendResponse();
+	void		handleResponse();
 
 	// PARSER
     void		saveClientRequest(char* buffer, int client_socket);
@@ -69,6 +69,12 @@ public:
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
+
+	void		handleGetMethod();
+	std::string generateDirectoryListing(std::string dirPath);
+	void		handlePostMethod();
+	void		handleDeleteMethod();
+	void		createErrorResponse();
 };
 
 #endif
