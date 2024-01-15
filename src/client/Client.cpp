@@ -131,8 +131,10 @@ bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    std::cout << "PATH: " << getUri() << "\n";
-
+    if (getUri() == "/cgi-bin/cgi-script.py"){
+		handleCGI();
+        return true;
+	}
     if (!std::filesystem::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
@@ -306,3 +308,7 @@ void Client::createErrorResponse()
     _response.sendResponse();
 }
 
+void Client::handleCGI() {
+	std::cout << "cgi called" << std::endl;
+
+}

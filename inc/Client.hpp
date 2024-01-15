@@ -69,12 +69,13 @@ public:
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
-
 	void		handleGetMethod();
 	std::string generateDirectoryListing(std::string dirPath);
 	void		handlePostMethod();
 	void		handleDeleteMethod();
 	void		createErrorResponse();
+
+	void		handleCGI();
 };
 
 #endif
