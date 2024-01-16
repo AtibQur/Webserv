@@ -1,6 +1,6 @@
 #include "../../inc/main.hpp"
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""){
     m_socketFd = -1;
 }
 
@@ -218,7 +218,7 @@ void Client::handleGetMethod()
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
 std::string Client::generateDirectoryListing(std::string dirPath) {
     std::string listing;
-
+    listing += "<h1>";
     listing += "<ul>";
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
         listing += "<li>";
@@ -236,7 +236,7 @@ std::string Client::generateDirectoryListing(std::string dirPath) {
         listing += "</li>";
     }
     listing += "</ul>";
-
+    listing += "</h1>";
     return listing;
 }
 
@@ -308,7 +308,66 @@ void Client::createErrorResponse()
     _response.sendResponse();
 }
 
-void Client::handleCGI() {
-	std::cout << "cgi called" << std::endl;
+#include <sys/wait.h>
 
+
+void Client::execute() {
+    const char* pythonPath = "/usr/bin/python3";
+    const char* pythonScript = "cgi-bin/cgi-script.py";
+
+    std::cerr << "this name: " << m_name << std::endl;
+    std::string queryString = "name=" + m_name;
+    std::string url = std::string(pythonScript);
+
+    char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(url.c_str()), const_cast<char*>(queryString.c_str()), nullptr};
+    char *const envp[] = {nullptr};
+
+    if (execve(pythonPath, argv, envp) == -1) {
+        std::cerr << "Error executing Python script." << std::endl;
+    }
+}
+
+void Client::createCGI() {
+    std::cout << "cgi called" << std::endl;
+
+    // char* const scriptPath = "cgi-bin/cgi-script.py";
+
+    const std::string tmpFile = "docs/tmpfile.html";
+    char *fileName = const_cast<char *>(tmpFile.c_str());
+    int fd = open (fileName, O_CREAT | O_RDWR | O_TRUNC, 0777);
+    if (fd < 0)
+    {
+        perror("cgi error");
+    }
+    int pid = fork();
+    if (pid == 0)
+    {
+        if (dup2(fd, STDOUT_FILENO) < 0){
+            perror ("dub error");
+        }
+        execute();
+    }
+    close(fd);
+    waitpid(pid, NULL, WUNTRACED);
+}
+
+
+void Client::handleCGI() {
+    createCGI();
+
+    Response clientResponse(m_socketFd, "200 OK");
+
+    std::string filePath = "docs/tmpfile.html";
+    std::ifstream htmlFile(filePath);
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+
+    if (!htmlFile.is_open()) {
+        clientResponse.setContent("14\n\nFile not found");
+    } else {
+        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+    }
+    htmlFile.close();
+
+    clientResponse.sendResponse();
+    std::cout << "CGI response send" << std::endl;
 }

@@ -29,6 +29,7 @@ private:
     struct sockaddr_storage 			m_client_address {};
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 	std::string 						_requestBuffer;
+	std::string							m_name;
 
 public:
     Client();
@@ -76,6 +77,8 @@ public:
 	void		createErrorResponse();
 
 	void		handleCGI();
+	void		createCGI();
+	void		execute();
 };
 
 #endif

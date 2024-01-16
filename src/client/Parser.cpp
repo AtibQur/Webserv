@@ -76,6 +76,11 @@ int Client::parseRequest(std::string request, ssize_t post) {
 
     // parse header
     while (getline(httpRequest, tmp)) {
+        // save name 
+        if (_contentType == "text/plain" && tmp.find("post=") != std::string::npos) {
+            m_name = tmp.substr(5);
+            std::cout << "now: " << m_name << std::endl;
+        }
         if (tmp.find("--" + _boundary) != std::string::npos)
             break ;
         if (tmp.find("Content-Type:") != std::string::npos) {
