@@ -132,12 +132,14 @@ bool Client::isPathAndMethodAllowed()
 
     std::cout << "PATH: " << getUri() << "\n";
 
+    if (getUri() == "/teapot") {
+        std::cout << "uri is: " << getUri() << std::endl;
+        throw std::invalid_argument("418");
+    }
     if (!std::filesystem::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
-    {
         throw std::invalid_argument("404");
-    }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
         return true;

@@ -93,7 +93,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
-        throw std::invalid_argument("413 Payload Too Large: ");
+        throw std::invalid_argument("413 Payload Too Large");
     }
     if (_contentType != "multipart/form-data") {
         return (0); // for when its text or www-form-urlencoded
