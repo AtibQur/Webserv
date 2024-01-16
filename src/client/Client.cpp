@@ -48,7 +48,6 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
     event.events = events;
 
     event.data.ptr = ptr;
-
     if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
@@ -62,7 +61,7 @@ void Client::receiveRequest() {
 void Client::handleRequest(std::string request, ssize_t post) {
     try {
         parseRequest(request, post);
-        isPathAndMethodAllowed();
+        isPathAndMethodAllowed(); 
     } catch (const std::exception& e) {
         std::cout << "this error: " << e.what() << std::endl;
         Response error(getSocketFd(), e.what());
@@ -179,6 +178,7 @@ void Client::handleResponse()
     }
     else
     {
+        std::cout << "Creating Error Response:" << std::endl;
         createErrorResponse();
     }
     modifyEpoll(this, EPOLLIN, getSocketFd());
@@ -223,7 +223,7 @@ std::string Client::generateDirectoryListing(std::string dirPath) {
 
         std::string fileName = entry.path().filename().string();
         std::string displayName = entry.path().stem().string(); // Remove extension
-        // std::cout << "Display Name = " << displayName << std::endl;
+        // std::cou400 METHOD NOT ALLOWEDt << "Display Name = " << displayName << std::endl;
 
         if (std::filesystem::is_directory(entry.path())) {
             listing += "[DIR] " + fileName;
@@ -273,36 +273,14 @@ void Client::createErrorResponse()
     std::string file;
     std::string response;
 
-    file = m_server.getConf()->getErrorPage(_response.getCode());
+    file = m_server.getConf()->getErrorPage(_response.getHeader());
+    std::cout << "Response code: " << _response.getHeader() << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     htmlFile.close();
-    std::string array[4] {
-        "docs/error_pages/400.html",
-        "docs/error_pages/404.html",
-        "docs/error_pages/405.html",
-        "docs/error_pages/fourofour.html"
-    };
-     // 403 413 418 500 501 505
-    for (int i = 0; i < 4; i++) {
-        if (file == array[i]) {
-            switch (i) {
-                case 0:
-                    _response.setErrorResponse("HTTP/1.1 400 Bad Request\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-                case 1:
-                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-                case 2:
-                    _response.setErrorResponse("HTTP/1.1 405 Method Not Allowed\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-                case 3:
-                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-            }
-        }
-    }
+ 
+    _response.setErrorResponse("HTTP/1.1 " + _response.getCode() + "\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+
     _response.sendResponse();
 }
-
