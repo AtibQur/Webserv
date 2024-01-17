@@ -139,6 +139,9 @@ int Client::parseRequest(std::string request, ssize_t post) {
     Location location = _location[_uri];
 
     bodyfile.open ("./root/" + _fileNameBody);
+    if (!bodyfile) {
+        throw std::invalid_argument("500 Internal Server Error");
+    }
     while (getline(ss, read, '\n')) {
 		bodyfile << read;
 		bodyfile << std::endl;
