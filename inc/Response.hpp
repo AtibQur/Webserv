@@ -9,6 +9,7 @@ class Response
 {
 private:
     std::string     m_response;
+    std::string     m_header;
     std::string     _code;
     int             _socketFd;
     Config          *_conf;
@@ -19,6 +20,7 @@ public:
     ~Response() {;};
 
     std::string getCode() { return _code; };
+    std::string getHeader() { return m_header; }
     void        setResponse(std::string message);
     void        setContent(std::string content);
     void        sendResponse();

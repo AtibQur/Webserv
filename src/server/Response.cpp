@@ -5,6 +5,8 @@ Response::Response() : m_response(""), _socketFd(0), _code("") {}
 
 // error
 Response::Response(int SocketFd, std::string newCode) : _socketFd(SocketFd), _code(newCode) {
+    m_header = newCode.substr(0, 3);
+
     setResponse(_code);
 }
 

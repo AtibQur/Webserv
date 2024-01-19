@@ -43,27 +43,23 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // check if there is valid request line
-    // for (int i = 0; i < request.size() && i < 1000; i++) {
-    //     std::cout << request[i];
-    // }
     if (!checkRequestLine(request)){
-        throw std::invalid_argument("400");
+        throw std::invalid_argument("400 Bad Request");
     }
     getline(httpRequest, tmp, ' ');
     if (!checkMethod(tmp)){
-        throw std::invalid_argument("405");
+        throw std::invalid_argument("405 Method not Allowed");
     }
     _method = tmp;
     getline (httpRequest, tmp, ' ');
 
     if (tmp.empty())
-        throw std::invalid_argument("400");
+        throw std::invalid_argument("400 Bad Request");
     _uri = tmp;
     getline (httpRequest, tmp);
     
     if (tmp.compare("HTTP/1.1\r")) // \r\n
-        throw std::invalid_argument("400 METHOD NOT ALLOWED");
+        throw std::invalid_argument("400 Bad Request");
     _protocol = tmp;
 
     // start header
@@ -79,7 +75,6 @@ int Client::parseRequest(std::string request, ssize_t post) {
         // save name 
         if (_contentType == "text/plain" && tmp.find("post=") != std::string::npos) {
             m_name = tmp.substr(5);
-            std::cout << "now: " << m_name << std::endl;
         }
         if (tmp.find("--" + _boundary) != std::string::npos)
             break ;
@@ -98,7 +93,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
-        throw std::invalid_argument("413");
+        throw std::invalid_argument("413 Payload Too Large");
     }
     if (_contentType != "multipart/form-data") {
         return (0); // for when its text or www-form-urlencoded
@@ -144,6 +139,9 @@ int Client::parseRequest(std::string request, ssize_t post) {
     Location location = _location[_uri];
 
     bodyfile.open ("./root/" + _fileNameBody);
+    if (!bodyfile) {
+        throw std::invalid_argument("500 Internal Server Error");
+    }
     while (getline(ss, read, '\n')) {
 		bodyfile << read;
 		bodyfile << std::endl;

@@ -77,8 +77,8 @@ public:
 	void		createErrorResponse();
 
 	int			handleCGI();
-	void		createCGI();
-	void		execute();
+	int		createCGI();
+	int		execute();
 };
 
 #endif

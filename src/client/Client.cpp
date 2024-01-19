@@ -48,7 +48,6 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
     event.events = events;
 
     event.data.ptr = ptr;
-
     if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
         perror("epoll_ctl mod out"); 
         exit(EXIT_FAILURE);
@@ -62,7 +61,7 @@ void Client::receiveRequest() {
 void Client::handleRequest(std::string request, ssize_t post) {
     try {
         parseRequest(request, post);
-        isPathAndMethodAllowed();
+        isPathAndMethodAllowed(); 
     } catch (const std::exception& e) {
         std::cout << "this error: " << e.what() << std::endl;
         Response error(getSocketFd(), e.what());
@@ -132,16 +131,19 @@ bool Client::isPathAndMethodAllowed()
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
     if (getUri() == "/cgi-bin/cgi-script.py"){
-		if (handleCGI())
+		if (handleCGI()) {
             throw (std::invalid_argument("500 Internal server error"));
+        }
         return true;
 	}
+    if (getUri() == "/teapot") {
+        std::cout << "uri is: " << getUri() << std::endl;
+        throw std::invalid_argument("418");
+    }
     if (!std::filesystem::exists("root" + getUri()))
         throw std::invalid_argument("404");
     if (clientLocation.getPath().empty())
-    {
         throw std::invalid_argument("404");
-    }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
         return true;
@@ -182,6 +184,7 @@ void Client::handleResponse()
     }
     else
     {
+        std::cout << "Creating Error Response:" << std::endl;
         createErrorResponse();
     }
     modifyEpoll(this, EPOLLIN, getSocketFd());
@@ -226,7 +229,7 @@ std::string Client::generateDirectoryListing(std::string dirPath) {
 
         std::string fileName = entry.path().filename().string();
         std::string displayName = entry.path().stem().string(); // Remove extension
-        // std::cout << "Display Name = " << displayName << std::endl;
+        // std::cou400 METHOD NOT ALLOWEDt << "Display Name = " << displayName << std::endl;
 
         if (std::filesystem::is_directory(entry.path())) {
             listing += "[DIR] " + fileName;
@@ -276,97 +279,14 @@ void Client::createErrorResponse()
     std::string file;
     std::string response;
 
-    file = m_server.getConf()->getErrorPage(_response.getCode());
+    file = m_server.getConf()->getErrorPage(_response.getHeader());
+    std::cout << "Response code: " << _response.getHeader() << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     htmlFile.close();
-    std::string array[4] {
-        "docs/error_pages/400.html",
-        "docs/error_pages/404.html",
-        "docs/error_pages/405.html",
-        "docs/error_pages/fourofour.html"
-    };
-     // 403 413 418 500 501 505
-    for (int i = 0; i < 4; i++) {
-        if (file == array[i]) {
-            switch (i) {
-                case 0:
-                    _response.setErrorResponse("HTTP/1.1 400 Bad Request\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-                case 1:
-                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-                case 2:
-                    _response.setErrorResponse("HTTP/1.1 405 Method Not Allowed\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-                case 3:
-                    _response.setErrorResponse("HTTP/1.1 404 Not Found\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-                    break;
-            }
-        }
-    }
+ 
+    _response.setErrorResponse("HTTP/1.1 " + _response.getCode() + "\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+
     _response.sendResponse();
-}
-
-void Client::execute() {
-    const char* pythonPath = "/usr/bin/python3";
-    const char* pythonScript = "cgi-bin/cgi-script.py";
-
-    std::cerr << "this name: " << m_name << std::endl;
-    std::string queryString = "name=" + m_name;
-    std::string url = std::string(pythonScript);
-
-    char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(url.c_str()), const_cast<char*>(queryString.c_str()), nullptr};
-    char *const envp[] = {nullptr};
-
-    if (execve(pythonPath, argv, envp) == -1) {
-        std::cerr << "Error executing Python script." << std::endl;
-    }
-}
-
-void Client::createCGI() {
-    std::cout << "cgi called" << std::endl;
-
-    const std::string tmpFile = "docs/tmpfile.html";
-    char *fileName = const_cast<char *>(tmpFile.c_str());
-    int fd = open (fileName, O_CREAT | O_RDWR | O_TRUNC, 0777);
-    if (fd < 0)
-    {
-        perror("cgi error");
-        Response cgiError(m_socketFd, "500 Internal server error");
-        _response = cgiError;
-    }
-    int pid = fork();
-    if (pid == 0)
-    {
-        if (dup2(fd, STDOUT_FILENO) < 0){
-            perror ("dub error");
-        }
-        execute();
-    }
-    close(fd);
-    waitpid(pid, NULL, WUNTRACED);
-}
-
-
-int Client::handleCGI() {
-    createCGI();
-
-    Response clientResponse(m_socketFd, "200 OK");
-
-    std::string filePath = "docs/tmpfile.html";
-    std::ifstream htmlFile(filePath);
-    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
-
-    if (!htmlFile.is_open()) {
-        clientResponse.setContent("14\n\nFile not found");
-    } else {
-        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-    }
-    htmlFile.close();
-
-    clientResponse.sendResponse();
-    std::cout << "CGI response send" << std::endl;
-    return (0);
 }
