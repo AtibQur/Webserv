@@ -43,10 +43,6 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // check if there is valid request line
-    // for (int i = 0; i < request.size() && i < 1000; i++) {
-    //     std::cout << request[i];
-    // }
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400");
     }
