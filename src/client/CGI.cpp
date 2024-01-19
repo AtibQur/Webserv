@@ -22,14 +22,14 @@ int Client::createCGI() {
     int fd = open (fileName, O_CREAT | O_RDWR | O_TRUNC, 0777);
     if (fd < 0)
     {
-        perror("cgi error");
+        std::cerr << "Error opening file" << std::endl;
         return (1);
     }
     int pid = fork();
     if (pid == 0)
     {
         if (dup2(fd, STDOUT_FILENO) < 0){
-            perror ("dub error");
+            std::cerr << "Dub2 Error" << std::endl;
             return (1);
         }
         if (execute())

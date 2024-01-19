@@ -2,9 +2,36 @@
 <html>
     <head>
         <title> Upload File</title>
+        <style>
+            body {
+            background-image: url('upload/winterMario.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            color: white;
+            height: 100vh;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            font-size: 100px;
+            text-align: center;
+            margin-top: 10vh;
+        }
+        
+        h2 {
+            text-align: center;
+        }
+        </style>
     </head>
+    <h1>Upload Page</h1>
+    <br><br>
     <body>
-       <h2> hoi upload maar</h2> 
+       <h2> Post</h2> 
         <form action="/upload" method="post" enctype="multipart/form-data">
 
             <label for="file">Choose here the file u wish to post</label>
@@ -12,17 +39,11 @@
             <br/><br/>
             <input type="submit">
         </form>
-        <br><br>
+        <br><br><br><br>
+        <h2> Delete</h2> 
         <form action="/upload" method="post" enctype="multipart/form-data">
             <label for="file">Choose here the file wish to delete</label>
             <input type="file" id="file" name="delete">
-            <br/><br/>
-            <input type="submit">
-        </form>
-        <br><br>
-        <form action="/upload" method="post" enctype="text/plain">
-            <label for="text">Enter your name</label>
-            <input type="text" id="text" name="post">
             <br/><br/>
             <input type="submit">
         </form>

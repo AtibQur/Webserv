@@ -77,8 +77,10 @@ public:
 	void		createErrorResponse();
 
 	int			handleCGI();
-	int		createCGI();
-	int		execute();
+	int			createCGI();
+	int			execute();
+	void		setError(int socket, std::string message);
+
 };
 
 #endif

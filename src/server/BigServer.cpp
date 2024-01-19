@@ -36,7 +36,7 @@ void BigServer::loopEvents() {
         event = _events[i];
         epollPtr = static_cast<Socket *>(event.data.ptr);
         if (epollPtr == nullptr)
-            std::cout << "epollPtr error" << std::endl;
+            std::cout << "epollPtr Error" << std::endl;
 
         if (event.events & EPOLLIN) 
         {
@@ -51,11 +51,9 @@ void BigServer::loopEvents() {
 
 void BigServer::incomingRequest(Socket *ptr) {
     if (Client *client = dynamic_cast<Client *>(ptr)){
-        // std::cout << "existing client ready for read" << "\n";
         client->receiveRequest();
     }
     if (Server *server = dynamic_cast<Server *>(ptr)){
-        // std::cout << "new client" << std::endl;
         connectNewClient(server, _eventFd);
     }
 }
@@ -78,37 +76,13 @@ void BigServer::connectNewClient(Server *server, int eventFd)
         perror("epoll_ctl client"); 
         exit(EXIT_FAILURE);
     }
-
-    // std::cout << "new client added to epoll" << std::endl;
 }
 
 void BigServer::outgoingResponse(Socket *ptr){
     if (Client *client = dynamic_cast<Client *>(ptr)){
-        std::cout << "client creating response" << std::endl;
         client->handleResponse();
     }
 }
-
-// void BigServer::ConnectNewClient(int index, int eventFd) 
-// {
-//     _server[index].clientAccept(eventFd);
-//     _server[index].createNewClient();
-// }
-
-// void BigServer::loopEvents() {
-//     struct epoll_event event;
-//     for (int i = 0; i < _num_events; i++) {
-//         event = _events[i];
-//         _eventFd = event.data.fd;
-//         int index = findServerIndex(_eventFd);
-//         if (index < 0) {
-//             perror("Index not found");
-//             exit(EXIT_FAILURE);
-//         }
-//         _server[index].clientAccept(_eventFd);
-//         _server[index].getRequest(_eventFd);
-//     }
-// }
 
 int BigServer::findServerIndex(int eventFd) {
     int index = 0;
