@@ -1,34 +1,47 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>
-            Webserv
-        </title>
+        <title>Webserv</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body {
-            background-color: rgb(255, 255, 255);
+            background-image: url('upload/horse.jpg'); /* Replace with the actual path to your image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Fixed background */
             font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            color: honeydew;
+            height: 100vh; /* Full viewport height */
         }
 
-        h1{
+        h1 {
             font-size: 100px;
             text-align: center;
+            margin-top: 10vh;
+            color: honeydew;
+            text-shadow: -5px 5px 0px rgba(129, 48, 13, 0.5);
         }
         
         h2, p {
             text-align: center;
-            margin: 0;
-            margin-left: 10%;
-            margin-right: 10%;
+            margin: 0 auto; /* Center the element horizontally */
+            width: 80vh; /* Set the fixed width */
             padding: 20px;
-            background-color: rgb(255, 234, 234);
+            background-color: rgba(255, 102, 0, 0.8);
             border-radius: 10px;
+            line-height: 2;
+        }
+        h3 {
+            text-align: left;
+            font-size: 10px;
         }
         .features-text {
             font-size: 20px;
-            font-weight: bold;
+            /* font-weight: bold; */
         }
         .click-text {
             text-align: center;
@@ -40,21 +53,18 @@
         }
         </style>
 
-    <h1>Webserv</h1>
+    <h1>Welcome to our Webserv!</h1>
     <p>Meet our local host web server – it's not just a server; it's a web hosting rockstar! With the finesse of Beyoncé and the charm of a stand-up comedian, this beauty doesn't just host your content; it throws a digital party. Say hello to a server so fabulous; even its errors are entertaining! Welcome to the world of web hosting where our local host is the MVP – Most Valuable Performer!
 
-        <br><br><span class="features-text">Features</span><br><br>
+        <br><br><span class="features-text">Features</span><br>
 
         Our local host web server boasts a versatile set of functionalities that caters to your every need. Seamlessly handling file operations, it enables effortless file posting and storage, ensuring your data is securely managed. With support for HTTP methods like GET, POST, and DELETE, you have the flexibility to interact with your content dynamically. What's more, all these capabilities are at your fingertips for customization through the configuration file, empowering you to tailor the server's behavior to suit your specific requirements. It's not just a server; it's your adaptable digital companion, putting control in your hands.
         <br><br>
-        <span class="click-text">Click here to see magic: <a href="https://queerty-prodweb.s3.amazonaws.com/2019/06/mario-luigi-kiss-nintendo-pride.jpg">click here</a></span>    
-    </p>
-    <br><br>
-    <h2>
+        <!-- <span class="click-text">Click here to see magic: <a href="https://queerty-prodweb.s3.amazonaws.com/2019/06/mario-luigi-kiss-nintendo-pride.jpg">click here</a></span>     -->
         <a href="/cgi-bin/cgi-script.py">Test CGI script</a><br><br>
         A link to our 8081 upload page! <a href="http://localhost:8081/upload">click here</a>
-    </h2>
-    <body>
-        <img class="mario_img" src="upload/mario_PNG.png" alt="gangster" width="500" height="600">
-    </body>
+    </p>
+    <br><br>
+    <h3>
+    </h3>
 </html>

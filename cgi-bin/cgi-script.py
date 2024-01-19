@@ -6,9 +6,9 @@ print("<head>")
 print("\t<title>CGI Script</title>")
 print("</head><body>")
 
-print("<form action=\"/cgi-bin/cgi-script.py\" method=\"post\" enctype=\"text/plain\">")  # Correct the action and method attributes
+print("<form action=\"/cgi-bin/cgi-script.py\" method=\"post\" enctype=\"text/plain\">")
 print("\t<label for=\"text\">Enter your name</label>")
-print("\t<input type=\"text\" id=\"text\" name=\"post\">")  # Correct the input type and name attributes
+print("\t<input type=\"text\" id=\"text\" name=\"post\">")
 print("\t<input type=\"submit\">")
 print("</form>")
 
@@ -18,7 +18,7 @@ form = cgi.FieldStorage()
 name = form.getvalue("name")
 
 if name:
-    message = f"Hello, {name}!"
+    message = f"Hello, {name.upper()}!"
 else:
     message = "Please enter your name."
 

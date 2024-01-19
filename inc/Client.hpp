@@ -76,7 +76,7 @@ public:
 	void		handleDeleteMethod();
 	void		createErrorResponse();
 
-	void		handleCGI();
+	int			handleCGI();
 	void		createCGI();
 	void		execute();
 };

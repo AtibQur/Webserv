@@ -132,7 +132,8 @@ bool Client::isPathAndMethodAllowed()
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
     if (getUri() == "/cgi-bin/cgi-script.py"){
-		handleCGI();
+		if (handleCGI())
+            throw (std::invalid_argument("500 Internal server error"));
         return true;
 	}
     if (!std::filesystem::exists("root" + getUri()))
@@ -218,7 +219,7 @@ void Client::handleGetMethod()
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
 std::string Client::generateDirectoryListing(std::string dirPath) {
     std::string listing;
-    listing += "<h1>";
+    listing += "<h3>";
     listing += "<ul>";
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
         listing += "<li>";
@@ -236,7 +237,7 @@ std::string Client::generateDirectoryListing(std::string dirPath) {
         listing += "</li>";
     }
     listing += "</ul>";
-    listing += "</h1>";
+    listing += "</h3>";
     return listing;
 }
 
@@ -308,9 +309,6 @@ void Client::createErrorResponse()
     _response.sendResponse();
 }
 
-#include <sys/wait.h>
-
-
 void Client::execute() {
     const char* pythonPath = "/usr/bin/python3";
     const char* pythonScript = "cgi-bin/cgi-script.py";
@@ -330,14 +328,14 @@ void Client::execute() {
 void Client::createCGI() {
     std::cout << "cgi called" << std::endl;
 
-    // char* const scriptPath = "cgi-bin/cgi-script.py";
-
     const std::string tmpFile = "docs/tmpfile.html";
     char *fileName = const_cast<char *>(tmpFile.c_str());
     int fd = open (fileName, O_CREAT | O_RDWR | O_TRUNC, 0777);
     if (fd < 0)
     {
         perror("cgi error");
+        Response cgiError(m_socketFd, "500 Internal server error");
+        _response = cgiError;
     }
     int pid = fork();
     if (pid == 0)
@@ -352,7 +350,7 @@ void Client::createCGI() {
 }
 
 
-void Client::handleCGI() {
+int Client::handleCGI() {
     createCGI();
 
     Response clientResponse(m_socketFd, "200 OK");
@@ -370,4 +368,5 @@ void Client::handleCGI() {
 
     clientResponse.sendResponse();
     std::cout << "CGI response send" << std::endl;
+    return (0);
 }
