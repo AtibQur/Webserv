@@ -44,22 +44,22 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::string tmp;
 
     if (!checkRequestLine(request)){
-        throw std::invalid_argument("400");
+        throw std::invalid_argument("400 Bad Request");
     }
     getline(httpRequest, tmp, ' ');
     if (!checkMethod(tmp)){
-        throw std::invalid_argument("405");
+        throw std::invalid_argument("405 Method not Allowed");
     }
     _method = tmp;
     getline (httpRequest, tmp, ' ');
 
     if (tmp.empty())
-        throw std::invalid_argument("400");
+        throw std::invalid_argument("400 Bad Request");
     _uri = tmp;
     getline (httpRequest, tmp);
     
     if (tmp.compare("HTTP/1.1\r")) // \r\n
-        throw std::invalid_argument("400 METHOD NOT ALLOWED");
+        throw std::invalid_argument("400 Bad Request");
     _protocol = tmp;
 
     // start header
