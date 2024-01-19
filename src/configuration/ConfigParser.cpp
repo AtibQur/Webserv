@@ -9,7 +9,6 @@ ConfigParser::ConfigParser(std::vector<std::string> lines, int start, int end) {
 
 void ConfigParser::readFile() {
     _conf_file.open(_conf_file_path, std::ios::in); // open file readonly
-    
     // check if file is opened correctly, if so store lines in vector
     if (_conf_file.is_open()) {
         std::string line;

@@ -43,10 +43,6 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // check if there is valid request line
-    // for (int i = 0; i < request.size() && i < 1000; i++) {
-    //     std::cout << request[i];
-    // }
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400");
     }
@@ -93,7 +89,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
-        throw std::invalid_argument("413");
+        throw std::invalid_argument("413 Payload Too Large");
     }
     if (_contentType != "multipart/form-data") {
         return (0); // for when its text or www-form-urlencoded
@@ -139,6 +135,9 @@ int Client::parseRequest(std::string request, ssize_t post) {
     Location location = _location[_uri];
 
     bodyfile.open ("./root/" + _fileNameBody);
+    if (!bodyfile) {
+        throw std::invalid_argument("500 Internal Server Error");
+    }
     while (getline(ss, read, '\n')) {
 		bodyfile << read;
 		bodyfile << std::endl;
