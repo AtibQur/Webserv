@@ -70,6 +70,7 @@ void Config::findVarName(std::string line, int &index) {
 }
 
 void Config::setAttribute(std::string variable, std::string value, int &index, int line_i) {
+    if (value.empty()) return ;
     std::string options[7] = { // all possible options for server block
         "listen",
         "server_name",
