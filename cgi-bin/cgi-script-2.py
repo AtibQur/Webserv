@@ -14,7 +14,6 @@ print("\t<input type=\"text\" id=\"text\" name=\"post\">")
 print("\t<input type=\"submit\">")
 print("</form>")
 
-
 print("<body>")
 import cgi
 form = cgi.FieldStorage()
@@ -24,7 +23,7 @@ if name:
     message = f"Hello, {name.upper()}!"
 else:
     message = "Please enter your name."
-
+gfgfdgdg:
 print("\t<h1>" + message + "</h1>")
 
 print("</body>")

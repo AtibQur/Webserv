@@ -270,12 +270,13 @@ void Client::handleDeleteMethod()
             goodResponse.sendResponse();
         } catch (const std::filesystem::filesystem_error& e) {
             std::cerr << "Error deleting the file: " << e.what() << std::endl;
-            setError(m_socketFd, "500 Internal Server Error");
-            return ;
+            // setError(m_socketFd, "500 Internal Server Error");
             handleGetMethod();
         }
     } else {
         std::cout << "File does not exist." << std::endl;
+        Response goodResponse (m_socketFd, "404 not Found");
+        goodResponse.sendResponse();
     }
     handleGetMethod();
 }
