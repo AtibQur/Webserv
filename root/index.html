@@ -10,7 +10,6 @@
             body {
             background-color: rgb(255, 255, 255);
             font-family: 'Courier New', Courier, monospace;
-            text-align: center;
         }
 
         h1{
@@ -34,6 +33,11 @@
         .click-text {
             text-align: center;
         }
+        .mario_img {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
         </style>
 
     <h1>Webserv</h1>
@@ -51,6 +55,6 @@
         A link to our 8081 upload page! <a href="http://localhost:8081/upload">click here</a>
     </h2>
     <body>
-        <img src="upload/mario_PNG.png" alt="gangster" width="500" height="600">
+        <img class="mario_img" src="upload/mario_PNG.png" alt="gangster" width="500" height="600">
     </body>
 </html>
