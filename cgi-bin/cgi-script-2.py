@@ -1,30 +1,26 @@
 #!/usr/bin/env python
 
+import os
 print("<!DOCTYPE html>")
-print("<html lang=""en"">")
-print("<head>")
-print("\t<title>CGI Script</title>")
-print("<style>\nbody {\n\ttext-align: center;\n}")
-print("</style>")
-print("</head><body>")
 
-print("<form action=\"/cgi-bin/cgi-script.py\" method=\"post\" enctype=\"text/plain\">")
-print("\t<label for=\"text\">Enter your name</label>")
-print("\t<input type=\"text\" id=\"text\" name=\"post\">")
-print("\t<input type=\"submit\">")
-print("</form>")
+# Get the full path from PATH_INFO
+path_info = os.environ.get('PATH_INFO', '')
 
-print("<body>")
-import cgi
-form = cgi.FieldStorage()
-name = form.getvalue("name")
+request_method = os.environ.get('REQUEST_METHOD', '')
+query_string = os.environ.get('QUERY_STRING', '')
 
-if name:
-    message = f"Hello, {name.upper()}!"
+print(f"Content-Type: text/plain\n")
+print(f"Request Method: {request_method}")
+print(f"Query String: {query_string}")
+
+# Split the path into components
+path_components = path_info.split('/')
+
+# Extract relevant information
+if len(path_components) >= 3 and path_components[1] == 'show':
+    item_id = path_components[2]
+    print(f"Content-type: text/html\n\n")
+    print(f"Showing details for item with ID: {item_id}")
 else:
-    message = "Please enter your name."
-gfgfdgdg:
-print("\t<h1>" + message + "</h1>")
-
-print("</body>")
-print("</html>")
+    print(f"Content-type: text/html\n\n")
+    print("Invalid request")

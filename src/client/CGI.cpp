@@ -1,29 +1,16 @@
 #include "../../inc/main.hpp"
 
-// int Client::execute() {
-//     const char* pythonPath = "/usr/bin/python3";
-//     const char* pythonScript = "cgi-bin/cgi-script-2.py";  // should come from config file
-
-//     std::string queryString = "name=" + m_name;
-
-//     char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(pythonScript), const_cast<char*>(queryString.c_str()), nullptr};
-//     char *const envp[] = {nullptr};
-
-//     if (execve(pythonPath, argv, envp) == -1) {
-//         std::cerr << "Error executing Python script." << std::endl;
-//         return (1);
-//     }    
-//     return (0);
-// }
-
 int Client::execute() {
     const char* pythonPath = "/usr/bin/python3";
     const char* pythonScript = "cgi-bin/cgi-script-2.py";  // should come from config file
 
     std::string queryString = "name=" + m_name;
     
+    const char* requestMethod = "GET";
+    setenv("REQUEST_METHOD", requestMethod, 1);
+
     char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(pythonScript), const_cast<char*>(queryString.c_str()), nullptr};
-    char *const envp[] = {nullptr};
+    char *const envp[] = {NULL};
 
     const char* errorLogPath = "docs/error.log";
     int errorLogFd = open(errorLogPath, O_CREAT | O_RDWR | O_TRUNC, 0777);
@@ -84,7 +71,7 @@ int Client::execute() {
 
     std::ifstream errorLogFile(errorLogPath);
     std::string errorLogContent((std::istreambuf_iterator<char>(errorLogFile)), (std::istreambuf_iterator<char>()));
-    errorLogFile.close();
+    errorLogFile.close();   
 
     if (!errorLogContent.empty()) {
         std::cerr << "Python script encountered errors" << std::endl;
@@ -93,38 +80,10 @@ int Client::execute() {
     return 0;
 }
 
-
-int Client::createCGI() {
-    // execute();
-    // const std::string tmpFile = "docs/tmpfile.html";
-    // char *fileName = const_cast<char *>(tmpFile.c_str());
-    // int fd = open (fileName, O_CREAT | O_RDWR | O_TRUNC, 0777);
-    // if (fd < 0)
-    // {
-    //     std::cerr << "Error opening file" << std::endl;
-    //     return (1);
-    // }
-    // int pid = fork();
-    // if (pid == 0)
-    // {
-    //     if (dup2(fd, STDOUT_FILENO) < 0){
-    //         std::cerr << "Dub2 Error" << std::endl;
-    //         close(fd);
-    //         return (1);
-        // }
+int Client::handleCGI() {
     if (execute()) {
         return (1);
     }
-    // }
-    // close(fd);
-    // waitpid(pid, NULL, WUNTRACED);
-    return (0);
-}
-
-
-int Client::handleCGI() {
-    if (createCGI()) 
-        return (1);
 
     Response clientResponse(m_socketFd, "200 OK");
 
@@ -146,5 +105,3 @@ int Client::handleCGI() {
 
     return (0);
 }
-
-// change void to int for throw, then check if it works

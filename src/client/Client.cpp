@@ -64,7 +64,7 @@ void Client::receiveRequest() {
 void Client::handleRequest(std::string request, ssize_t post) {
     try {
         parseRequest(request, post);
-        isPathAndMethodAllowed(); 
+        checkPathAndMethod(); 
     } catch (const std::exception& e) {
         setError(getSocketFd(), e.what());
     }
@@ -127,11 +127,11 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
     }
 }
 
-bool Client::isPathAndMethodAllowed()
+bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    if (getUri() == "/cgi-bin/cgi-script.py"){
+    if (getUri() == "/cgi-bin/cgi-script.py"){ // extension with .py
 		if (handleCGI()) {
             throw (std::invalid_argument("500 Internal server error"));
         }

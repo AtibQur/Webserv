@@ -40,7 +40,7 @@ public:
 	// REQUEST AND RESPONSE 
 	void		receiveRequest();
 	void		readBuffer();
-	bool		isPathAndMethodAllowed();
+	bool		checkPathAndMethod();
 	void		modifyEpoll(Socket *ptr, int events, int fd);
 	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
