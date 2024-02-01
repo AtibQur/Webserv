@@ -95,14 +95,22 @@ void Location::findVarName(std::string line, std::vector<std::string> &variables
 
 void Location::setAtrributes(std::vector<std::string> variables) {
     int i = 0;
+    bool methodSet = false;
     while (i < variables.size()) {
         if (variables[i] == "index") // if the name matches we set the value of the next index
             _index = variables[++i];
-        else if (variables[i] == "methods")
+        else if (variables[i] == "methods") {
             setMethods(variables, i);
+            methodSet = true;
+        }
         else if (variables[i] == "autoindex")
             setAutoIndex(variables[++i]);
         i++;
+    }
+    if (!methodSet) {
+        _methods.push_back("GET");
+        _methods.push_back("POST");
+        _methods.push_back("DELETE");
     }
 }
 
