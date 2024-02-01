@@ -116,7 +116,6 @@ void Location::setAtrributes(std::vector<std::string> variables) {
         _methods.push_back("POST");
         _methods.push_back("DELETE");
     }
-    outputLocation();
 }
 
 void Location::setCgi(std::vector<std::string> variables, int &index) {

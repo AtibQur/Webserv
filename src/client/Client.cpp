@@ -140,6 +140,8 @@ bool Client::isPathAndMethodAllowed()
     if (getUri() == "/teapot") {
         throw std::invalid_argument("418 I'm a teapot");
     }
+    if (clientLocation.getIndex().empty())
+        throw std::invalid_argument("404 Not Found");
     if (!std::filesystem::exists("root" + getUri()))
         throw std::invalid_argument("404 Not Found");
     if (clientLocation.getPath().empty())
@@ -207,6 +209,7 @@ void Client::handleGetMethod()
         filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
     else
         filePath = "root" + getUri();
+    std::cout << "File path: " << filePath << std::endl;
     std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
@@ -275,7 +278,7 @@ void Client::handleDeleteMethod()
         }
     } else {
         std::cout << "File does not exist." << std::endl;
-        Response goodResponse (m_socketFd, "404 not Found");
+        Response goodResponse (m_socketFd, "204 No Content");
         goodResponse.sendResponse();
     }
     handleGetMethod();

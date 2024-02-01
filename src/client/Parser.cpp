@@ -54,7 +54,6 @@ int Client::parseRequest(std::string request, ssize_t post) {
     getline (httpRequest, tmp, ' ');
 
     if (tmp.empty()) {
-        std::cout << "GESPOT" << std::endl;
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
