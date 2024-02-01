@@ -8,6 +8,7 @@ private:
     std::string _path;
     std::string _index;
     std::vector<std::string> _methods;
+    std::vector<std::string> _cgi;
     bool _autoindex;
 
 public:
@@ -24,6 +25,7 @@ public:
     void setIndex(std::string index);
     void setMethods(std::vector<std::string> methods, int &index);
     void setPath(std::string path);
+    void setCgi(std::vector<std::string> cgi, int &index);
     void setAutoIndex(std::string value);
 
     // GETTERS
