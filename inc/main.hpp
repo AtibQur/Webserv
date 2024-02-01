@@ -9,6 +9,7 @@
 #include <sys/epoll.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <dirent.h>
 
 /* CPP Libraries */

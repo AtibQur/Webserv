@@ -1,6 +1,6 @@
 #include "../../inc/main.hpp"
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET") {
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""){
     m_socketFd = -1;
 }
 
@@ -13,8 +13,7 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
     if (m_socketFd == -1)
     {
-        perror("client Accept() error");
-        exit(EXIT_FAILURE);
+        setError(m_socketFd, "500 Internal Server Error");
     }
 }
 
@@ -49,13 +48,17 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd){
 
     event.data.ptr = ptr;
     if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1) {
-        perror("epoll_ctl mod out"); 
-        exit(EXIT_FAILURE);
+        std::cerr << "Error modifying epoll" << std::endl; 
+        setError(m_socketFd, "500 Internal Server Error");
     }
 }
 
 void Client::receiveRequest() {
-    readBuffer();
+    try {
+        readBuffer();
+    } catch (const std::exception& e) {
+        setError(getSocketFd(), e.what());
+    }
 }
 
 void Client::handleRequest(std::string request, ssize_t post) {
@@ -63,9 +66,7 @@ void Client::handleRequest(std::string request, ssize_t post) {
         parseRequest(request, post);
         isPathAndMethodAllowed(); 
     } catch (const std::exception& e) {
-        std::cout << "this error: " << e.what() << std::endl;
-        Response error(getSocketFd(), e.what());
-        _response = error;
+        setError(getSocketFd(), e.what());
     }
 }
 
@@ -81,11 +82,12 @@ void Client::readBuffer() {
     {
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
         if (bytes_read < 0) {
-            perror("Error reading from the client socket");
+            std::cerr << "Error reading form client socket" << std::endl;
+            throw (std::invalid_argument("400 Bad Request"));
             close (getSocketFd());
             break ;
         } else if (bytes_read == 0){
-            // std::cout << "Connection closed by the client." << std::endl;
+            std::cout << "Connection closed by the client." << std::endl;
             close (getSocketFd());
             break ;
         } else if (i = 0) {
@@ -94,12 +96,11 @@ void Client::readBuffer() {
         }
         else
         {
-            accumulatedRequestData.append(buffer, bytes_read); // append the request and break when it's complete
+            accumulatedRequestData.append(buffer, bytes_read);
             if (bytes_read == 1024)
                 continue ;
             if (isRequestComplete(accumulatedRequestData, post)) 
             {
-                // modify epoll
                 modifyEpoll(this, EPOLLOUT, getSocketFd());
                 handleRequest(accumulatedRequestData, post);
                 break ;
@@ -130,23 +131,28 @@ bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    std::cout << "PATH: " << getUri() << "\n";
-
+    if (getUri() == "/cgi-bin/cgi-script.py"){
+		if (handleCGI()) {
+            throw (std::invalid_argument("500 Internal server error"));
+        }
+        return true;
+	}
     if (getUri() == "/teapot") {
-        std::cout << "uri is: " << getUri() << std::endl;
-        throw std::invalid_argument("418");
+        throw std::invalid_argument("418 I'm a teapot");
     }
     if (!std::filesystem::exists("root" + getUri()))
-        throw std::invalid_argument("404");
+        throw std::invalid_argument("404 Not Found");
     if (clientLocation.getPath().empty())
-        throw std::invalid_argument("404");
+        throw std::invalid_argument("404 Not Found");
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
         return true;
     }
+
     std::vector<std::string> methods = clientLocation.getMethods();
-    if (methods.empty())
-        throw std::invalid_argument("400");
+    if (methods.empty()) {
+        throw std::invalid_argument("405 Method Not Allowed");
+    }
     std::vector<std::string>::iterator it = methods.begin();
     for (it; it < methods.end(); it++)
     {
@@ -155,7 +161,9 @@ bool Client::isPathAndMethodAllowed()
             return true;
         }
     }
-    throw std::invalid_argument("400");
+    if (it == methods.end())
+        throw std::invalid_argument("405 Method Not Allowed");
+    throw std::invalid_argument("400 Bad Request");
 }
 
 void Client::handleResponse() 
@@ -175,12 +183,12 @@ void Client::handleResponse()
                 handleDeleteMethod();
                 break;
             default:
-                std::cout << "default method" << std::endl;
+                std::cout << "Default Method" << std::endl;
         }
     }
     else
     {
-        std::cout << "Creating Error Response:" << std::endl;
+        std::cout << "Creating Error Response" << std::endl;
         createErrorResponse();
     }
     modifyEpoll(this, EPOLLIN, getSocketFd());
@@ -211,14 +219,14 @@ void Client::handleGetMethod()
         clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     }
     htmlFile.close();
-
+    std::cout << "response " << std::endl;
     clientResponse.sendResponse();
 }
 
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
 std::string Client::generateDirectoryListing(std::string dirPath) {
     std::string listing;
-
+    listing += "<h3>";
     listing += "<ul>";
     for (const auto& entry : std::filesystem::directory_iterator("root/" + dirPath)) {
         listing += "<li>";
@@ -236,7 +244,7 @@ std::string Client::generateDirectoryListing(std::string dirPath) {
         listing += "</li>";
     }
     listing += "</ul>";
-
+    listing += "</h3>";
     return listing;
 }
 
@@ -254,20 +262,28 @@ void Client::handleDeleteMethod()
 {
     std::string filePath = "root/" + getFileNameBody();  // Replace with your actual file path
     std::cout << "File path: " << filePath << std::endl;
-    // Check if the file exists
-    if (std::filesystem::exists(filePath)) {
+    if (std::filesystem::exists(filePath)) { // Check if the file exists
         try {
-            // Remove the file
-            std::filesystem::remove(filePath);
+            std::filesystem::remove(filePath); // Remove the file
             std::cout << "File deleted successfully." << std::endl;
+            Response goodResponse (m_socketFd, "204 No Content");
+            goodResponse.sendResponse();
         } catch (const std::filesystem::filesystem_error& e) {
             std::cerr << "Error deleting the file: " << e.what() << std::endl;
+            // setError(m_socketFd, "500 Internal Server Error");
             handleGetMethod();
         }
     } else {
         std::cout << "File does not exist." << std::endl;
+        Response goodResponse (m_socketFd, "404 not Found");
+        goodResponse.sendResponse();
     }
     handleGetMethod();
+}
+
+void Client::setError(int socket, std::string message) {
+    Response errorResponse(socket, message);
+    _response = errorResponse;
 }
 
 void Client::createErrorResponse()
@@ -276,7 +292,7 @@ void Client::createErrorResponse()
     std::string response;
 
     file = m_server.getConf()->getErrorPage(_response.getHeader());
-    std::cout << "Response code: " << _response.getHeader() << std::endl;
+    std::cout << "Error code: " << _response.getHeader() << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));

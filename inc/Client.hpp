@@ -29,6 +29,7 @@ private:
     struct sockaddr_storage 			m_client_address {};
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 	std::string 						_requestBuffer;
+	std::string							m_name;
 
 public:
     Client();
@@ -69,12 +70,17 @@ public:
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
-
 	void		handleGetMethod();
 	std::string generateDirectoryListing(std::string dirPath);
 	void		handlePostMethod();
 	void		handleDeleteMethod();
 	void		createErrorResponse();
+
+	int			handleCGI();
+	int			createCGI();
+	int			execute();
+	void		setError(int socket, std::string message);
+
 };
 
 #endif
