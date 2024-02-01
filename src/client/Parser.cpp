@@ -88,9 +88,11 @@ int Client::parseRequest(std::string request, ssize_t post) {
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength == 0) {
-
+    if (_contentType != "multipart/form-data" || _contentType.empty()) {
         std::cout << "hey ;)" << std::endl;
+        return (0); // for when its text or www-form-urlencoded
+    }
+    if (_contentLength == 0) {
         throw std::invalid_argument("400 Bad Request: Content-Length is 0"); // not always true ( need to check for data type before error checking )
     }
     if (_contentType.empty()) {
@@ -101,9 +103,6 @@ int Client::parseRequest(std::string request, ssize_t post) {
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
         throw std::invalid_argument("413 Payload Too Large");
-    }
-    if (_contentType != "multipart/form-data") {
-        return (0); // for when its text or www-form-urlencoded
     }
 
     // parse body

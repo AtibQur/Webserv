@@ -163,8 +163,10 @@ bool Client::isPathAndMethodAllowed()
             return true;
         }
     }
-    if (it == methods.end())
+    if (it == methods.end()) {
+        std::cout << "hi" << std::endl;
         throw std::invalid_argument("405 Method Not Allowed");
+    }
     throw std::invalid_argument("400 Bad Request");
 }
 
