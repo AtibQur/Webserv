@@ -43,6 +43,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
+    std::cout << "Request: " << request << std::endl;
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
     }
@@ -87,10 +88,15 @@ int Client::parseRequest(std::string request, ssize_t post) {
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength == 0)
-        throw std::invalid_argument("400 Bad Request: Content-Length is 0");
-    if (_contentType.empty())
-        throw std::invalid_argument("400 Bad Request: Content-Type is empty");
+    if (_contentLength == 0) {
+
+        std::cout << "hey ;)" << std::endl;
+        throw std::invalid_argument("400 Bad Request: Content-Length is 0"); // not always true ( need to check for data type before error checking )
+    }
+    if (_contentType.empty()) {
+        throw std::invalid_argument("400 Bad Request: Content-Type is empty"); // not always true
+
+    }
     if (_boundary.empty())
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
     if (_contentLength > _maxBodySize) { // needs to be updated from conf file
