@@ -95,14 +95,38 @@ void Location::findVarName(std::string line, std::vector<std::string> &variables
 
 void Location::setAtrributes(std::vector<std::string> variables) {
     int i = 0;
+    bool methodSet = false;
     while (i < variables.size()) {
         if (variables[i] == "index") // if the name matches we set the value of the next index
             _index = variables[++i];
-        else if (variables[i] == "methods")
+        else if (variables[i] == "methods") {
             setMethods(variables, i);
+            methodSet = true;
+        }
         else if (variables[i] == "autoindex")
             setAutoIndex(variables[++i]);
+        else if (variables[i] == "cgi")
+        {
+            setCgi(variables, i);
+        }
         i++;
+    }
+    if (!methodSet) {
+        _methods.push_back("GET");
+        _methods.push_back("POST");
+        _methods.push_back("DELETE");
+    }
+    outputLocation();
+}
+
+void Location::setCgi(std::vector<std::string> variables, int &index) {
+    if (!variables[index + 1].empty()) {
+        _cgi.push_back(variables[index + 1]);
+        index++;
+    }
+    if (!variables[index + 1].empty()) {
+        _cgi.push_back(variables[index + 1]);
+        index++;
     }
 }
 
@@ -130,6 +154,7 @@ void Location::setMethods(std::vector<std::string> variables, int &index) {
         methods = variables[++index];
         std::transform(methods.begin(), methods.end(), methods.begin(), ::toupper);
     }
+    index--;
 }
 
 void Location::ListDirectory() {
@@ -148,6 +173,12 @@ void Location::outputLocation() {
             std::cout << *it << std::endl;
     }
     std::cout << "autoindex: " << _autoindex << std::endl;
+    if (!_cgi.empty()) {
+        std::cout << "cgi: " << std::endl;
+        for (auto it = _cgi.begin(); it != _cgi.end(); it++)
+            std::cout << *it << std::endl;
+    }
     if (!_path.empty())
         std::cout << "path: " << _path << std::endl;
+
 }
