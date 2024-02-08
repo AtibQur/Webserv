@@ -174,7 +174,10 @@ bool Client::isPathAndMethodAllowed()
     {
         std::cout << "2" << std::endl;
         _isDir = true;
-        // throw std::invalid_argument("404 Not Found"); // Set a default file to answer if the request is a directory
+        std::cout << "File if dir: " << _file_if_dir << std::endl;
+        if (_file_if_dir.empty()) {
+            throw std::invalid_argument("404 Not Found"); // Set a default file to answer if the request is a directory
+        }
     }
     if (clientLocation.getIndex().empty() && clientLocation.getAutoIndex() == false)
     {
@@ -250,7 +253,6 @@ void Client::handleGetMethod()
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     if (_isDir) {
-        std::cout << "is dir" << std::endl;
         filePath = "root/" + _file_if_dir;
     }
     else if (clientLocation.getPath() == getUri())

@@ -28,7 +28,7 @@ namespace fs = std::filesystem;
     retrieving the values for each key and storing them in the class object
 */
 
-Config::Config(std::vector<std::string> lines) :_port(8080), _client_max_body_size(1000000), _file_if_dir("docs/error_pages/404.html") {
+Config::Config(std::vector<std::string> lines) :_port(8080), _client_max_body_size(1000000) {
     _lines = lines;
     std::string var = "";
     int index = 0;
