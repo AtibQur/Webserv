@@ -17,6 +17,7 @@ class Config {
 private:
     int _port;
     std::vector<std::string> _server_names;
+    std::string _file_if_dir;
     std::string _index;
     std::string _root;
     std::map<std::string, Location> _locations;
@@ -58,6 +59,7 @@ public:
     std::string getErrorPage(std::string code) { return _error_pages[code]; };
     std::map<std::string, std::string> getErrorPages() { return _error_pages; };
     std::map<std::string, Location> getLocations() { return _locations; };
+    std::string getFileIfDir() { return _file_if_dir; };
 
 };
 
