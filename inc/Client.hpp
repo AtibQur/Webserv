@@ -21,6 +21,7 @@ private:
 	long long							_contentLength;
 	std::string 						_fileNameBody;
 	bool								_isDelete;
+	bool								_isDir;
 	std::string 						_contentType;
 	std::map <std::string, std::string> _error_pages;
 	long long							_maxBodySize;
@@ -30,6 +31,7 @@ private:
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 	std::string 						_requestBuffer;
 	std::string							m_name;
+	std::string						    _file_if_dir;
 
 public:
     Client();
