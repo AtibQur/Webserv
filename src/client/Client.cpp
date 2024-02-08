@@ -168,6 +168,8 @@ bool Client::isPathAndMethodAllowed()
     }
     if (fs::is_regular_file("root" + getUri()))
         return true;
+    std::cout << clientLocation.getPath() << std::endl;
+    std::cout << getUri() << std::endl;
     if (fs::is_directory("root" + getUri()) && clientLocation.getPath() != getUri())
     {
         std::cout << "2" << std::endl;
@@ -247,8 +249,10 @@ void Client::handleGetMethod()
 
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
-    if (_isDir)
+    if (_isDir) {
+        std::cout << "is dir" << std::endl;
         filePath = "root/" + _file_if_dir;
+    }
     else if (clientLocation.getPath() == getUri())
         filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
     else
@@ -270,6 +274,7 @@ void Client::handleGetMethod()
         clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     }
     htmlFile.close();
+    _isDir = false;
     std::cout << "response " << std::endl;
     clientResponse.sendResponse();
 }
