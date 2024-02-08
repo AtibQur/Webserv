@@ -9,9 +9,9 @@ path_info = os.environ.get('PATH_INFO', '')
 request_method = os.environ.get('REQUEST_METHOD', '')
 query_string = os.environ.get('QUERY_STRING', '')
 
-print(f"Content-Type: text/plain\n")
-print(f"Request Method: {request_method}")
-print(f"Query String: {query_string}")
+print(f"Content-Type: text/plain<br>")
+print(f"Request Method: {request_method}<br>")
+print(f"Query String: {query_string}<br>")
 
 # Split the path into components
 path_components = path_info.split('/')

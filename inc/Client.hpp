@@ -31,6 +31,10 @@ private:
 	std::string 						_requestBuffer;
 	std::string							m_name;
 
+	std::string							_query;
+	std::string							_path;
+	std::string							_pytyhonScript;
+
 public:
     Client();
     Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
@@ -64,6 +68,7 @@ public:
 	std::string getMethod() { return _method; };
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
+	void		setUri(std::string uri);
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
 	char hexToChar(const std::string &hex);
@@ -80,6 +85,7 @@ public:
 	int			createCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
+	void		addCgiPath();
 
 };
 

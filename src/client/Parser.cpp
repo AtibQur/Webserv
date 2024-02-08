@@ -34,11 +34,7 @@ void ptn(std::string str) {
             std::cout << "n";
         else
             std::cout << str[i];
-        i++;
-        break ;
-    }
-}
-
+        i++;i-b
 int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
@@ -142,7 +138,7 @@ int Client::parseRequest(std::string request, ssize_t post) {
 
     bodyfile.open ("./root/" + _fileNameBody);
     if (!bodyfile) {
-        throw std::invalid_argument("500 Internal Server Error");
+        return 0;
     }
     while (getline(ss, read, '\n')) {
 		bodyfile << read;

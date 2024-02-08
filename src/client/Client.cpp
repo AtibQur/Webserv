@@ -2,12 +2,16 @@
 
 Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""){
     m_socketFd = -1;
+    _query = "";
+    _path = "";
 }
 
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations) \
     : m_server(server), _boundary("UNSET") {
     _error_pages = ErrorPages;
     _location = Locations;
+    _query = "";
+    _path = "";
     _maxBodySize = server.getConf()->getMaxBodySize();
 
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
@@ -64,7 +68,7 @@ void Client::receiveRequest() {
 void Client::handleRequest(std::string request, ssize_t post) {
     try {
         parseRequest(request, post);
-        checkPathAndMethod(); 
+        checkPathAndMethod();
     } catch (const std::exception& e) {
         setError(getSocketFd(), e.what());
     }
@@ -127,25 +131,35 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
     }
 }
 
+/* REQUEST CHECK IF THE URI IS IN LOCATIONS AND IF THE METHOD IS ALLOWED*/
 bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    if (getUri() == "/cgi-bin/cgi-script.py"){ // extension with .py
-		if (handleCGI()) {
+    if (getUri() == "/cgi-bin/" ){
+        addCgiPath();
+    }
+    if (getUri().find(".py") != std::string::npos){
+		if (handleCGI() == 1) {
             throw (std::invalid_argument("500 Internal server error"));
+        }
+        if (handleCGI() == 2) {
+            throw std::invalid_argument("404 Not Found");
         }
         return true;
 	}
+    std::cout << "no py" << std::endl;
     if (getUri() == "/teapot") {
         throw std::invalid_argument("418 I'm a teapot");
     }
-    if (!std::filesystem::exists("root" + getUri()))
+    if (!std::filesystem::exists("root" + getUri())){
         throw std::invalid_argument("404 Not Found");
+    }
     if (clientLocation.getPath().empty())
         throw std::invalid_argument("404 Not Found");
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
+        std::cout << "error after" << "\n";
         return true;
     }
 
@@ -166,6 +180,7 @@ bool Client::checkPathAndMethod()
     throw std::invalid_argument("400 Bad Request");
 }
 
+/* RESPONSE */
 void Client::handleResponse() 
 {
     if (_response.getCode().empty())
@@ -208,7 +223,10 @@ void Client::handleGetMethod()
     else
         filePath = "root" + getUri();
     std::ifstream htmlFile(filePath);
+    
+    //! WEEWOO
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+    // fileContent = addCgiPath(fileContent);
 
     if (!htmlFile.is_open()) {
         clientResponse.setContent("14\n\nFile not found");
@@ -219,7 +237,6 @@ void Client::handleGetMethod()
         clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     }
     htmlFile.close();
-    std::cout << "response " << std::endl;
     clientResponse.sendResponse();
 }
 
@@ -275,17 +292,19 @@ void Client::handleDeleteMethod()
         }
     } else {
         std::cout << "File does not exist." << std::endl;
-        Response goodResponse (m_socketFd, "404 not Found");
+        Response goodResponse (m_socketFd, "204 No Content");
         goodResponse.sendResponse();
     }
     handleGetMethod();
 }
 
+/* SET ERROR */
 void Client::setError(int socket, std::string message) {
     Response errorResponse(socket, message);
     _response = errorResponse;
 }
 
+/* CREATE ERROR RESPONSE */
 void Client::createErrorResponse()
 {
     std::string file;
@@ -302,3 +321,50 @@ void Client::createErrorResponse()
 
     _response.sendResponse();
 }
+
+/* ADD THE CONFIG CGI PATH TO THE INDEX HTML */
+// std::string Client::addCgiPath(std::string fileContent)
+// {
+//     std::string cgiScriptPath = "";
+//     Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
+//     std::vector<std::string> cgiPath = clientLocation.getCgi();
+
+//     if (!cgiPath.empty()) {
+//         std::cout << "getCgi " << cgiPath[0] << std::endl;
+//         cgiScriptPath = cgiPath[0];
+//     }
+//     else
+//         std::cout << "empty" << std::endl;
+//     size_t pos = fileContent.find("/cgi-bin/cgi-script.py");
+//     if (pos != std::string::npos) {
+//         std::cout << "replaced" << std::endl;
+//         fileContent.replace(pos, std::string("/cgi-bin/cgi-script.py").length(), ("/cgi-bin/" + cgiScriptPath));
+//     }
+//     else
+//         std::cout << "not replaced" << std::endl;
+//     return fileContent;
+// }
+
+void Client::setUri(std::string newUri){
+    _uri = newUri;
+}
+
+void    Client::addCgiPath()
+{
+    std::string cgiScriptPath = "";
+    Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
+    std::vector<std::string> cgiPath = clientLocation.getCgi();
+
+    if (!cgiPath.empty()) {
+        std::cout << "getCgi " << cgiPath[0] << std::endl;
+        cgiScriptPath = cgiPath[0];
+        setUri("/cgi-bin/" + cgiScriptPath);
+        std::cout << "NEW\n";
+    }
+    else
+        std::cout << "empty" << std::endl;
+    
+}
+//TODO if uri is /cgi/bin attach the path in the config file to it
+//TODO error is geen if open htmlfile in filecontent in get method function
+
