@@ -21,6 +21,7 @@ private:
 	long long							_contentLength;
 	std::string 						_fileNameBody;
 	bool								_isDelete;
+	bool								_isDir;
 	std::string 						_contentType;
 	std::map <std::string, std::string> _error_pages;
 	long long							_maxBodySize;
@@ -30,6 +31,7 @@ private:
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 	std::string 						_requestBuffer;
 	std::string							m_name;
+	std::string						    _file_if_dir;
 
 	std::string							_query;
 	std::string							_path;
@@ -71,7 +73,7 @@ public:
 	void		setUri(std::string uri);
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
-	char hexToChar(const std::string &hex);
+	char		hexToChar(const std::string &hex);
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
