@@ -2,10 +2,10 @@
 
 int Client::execute() {
 
+    //
     std::string cgiScriptPath = "";
     if (!std::filesystem::exists("root" + getUri()))
     {
-        std::cout << "from config\n";
         Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
         std::vector<std::string> cgiPath = clientLocation.getCgi();
         if (!cgiPath.empty()) {
@@ -18,13 +18,8 @@ int Client::execute() {
 
     const char* pythonPath = "/usr/bin/python3";
     const char* pythonScript = const_cast<char*>(cgiScriptPath.c_str());
-    std::cout << "SCRIPT " << _pytyhonScript << std::endl;
 
     std::string _queryString = "name=" + m_name;
-
-    // std::cout << "Name: " << queryString << "\n";
-    // char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(_pytyhonScript.c_str()), nullptr};
-    // char *const envp[] = {NULL};
 
     char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(_pytyhonScript.c_str()), const_cast<char*>(_queryString.c_str()), nullptr};
     char *const envp[] = {const_cast<char*>(_query.c_str()), NULL};
@@ -103,8 +98,6 @@ int Client::handleCGI() {
     size_t py = path.find(".py");
     std::string script = path.substr(0, py);
 
-
-    std::cout << "PATH " << script << ".py" << "\n";
     if (std::filesystem::exists(script + ".py")){
         _pytyhonScript = script + ".py";
     }
@@ -117,7 +110,7 @@ int Client::handleCGI() {
     {
         _query = "QUERY_STRING=" + remaining.substr(questionMarkPos + 1);
     }
-    std::cout << "QUERY: " << _query << std::endl;
+
     // substr executable file
     // substr PATH_INFO= van de slash to de question mark
     // substr QUERY_STRING= vanaf de question mark

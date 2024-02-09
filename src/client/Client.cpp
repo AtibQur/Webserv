@@ -136,9 +136,9 @@ bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    if (getUri() == "/cgi-bin/" ){
-        addCgiPath();
-    }
+    // if (getUri() == "/cgi-bin/" ){
+    //     addCgiPath();
+    // }
     if (getUri().find(".py") != std::string::npos){
 		if (handleCGI() == 1) {
             throw (std::invalid_argument("500 Internal server error"));

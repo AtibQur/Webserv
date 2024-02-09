@@ -34,7 +34,10 @@ void ptn(std::string str) {
             std::cout << "n";
         else
             std::cout << str[i];
-        i++;i-b
+        i++;
+    }
+}
+
 int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
