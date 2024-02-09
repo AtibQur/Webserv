@@ -166,15 +166,15 @@ bool Client::checkPathAndMethod()
     // if (getUri() == "/cgi-bin/" ){
     //     addCgiPath();
     // }
-    if (getUri().find(".py") != std::string::npos){
-		if (handleCGI() == 1) {
-            throw (std::invalid_argument("500 Internal server error"));
-        }
-        if (handleCGI() == 2) {
-            throw std::invalid_argument("404 Not Found");
-        }
-        return true;
-	}
+    // if (getUri().find(".py") != std::string::npos){
+	// 	if (handleCGI() == 1) {
+    //         throw (std::invalid_argument("500 Internal server error"));
+    //     }
+    //     if (handleCGI() == 2) {
+    //         throw std::invalid_argument("404 Not Found");
+    //     }
+    //     return true;
+	// }
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");
@@ -418,26 +418,26 @@ void Client::createErrorResponse()
 //     return fileContent;
 // }
 
-void Client::setUri(std::string newUri){
-    _uri = newUri;
-}
+// void Client::setUri(std::string newUri){
+//     _uri = newUri;
+// }
 
-void    Client::addCgiPath()
-{
-    std::string cgiScriptPath = "";
-    Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
-    std::vector<std::string> cgiPath = clientLocation.getCgi();
+// void    Client::addCgiPath()
+// {
+//     std::string cgiScriptPath = "";
+//     Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
+//     std::vector<std::string> cgiPath = clientLocation.getCgi();
 
-    if (!cgiPath.empty()) {
-        std::cout << "getCgi " << cgiPath[0] << std::endl;
-        cgiScriptPath = cgiPath[0];
-        setUri("/cgi-bin/" + cgiScriptPath);
-        std::cout << "NEW\n";
-    }
-    else
-        std::cout << "empty" << std::endl;
+//     if (!cgiPath.empty()) {
+//         std::cout << "getCgi " << cgiPath[0] << std::endl;
+//         cgiScriptPath = cgiPath[0];
+//         setUri("/cgi-bin/" + cgiScriptPath);
+//         std::cout << "NEW\n";
+//     }
+//     else
+//         std::cout << "empty" << std::endl;
     
-}
+// }
 //TODO if uri is /cgi/bin attach the path in the config file to it
 //TODO error is geen if open htmlfile in filecontent in get method function
 
