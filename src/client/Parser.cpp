@@ -43,6 +43,8 @@ int Client::parseRequest(std::string request, ssize_t post) {
     std::stringstream httpRequest(request);
     std::string tmp;
 
+    // std::cout << request << std::endl;
+
     if (!checkRequestLine(request)){
         throw std::invalid_argument("400 Bad Request");
     }
@@ -126,10 +128,18 @@ int Client::parseRequest(std::string request, ssize_t post) {
     if (_method == "DELETE")
         return (0);
     getline(httpRequest, tmp);
-
+    
+    std::cout << _boundary << std::endl;
+    _boundary += "--";
     while (getline(httpRequest, tmp)) {
-        if (tmp.find(_boundary + "--") != std::string::npos)
-            break ;
+        std::cout << "tmp: " << tmp << "$" << std::endl;
+        std::cout << "ab" + _boundary + "ab" << std::endl;
+        if (tmp == ("--" + _boundary + "--")) {
+            std::cout << "line2: " << tmp;
+            break;
+        }
+        if (tmp.find("hallo") != std::string::npos)
+            std::cout << "YESS" << std::endl;
         _body.append(tmp);
         _body.append("\n");
     }
