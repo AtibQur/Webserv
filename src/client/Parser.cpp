@@ -68,10 +68,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     {
         throw std::invalid_argument("400 Bad Request");
     }
-    if (tmp.size() > 1 && tmp[tmp.size() - 1] == '/')
-    {
-        tmp = tmp.substr(0, tmp.size() - 1);
-    }
     _uri = tmp;
     getline(httpRequest, tmp);
 

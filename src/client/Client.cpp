@@ -162,20 +162,22 @@ bool Client::isPathAndMethodAllowed()
     {
         throw std::invalid_argument("418 I'm a teapot");
     }
-    if (!fs::exists("root" + getUri())) {
+    std::cout << clientLocation.getPath() << std::endl;
+    std::cout << getUri() << std::endl;
+    if (!fs::exists("root" + getUri()))
+    {
         std::cout << "1" << std::endl;
         throw std::invalid_argument("404 Not Found");
     }
     if (fs::is_regular_file("root" + getUri()))
         return true;
-    std::cout << clientLocation.getPath() << std::endl;
-    std::cout << getUri() << std::endl;
     if (fs::is_directory("root" + getUri()) && clientLocation.getPath() != getUri())
     {
         std::cout << "2" << std::endl;
         _isDir = true;
         std::cout << "File if dir: " << _file_if_dir << std::endl;
-        if (_file_if_dir.empty()) {
+        if (_file_if_dir.empty())
+        {
             throw std::invalid_argument("404 Not Found"); // Set a default file to answer if the request is a directory
         }
     }
@@ -252,14 +254,25 @@ void Client::handleGetMethod()
 
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
-    if (_isDir) {
+    if (_isDir)
+    {
         filePath = "root/" + _file_if_dir;
     }
     else if (clientLocation.getPath() == getUri())
         filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
     else
         filePath = "root" + getUri();
-    std::cout << "File path: " << filePath << std::endl;
+
+    if (fs::is_directory(filePath) && !_isDir)
+    {
+        std::ifstream htmlFile("");
+        std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+        fileContent += generateDirectoryListing(clientLocation.getPath());
+        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+        htmlFile.close();
+        clientResponse.sendResponse();
+        return ;
+    }
     std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
@@ -277,7 +290,6 @@ void Client::handleGetMethod()
     }
     htmlFile.close();
     _isDir = false;
-    std::cout << "response " << std::endl;
     clientResponse.sendResponse();
 }
 
