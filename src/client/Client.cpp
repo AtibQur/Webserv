@@ -271,7 +271,7 @@ void Client::handleGetMethod()
         clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
         htmlFile.close();
         clientResponse.sendResponse();
-        return ;
+        return;
     }
     std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));

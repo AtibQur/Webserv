@@ -108,7 +108,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     }
     if (_contentType != "multipart/form-data" || _contentType.empty())
     {
-        std::cout << "hey ;)" << std::endl;
         return (0); // for when its text or www-form-urlencoded
     }
     if (_contentLength == 0)
