@@ -175,7 +175,6 @@ bool Client::isPathAndMethodAllowed()
     {
         std::cout << "2" << std::endl;
         _isDir = true;
-        std::cout << "File if dir: " << _file_if_dir << std::endl;
         if (_file_if_dir.empty())
         {
             throw std::invalid_argument("404 Not Found"); // Set a default file to answer if the request is a directory
@@ -282,7 +281,8 @@ void Client::handleGetMethod()
     }
     else
     {
-        if (clientLocation.getAutoIndex())
+        std::cout << "hi" << std::endl;
+        if (clientLocation.getAutoIndex() && !_isDir)
         {
             fileContent += generateDirectoryListing(clientLocation.getPath());
         }
