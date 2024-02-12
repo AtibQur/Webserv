@@ -17,6 +17,7 @@ print("</form>")
 
 print("<body>")
 import cgi
+
 form = cgi.FieldStorage()
 name = form.getvalue("younaam")
 

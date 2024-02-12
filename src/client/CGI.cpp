@@ -37,6 +37,8 @@ int Client::execute() {
         close(errorLogFd);
         return 1;
     }
+    int og_stdin;
+    dup2(STDIN_FILENO, og_stdin);
 
     int pid = fork();
     if (pid == 0) { // Child
@@ -67,12 +69,27 @@ int Client::execute() {
             write(errorLogFd, buffer, bytesRead);
         }
 
-        // Close the pipe and error log file
         close(pip[0]);
         close(errorLogFd);
 
-        // Wait for the child process to finish
-        waitpid(pid, NULL, 0);
+        // while(waitpid(pid, NULL, WUNTRACED) != -1);
+
+        int timeout = 5;
+        for(int i = 0; i < timeout; i++)
+        {
+            int status;
+            int ret = waitpid(pid, &status, WNOHANG);
+            if (ret < 0)
+                std::cerr << "waitpid wrong" << std::endl;
+            if (WIFEXITED(status) || WIFSIGNALED(status))
+                break ;
+            sleep(1);
+            std::cout << i << std::endl;
+        }
+        if (kill(pid, SIGTERM) == 0) {
+            std::cerr << "Process killed due to timeout" << std::endl;
+        }
+
     } else {
         std::cerr << "Error forking process" << std::endl;
         close(pip[0]);

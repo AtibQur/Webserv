@@ -166,15 +166,15 @@ bool Client::checkPathAndMethod()
     // if (getUri() == "/cgi-bin/" ){
     //     addCgiPath();
     // }
-    // if (getUri().find(".py") != std::string::npos){
-	// 	if (handleCGI() == 1) {
-    //         throw (std::invalid_argument("500 Internal server error"));
-    //     }
-    //     if (handleCGI() == 2) {
-    //         throw std::invalid_argument("404 Not Found");
-    //     }
-    //     return true;
-	// }
+    if (getUri().find(".py") != std::string::npos){
+		if (handleCGI() == 1) {
+            throw (std::invalid_argument("500 Internal server error"));
+        }
+        if (handleCGI() == 2) {
+            throw std::invalid_argument("404 Not Found");
+        }
+        return true;
+	}
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");
