@@ -68,10 +68,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     {
         throw std::invalid_argument("400 Bad Request");
     }
-    if (tmp.size() > 1 && tmp[tmp.size() - 1] == '/')
-    {
-        tmp = tmp.substr(0, tmp.size() - 1);
-    }
     _uri = tmp;
     getline(httpRequest, tmp);
 
@@ -112,7 +108,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     }
     if (_contentType != "multipart/form-data" || _contentType.empty())
     {
-        std::cout << "hey ;)" << std::endl;
         return (0); // for when its text or www-form-urlencoded
     }
     if (_contentLength == 0)
