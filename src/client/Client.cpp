@@ -225,7 +225,6 @@ bool Client::checkPathAndMethod()
     }
     if (it == methods.end())
     {
-        std::cout << "hi" << std::endl;
         throw std::invalid_argument("405 Method Not Allowed");
     }
     throw std::invalid_argument("400 Bad Request");
@@ -296,7 +295,6 @@ void Client::handleGetMethod()
     }
     else
     {
-        std::cout << "hi" << std::endl;
         if (clientLocation.getAutoIndex() && !_isDir)
         {
             fileContent += generateDirectoryListing(clientLocation.getPath());
@@ -342,9 +340,14 @@ std::string Client::generateDirectoryListing(std::string dirPath)
 void Client::handlePostMethod()
 {
     Response clientResponse(m_socketFd, "302 FOUND");
+    std::string filePath = "root/" + getFileNameBody();
+    std::ifstream htmlFile(filePath);
+    std::cout << "File path: " << filePath << std::endl;
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
+    clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.sendResponse();
-    handleGetMethod();
+    htmlFile.close();
 }
 
 /* DELETE */
