@@ -51,7 +51,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // std::cout << "Request: " << request << std::endl;
     if (!checkRequestLine(request))
     {
         throw std::invalid_argument("400 Bad Request");
@@ -80,6 +79,11 @@ int Client::parseRequest(std::string request, ssize_t post)
     {
         std::cout << "the request is not complete" << std::endl;
         return 1;
+    }
+    if (_method == "DELETE") 
+    {
+        _fileNameBody = _uri;
+        return 0;
     }
     else if (_method == "GET")
     {

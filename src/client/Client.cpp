@@ -158,12 +158,12 @@ bool Client::isPathAndMethodAllowed()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
+    if (_method == "DELETE")
+        return true;
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");
     }
-    std::cout << clientLocation.getPath() << std::endl;
-    std::cout << getUri() << std::endl;
     if (!fs::exists("root" + getUri()))
     {
         std::cout << "1" << std::endl;
