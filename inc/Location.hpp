@@ -33,6 +33,7 @@ public:
     std::vector<std::string> getMethods();
     std::string getPath();
     bool getAutoIndex() { return _autoindex; };
+    std::vector<std::string> getCgi() { return _cgi; };
 
     // OUTPUT
     void outputLocation();

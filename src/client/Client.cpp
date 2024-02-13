@@ -5,6 +5,8 @@ namespace fs = std::filesystem;
 Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false)
 {
     m_socketFd = -1;
+    _query = "";
+    _path = "";
 }
 
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations)
@@ -12,6 +14,8 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
 {
     _error_pages = ErrorPages;
     _location = Locations;
+    _query = "";
+    _path = "";
     _maxBodySize = server.getConf()->getMaxBodySize();
     _file_if_dir = server.getConf()->getFileIfDir();
 
@@ -80,7 +84,7 @@ void Client::handleRequest(std::string request, ssize_t post)
     try
     {
         parseRequest(request, post);
-        isPathAndMethodAllowed();
+        checkPathAndMethod();
     }
     catch (const std::exception &e)
     {
@@ -154,10 +158,23 @@ bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
     }
 }
 
-bool Client::isPathAndMethodAllowed()
+/* REQUEST CHECK IF THE URI IS IN LOCATIONS AND IF THE METHOD IS ALLOWED*/
+bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
+    // if (getUri() == "/cgi-bin/" ){
+    //     addCgiPath();
+    // }
+    if (getUri().find(".py") != std::string::npos){
+		if (handleCGI() == 1) {
+            throw (std::invalid_argument("500 Internal server error"));
+        }
+        if (handleCGI() == 2) {
+            throw std::invalid_argument("404 Not Found");
+        }
+        return true;
+	}
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");
@@ -192,6 +209,7 @@ bool Client::isPathAndMethodAllowed()
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
+        std::cout << "error after" << "\n";
         return true;
     }
 
@@ -368,6 +386,7 @@ void Client::setError(int socket, std::string message)
     _response = errorResponse;
 }
 
+/* CREATE ERROR RESPONSE */
 void Client::createErrorResponse()
 {
     std::string file;
