@@ -72,25 +72,28 @@ int Client::execute() {
         close(pip[0]);
         close(errorLogFd);
 
+        //TODO make an fix when there is an infinite loop in the python script
         // while(waitpid(pid, NULL, WUNTRACED) != -1);
-
-        int timeout = 5;
-        for(int i = 0; i < timeout; i++)
-        {
-            int status;
-            int ret = waitpid(pid, &status, WNOHANG);
-            if (ret < 0)
-                std::cerr << "waitpid wrong" << std::endl;
-            if (WIFEXITED(status) || WIFSIGNALED(status))
-                break ;
-            sleep(1);
-            std::cout << i << std::endl;
-        }
-        if (kill(pid, SIGTERM) == 0) {
-            std::cerr << "Process killed due to timeout" << std::endl;
-        }
-
-    } else {
+        // int timeout = 5;
+        // int i;
+        // for(i = 0; i < timeout; i++)
+        // {
+        //     int status;
+        //     int ret = waitpid(pid, &status, WNOHANG);
+        //     if (ret < 0)
+        //         std::cerr << "waitpid wrong" << std::endl;
+        //     if (WIFEXITED(status) || WIFSIGNALED(status))
+        //         break ;
+        //     sleep(1);
+        //     std::cout << i << std::endl;
+        // }
+        // if (i == timeout) {
+        //     kill(pid, SIGTERM);
+        //     std::cerr << "Process killed due to timeout" << std::endl;
+        // }
+    } 
+    else 
+    {
         std::cerr << "Error forking process" << std::endl;
         close(pip[0]);
         close(pip[1]);

@@ -291,10 +291,7 @@ void Client::handleGetMethod()
         return;
     }
     std::ifstream htmlFile(filePath);
-    
-    //! WEEWOO
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
-    // fileContent = addCgiPath(fileContent);
 
     if (!htmlFile.is_open())
     {
@@ -406,50 +403,3 @@ void Client::createErrorResponse()
 
     _response.sendResponse();
 }
-
-/* ADD THE CONFIG CGI PATH TO THE INDEX HTML */
-// std::string Client::addCgiPath(std::string fileContent)
-// {
-//     std::string cgiScriptPath = "";
-//     Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
-//     std::vector<std::string> cgiPath = clientLocation.getCgi();
-
-//     if (!cgiPath.empty()) {
-//         std::cout << "getCgi " << cgiPath[0] << std::endl;
-//         cgiScriptPath = cgiPath[0];
-//     }
-//     else
-//         std::cout << "empty" << std::endl;
-//     size_t pos = fileContent.find("/cgi-bin/cgi-script.py");
-//     if (pos != std::string::npos) {
-//         std::cout << "replaced" << std::endl;
-//         fileContent.replace(pos, std::string("/cgi-bin/cgi-script.py").length(), ("/cgi-bin/" + cgiScriptPath));
-//     }
-//     else
-//         std::cout << "not replaced" << std::endl;
-//     return fileContent;
-// }
-
-// void Client::setUri(std::string newUri){
-//     _uri = newUri;
-// }
-
-// void    Client::addCgiPath()
-// {
-//     std::string cgiScriptPath = "";
-//     Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
-//     std::vector<std::string> cgiPath = clientLocation.getCgi();
-
-//     if (!cgiPath.empty()) {
-//         std::cout << "getCgi " << cgiPath[0] << std::endl;
-//         cgiScriptPath = cgiPath[0];
-//         setUri("/cgi-bin/" + cgiScriptPath);
-//         std::cout << "NEW\n";
-//     }
-//     else
-//         std::cout << "empty" << std::endl;
-    
-// }
-//TODO if uri is /cgi/bin attach the path in the config file to it
-//TODO error is geen if open htmlfile in filecontent in get method function
-
