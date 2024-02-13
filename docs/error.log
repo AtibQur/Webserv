@@ -1,1 +1,4 @@
-/usr/bin/python3: can't open file '/home/rkoper/projects/Webserv/cgi-bin/cgi-script-2.py': [Errno 2] No such file or directory
+  File "/home/hqureshi/Documents/Webserv/cgi-bin/cgi-script-2.py", line 26
+    gfgfdgdg:
+             ^
+SyntaxError: invalid syntax

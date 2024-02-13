@@ -1,29 +1,28 @@
 #include "../../inc/main.hpp"
 
-// int Client::execute() {
-//     const char* pythonPath = "/usr/bin/python3";
-//     const char* pythonScript = "cgi-bin/cgi-script-2.py";  // should come from config file
-
-//     std::string queryString = "name=" + m_name;
-
-//     char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(pythonScript), const_cast<char*>(queryString.c_str()), nullptr};
-//     char *const envp[] = {nullptr};
-
-//     if (execve(pythonPath, argv, envp) == -1) {
-//         std::cerr << "Error executing Python script." << std::endl;
-//         return (1);
-//     }    
-//     return (0);
-// }
-
 int Client::execute() {
-    const char* pythonPath = "/usr/bin/python3";
-    const char* pythonScript = "cgi-bin/cgi-script-2.py";  // should come from config file
 
-    std::string queryString = "name=" + m_name;
-    
-    char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(pythonScript), const_cast<char*>(queryString.c_str()), nullptr};
-    char *const envp[] = {nullptr};
+    //
+    std::string cgiScriptPath = "";
+    if (!std::filesystem::exists("root" + getUri()))
+    {
+        Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
+        std::vector<std::string> cgiPath = clientLocation.getCgi();
+        if (!cgiPath.empty()) {
+            std::cout << "getCgi " << cgiPath[0] << std::endl;
+            cgiScriptPath = "root/cgi-bin/" + cgiPath[0];
+        }
+    }
+    else
+        cgiScriptPath = "root/" + getUri();
+
+    const char* pythonPath = "/usr/bin/python3";
+    const char* pythonScript = const_cast<char*>(cgiScriptPath.c_str());
+
+    std::string _queryString = "name=" + m_name;
+
+    char *const argv[] = {const_cast<char*>(pythonPath), const_cast<char*>(_pytyhonScript.c_str()), const_cast<char*>(_queryString.c_str()), nullptr};
+    char *const envp[] = {const_cast<char*>(_query.c_str()), NULL};
 
     const char* errorLogPath = "docs/error.log";
     int errorLogFd = open(errorLogPath, O_CREAT | O_RDWR | O_TRUNC, 0777);
@@ -38,6 +37,8 @@ int Client::execute() {
         close(errorLogFd);
         return 1;
     }
+    int og_stdin;
+    dup2(STDIN_FILENO, og_stdin);
 
     int pid = fork();
     if (pid == 0) { // Child
@@ -68,13 +69,31 @@ int Client::execute() {
             write(errorLogFd, buffer, bytesRead);
         }
 
-        // Close the pipe and error log file
         close(pip[0]);
         close(errorLogFd);
 
-        // Wait for the child process to finish
-        waitpid(pid, NULL, 0);
-    } else {
+        //TODO make an fix when there is an infinite loop in the python script
+        // while(waitpid(pid, NULL, WUNTRACED) != -1);
+        // int timeout = 5;
+        // int i;
+        // for(i = 0; i < timeout; i++)
+        // {
+        //     int status;
+        //     int ret = waitpid(pid, &status, WNOHANG);
+        //     if (ret < 0)
+        //         std::cerr << "waitpid wrong" << std::endl;
+        //     if (WIFEXITED(status) || WIFSIGNALED(status))
+        //         break ;
+        //     sleep(1);
+        //     std::cout << i << std::endl;
+        // }
+        // if (i == timeout) {
+        //     kill(pid, SIGTERM);
+        //     std::cerr << "Process killed due to timeout" << std::endl;
+        // }
+    } 
+    else 
+    {
         std::cerr << "Error forking process" << std::endl;
         close(pip[0]);
         close(pip[1]);
@@ -84,7 +103,7 @@ int Client::execute() {
 
     std::ifstream errorLogFile(errorLogPath);
     std::string errorLogContent((std::istreambuf_iterator<char>(errorLogFile)), (std::istreambuf_iterator<char>()));
-    errorLogFile.close();
+    errorLogFile.close();   
 
     if (!errorLogContent.empty()) {
         std::cerr << "Python script encountered errors" << std::endl;
@@ -93,38 +112,33 @@ int Client::execute() {
     return 0;
 }
 
+int Client::handleCGI() {
 
-int Client::createCGI() {
-    // execute();
-    // const std::string tmpFile = "docs/tmpfile.html";
-    // char *fileName = const_cast<char *>(tmpFile.c_str());
-    // int fd = open (fileName, O_CREAT | O_RDWR | O_TRUNC, 0777);
-    // if (fd < 0)
-    // {
-    //     std::cerr << "Error opening file" << std::endl;
-    //     return (1);
-    // }
-    // int pid = fork();
-    // if (pid == 0)
-    // {
-    //     if (dup2(fd, STDOUT_FILENO) < 0){
-    //         std::cerr << "Dub2 Error" << std::endl;
-    //         close(fd);
-    //         return (1);
-        // }
+    std::string path = "root" + getUri();
+    size_t py = path.find(".py");
+    std::string script = path.substr(0, py);
+
+    if (std::filesystem::exists(script + ".py")){
+        _pytyhonScript = script + ".py";
+    }
+    else
+        return 2;
+    std::string remaining = path.substr(py + 3);
+
+    size_t questionMarkPos = remaining.find("?");
+    if (questionMarkPos != std::string::npos)
+    {
+        _query = "QUERY_STRING=" + remaining.substr(questionMarkPos + 1);
+    }
+
+    // substr executable file
+    // substr PATH_INFO= van de slash to de question mark
+    // substr QUERY_STRING= vanaf de question mark
+    // cgi start
+
     if (execute()) {
         return (1);
     }
-    // }
-    // close(fd);
-    // waitpid(pid, NULL, WUNTRACED);
-    return (0);
-}
-
-
-int Client::handleCGI() {
-    if (createCGI()) 
-        return (1);
 
     Response clientResponse(m_socketFd, "200 OK");
 
@@ -146,5 +160,3 @@ int Client::handleCGI() {
 
     return (0);
 }
-
-// change void to int for throw, then check if it works

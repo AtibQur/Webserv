@@ -54,7 +54,7 @@ class Server : public Socket {
 
         // get method functions
         // void getMethod(Client* client);
-        // bool isPathAndMethodAllowed(Client* client);
+        // bool checkPathAndMethod(Client* client);
         // post method functions
         // void postMethod(Client *client);
 
