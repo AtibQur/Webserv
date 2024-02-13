@@ -21,6 +21,7 @@ private:
 	long long							_contentLength;
 	std::string 						_fileNameBody;
 	bool								_isDelete;
+	bool								_isDir;
 	std::string 						_contentType;
 	std::map <std::string, std::string> _error_pages;
 	long long							_maxBodySize;
@@ -30,6 +31,11 @@ private:
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 	std::string 						_requestBuffer;
 	std::string							m_name;
+	std::string						    _file_if_dir;
+
+	std::string							_query;
+	std::string							_path;
+	std::string							_pytyhonScript;
 
 public:
     Client();
@@ -40,7 +46,7 @@ public:
 	// REQUEST AND RESPONSE 
 	void		receiveRequest();
 	void		readBuffer();
-	bool		isPathAndMethodAllowed();
+	bool		checkPathAndMethod();
 	void		modifyEpoll(Socket *ptr, int events, int fd);
 	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
@@ -64,9 +70,10 @@ public:
 	std::string getMethod() { return _method; };
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
+	void		setUri(std::string uri);
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
-	char hexToChar(const std::string &hex);
+	char		hexToChar(const std::string &hex);
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
@@ -80,6 +87,7 @@ public:
 	int			createCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
+	void		addCgiPath();
 
 };
 

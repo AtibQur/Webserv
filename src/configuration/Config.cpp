@@ -28,7 +28,7 @@ namespace fs = std::filesystem;
     retrieving the values for each key and storing them in the class object
 */
 
-Config::Config(std::vector<std::string> lines) : _client_max_body_size(1000000) {
+Config::Config(std::vector<std::string> lines) :_port(8080), _client_max_body_size(1000000) {
     _lines = lines;
     std::string var = "";
     int index = 0;
@@ -71,17 +71,18 @@ void Config::findVarName(std::string line, int &index) {
 
 void Config::setAttribute(std::string variable, std::string value, int &index, int line_i) {
     if (value.empty()) return ;
-    std::string options[7] = { // all possible options for server block
+    std::string options[8] = { // all possible options for server block
         "listen",
         "server_name",
         "index",
         "root",
         "location",
         "client_max_body_size",
-        "error_page"
+        "error_page",
+        "file_if_dir"
     };
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 8; i++) {
         if (variable == options[i]) { // if variable name matches expected name we store it
             switch (i) {
                 case 0:
@@ -104,6 +105,9 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
                     break;
                 case 6:
                     setErrorPage(value, index, line_i);
+                    break;
+                case 7:
+                    _file_if_dir = value;
                     break;
             }
         }
@@ -213,6 +217,7 @@ void Config::outputConfig() {
     std::cout << "index: " << _index << std::endl;
     std::cout << "root: " << _root << std::endl;
     std::cout << "server_names: " << std::endl;
+    std::cout << "default file for dir req: " << _file_if_dir << std::endl;
     outputServerNames();
     std::cout << "locations: " << std::endl;
     for (auto it = _locations.begin(); it != _locations.end(); it++) {
