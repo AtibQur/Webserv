@@ -51,6 +51,8 @@ int Client::parseRequest(std::string request, ssize_t post)
     std::stringstream httpRequest(request);
     std::string tmp;
 
+    std::cout << request << std::endl;
+
     // std::cout << "Request: " << request << std::endl;
     if (!checkRequestLine(request))
     {
@@ -154,15 +156,14 @@ int Client::parseRequest(std::string request, ssize_t post)
     if (_method == "DELETE")
         return (0);
     getline(httpRequest, tmp);
-
-    while (getline(httpRequest, tmp))
-    {
-        if (tmp.find(_boundary + "--") != std::string::npos)
-            break;
+    
+    while (getline(httpRequest, tmp)) {
+        if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {
+            break ;
+        }
         _body.append(tmp);
         _body.append("\n");
     }
-
     std::stringstream ss(_body);
     std::string read;
     std::ofstream bodyfile;
