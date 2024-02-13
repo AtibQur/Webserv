@@ -20,6 +20,7 @@ SRCS = 	main.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \
 		client/Client.cpp \
+		client/ClientMethods.cpp \
 		client/CGI.cpp \
 		client/Parser.cpp \
 		configuration/Location.cpp

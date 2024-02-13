@@ -2,7 +2,6 @@
 
 int Client::execute() {
 
-    //
     std::string cgiScriptPath = "";
     if (!std::filesystem::exists("root" + getUri()))
     {
@@ -31,72 +30,57 @@ int Client::execute() {
         return 1;
     }
 
-    int pip[2];
-    if (pipe(pip) == -1) {
-        std::cerr << "Error creating pipe for stderr redirection" << std::endl;
-        close(errorLogFd);
-        return 1;
-    }
-    int og_stdin;
-    dup2(STDIN_FILENO, og_stdin);
+    int cgiInputPipe[2];
+    int cgiOutputPipe[2];
+    pipe(cgiInputPipe);
+    pipe(cgiOutputPipe);
+
+    // int pip[2];
+    // if (pipe(pip) == -1) {
+    //     std::cerr << "Error creating pipe for stderr redirection" << std::endl;
+    //     close(errorLogFd);
+    //     return 1;
+    // }
 
     int pid = fork();
     if (pid == 0) { // Child
 
         // Redirect stderr pipe
-        dup2(pip[1], STDERR_FILENO);
-        close(pip[0]);
-        close(pip[1]);
-        // Redirect stdout to tempfile
-        int fd = open("docs/tmpfile.html", O_CREAT | O_RDWR | O_TRUNC, 0777);
-        if (fd < 0) {
-            std::cerr << "Error opening file" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-        dup2(fd, STDOUT_FILENO);
-        close(fd);
+        close(cgiInputPipe[1]);
+        close(cgiOutputPipe[0]);
+        
+        dup2(cgiInputPipe[0], STDIN_FILENO);
+        dup2(cgiOutputPipe[1], STDOUT_FILENO);
+
+        // // Redirect stdout to tempfile
+        // int fd = open("docs/tmpfile.html", O_CREAT | O_RDWR | O_TRUNC, 0777);
+        // if (fd < 0) {
+        //     std::cerr << "Error opening file" << std::endl;
+        //     exit(EXIT_FAILURE);
+        // }
+        // dup2(fd, STDOUT_FILENO);
+        // close(fd);
 
         execve(pythonPath, argv, envp);
         std::cerr << "Error executing Python script." << std::endl;
     } 
     else if (pid > 0) { // Parent
-        close(pip[1]);
 
         // Read from the read end of the pipe and write to the error log
         char buffer[4096];
         ssize_t bytesRead;
-        while ((bytesRead = read(pip[0], buffer, sizeof(buffer))) > 0) {
+        while ((bytesRead = read(cgiOutputPipe[1], buffer, sizeof(buffer))) > 0) {
             write(errorLogFd, buffer, bytesRead);
         }
-
-        close(pip[0]);
+        close(cgiInputPipe[0]);
+        close(cgiOutputPipe[1]);
         close(errorLogFd);
 
-        //TODO make an fix when there is an infinite loop in the python script
-        // while(waitpid(pid, NULL, WUNTRACED) != -1);
-        // int timeout = 5;
-        // int i;
-        // for(i = 0; i < timeout; i++)
-        // {
-        //     int status;
-        //     int ret = waitpid(pid, &status, WNOHANG);
-        //     if (ret < 0)
-        //         std::cerr << "waitpid wrong" << std::endl;
-        //     if (WIFEXITED(status) || WIFSIGNALED(status))
-        //         break ;
-        //     sleep(1);
-        //     std::cout << i << std::endl;
-        // }
-        // if (i == timeout) {
-        //     kill(pid, SIGTERM);
-        //     std::cerr << "Process killed due to timeout" << std::endl;
-        // }
+        // addCGIProcessToEpoll(cgiOutputPipe[0]);
     } 
     else 
     {
         std::cerr << "Error forking process" << std::endl;
-        close(pip[0]);
-        close(pip[1]);
         close(errorLogFd);
         return 1;
     }
@@ -140,23 +124,37 @@ int Client::handleCGI() {
         return (1);
     }
 
-    Response clientResponse(m_socketFd, "200 OK");
+    // Response clientResponse(m_socketFd, "200 OK");
 
-    std::string filePath = "docs/tmpfile.html";
-    std::ifstream htmlFile(filePath);
-    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+    // std::string filePath = "docs/tmpfile.html";
+    // std::ifstream htmlFile(filePath);
+    // std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
 
-    if (!htmlFile.is_open()) {
-        clientResponse.setContent("14\n\nFile not found");
-    } else {
-        std::string contentType = "text/plain";
-        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-    }
-    htmlFile.close();
+    // if (!htmlFile.is_open()) {
+    //     clientResponse.setContent("14\n\nFile not found");
+    // } else {
+    //     std::string contentType = "text/plain";
+    //     clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+    // }
+    // htmlFile.close();
 
-    clientResponse.sendResponse();
-    std::cout << "CGI response send" << std::endl;
-    std::remove(filePath.c_str());
+    // clientResponse.sendResponse();
+    // std::cout << "CGI response send" << std::endl;
+    // std::remove(filePath.c_str());
 
     return (0);
+}
+
+void Client::addCGIProcessToEpoll(int cgiOutputPipe) {
+    struct epoll_event event;
+    event.events = EPOLLIN;
+    Socket *ptr;
+    event.data.ptr = this; //! not sure about this
+
+    if (epoll_ctl(this->m_epoll, EPOLL_CTL_ADD, cgiOutputPipe, &event) == -1) {
+        perror("epoll_ctl cgi_output_pipe");
+        exit(EXIT_FAILURE);
+    }
+    else
+        std::cerr << "add to epoll" << std::endl;
 }

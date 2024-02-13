@@ -36,6 +36,7 @@ private:
 	std::string							_query;
 	std::string							_path;
 	std::string							_pytyhonScript;
+	bool								_isCgi;
 
 public:
     Client();
@@ -84,10 +85,15 @@ public:
 	void		createErrorResponse();
 
 	int			handleCGI();
-	int			createCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
-	void		addCgiPath();
+
+
+	bool		getIsCgi() { return _isCgi; };
+	void		executeCgi();
+	void		addCGIProcessToEpoll(int cgiOutputPipe);
+
+
 
 };
 

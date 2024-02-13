@@ -49,13 +49,21 @@ void BigServer::loopEvents() {
     }
 }
 
+
+
 void BigServer::incomingRequest(Socket *ptr) {
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->receiveRequest();
+
+        if (client->getIsCgi() == true){
+            // std::cout << "execute cgi" << std::endl;
+            // client->executeCgi();
+        }
     }
     if (Server *server = dynamic_cast<Server *>(ptr)){
         connectNewClient(server, _eventFd);
     }
+    // read form pipe
 }
 
 void BigServer::connectNewClient(Server *server, int eventFd) 
@@ -82,6 +90,7 @@ void BigServer::outgoingResponse(Socket *ptr){
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->handleResponse();
     }
+    // write from pipe
 }
 
 int BigServer::findServerIndex(int eventFd) {
