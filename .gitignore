@@ -2,3 +2,5 @@
 objs
 webserv
 .vscode
+docs/error.log
+_MACOSX
