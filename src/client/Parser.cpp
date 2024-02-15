@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "Client.hpp"
 
 /* Parse the client request */
 

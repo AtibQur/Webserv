@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "Client.hpp"
 
 namespace fs = std::filesystem;
 
@@ -9,16 +9,18 @@ bool Client::checkPathAndMethod()
 
     /* CGI */
     if (getUri().find(".py") != std::string::npos){
-        // executeCgi();
+        addCGIProcessToEpoll(&m_cgiOut, EPOLLIN, m_cgiOut.m_pipeFd[READ]);
 		if (handleCGI() == 1) {
             throw (std::invalid_argument("500 Internal server error"));
         }
         if (handleCGI() == 2) {
             throw std::invalid_argument("404 Not Found");
         }
-        _isCgi = true;
+        _isCgi = true; //? delete maybe
         return true;
 	}
+    /* CGI */
+
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");

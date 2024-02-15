@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "Client.hpp"
 
 Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false)
 {

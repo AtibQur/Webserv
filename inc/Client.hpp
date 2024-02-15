@@ -1,15 +1,19 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+// #ifndef CLIENT_HPP
+// #define CLIENT_HPP
+#pragma once
 
 #include "main.hpp"
 
 class Location;
 class Server;
+class CgiOut;
 
 class Client : public Socket {
 private:
 	const Server						 &m_server;
 	Response							_response;
+
+	CgiOut								m_cgiOut;
 
 	std::string 						_method;
 	std::string 						_uri;
@@ -91,10 +95,10 @@ public:
 
 	bool		getIsCgi() { return _isCgi; };
 	void		executeCgi();
-	void		addCGIProcessToEpoll(int cgiOutputPipe);
+	void		addCGIProcessToEpoll(Socket *ptr, int events, int fd);
 
 
 
 };
 
-#endif
+// #endif

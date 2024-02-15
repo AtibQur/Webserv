@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "Client.hpp"
 
 int Client::execute() {
 
@@ -98,6 +98,10 @@ int Client::execute() {
 
 int Client::handleCGI() {
 
+    //? make pipein class and is called in handle write. it added to epollIN and executed
+    //? make pipeout class and is called in handle read. read the pipe bytes and put that in m_response
+    //? then remove read piperead from epoll
+
     std::string path = "root" + getUri();
     size_t py = path.find(".py");
     std::string script = path.substr(0, py);
@@ -145,13 +149,12 @@ int Client::handleCGI() {
     return (0);
 }
 
-void Client::addCGIProcessToEpoll(int cgiOutputPipe) {
+void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd) {
     struct epoll_event event;
     event.events = EPOLLIN;
-    Socket *ptr;
-    event.data.ptr = this; //! not sure about this
+    event.data.ptr = ptr;
 
-    if (epoll_ctl(this->m_epoll, EPOLL_CTL_ADD, cgiOutputPipe, &event) == -1) {
+    if (epoll_ctl(this->m_epoll, EPOLL_CTL_ADD, fd, &event) == -1) {
         perror("epoll_ctl cgi_output_pipe");
         exit(EXIT_FAILURE);
     }
