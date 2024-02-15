@@ -72,6 +72,7 @@ void Client::receiveRequest()
     try
     {
         readBuffer();
+
     }
     catch (const std::exception &e)
     {
@@ -85,6 +86,7 @@ void Client::handleRequest(std::string request, ssize_t post)
     {
         parseRequest(request, post);
         checkPathAndMethod();
+
     }
     catch (const std::exception &e)
     {
@@ -133,6 +135,7 @@ void Client::readBuffer()
                 handleRequest(accumulatedRequestData, post);
                 break;
             }
+
         }
         i++;
     }
