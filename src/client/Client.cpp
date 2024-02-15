@@ -15,6 +15,7 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
     _error_pages = ErrorPages;
     _location = Locations;
     _query = "";
+    _isDir = false;
     _path = "";
     _maxBodySize = server.getConf()->getMaxBodySize();
     _file_if_dir = server.getConf()->getFileIfDir();
@@ -271,7 +272,7 @@ void Client::handleGetMethod()
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     if (_isDir)
-    {
+    {   
         filePath = "root/" + _file_if_dir;
     }
     else if (clientLocation.getPath() == getUri())
@@ -303,8 +304,8 @@ void Client::handleGetMethod()
         }
         clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     }
-    htmlFile.close();
     _isDir = false;
+    htmlFile.close();
     clientResponse.sendResponse();
 }
 
@@ -342,7 +343,6 @@ std::string Client::generateDirectoryListing(std::string dirPath)
 void Client::handlePostMethod()
 {
 
-    std::cout << "$" << getFileNameBody() << "$" << std::endl;
     if (getFileNameBody().empty())
     {
         std::cout << "No file name" << std::endl;
@@ -350,8 +350,14 @@ void Client::handlePostMethod()
     }
     Response clientResponse(m_socketFd, "302 FOUND");
     std::string filePath = "root/" + getFileNameBody();
+    std::cout << "File path: " << filePath << std::endl;
     std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+    if (!htmlFile.is_open())
+    {
+        std::cerr << "Error opening file" << std::endl;
+
+    }
     clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
     clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.sendResponse();
