@@ -1,51 +1,75 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title> Upload File</title>
-        <style>
-            body {
-            background-image: url('upload/winterMario.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            font-family: 'Courier New', Courier, monospace;
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            color: white;
-            height: 100vh;
-            height: 100vh;
+            background-color: #f0f0f0;
             text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            font-size: 100px;
-            text-align: center;
-            margin-top: 10vh;
+            color: #333;
         }
-        
         h2 {
-            text-align: center;
+            color: #333;
+            margin-top: 30px;
         }
-        </style>
-    </head>
-    <h1>Upload Page</h1>
-    <br><br>
-    <body>
-       <h2> Post</h2> 
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload</h1>
+        <br><br>
+        <h2>Post</h2>
         <form action="/upload" method="post" enctype="multipart/form-data">
-
-            <label for="file">Choose here the file u wish to post</label>
-            <input type="file" id="file" name="post">
+            <label for="post">Upload here:</label>
+            <input type="file" id="post" name="post">
             <br/><br/>
-            <input type="submit">
+            <input type="submit" value="Upload">
         </form>
         <br><br><br><br>
-        <h2> Delete</h2> 
+        <h2>Delete</h2>
         <form action="/upload" method="post" enctype="multipart/form-data">
-            <label for="file">Choose here the file wish to delete</label>
-            <input type="file" id="file" name="delete">
+            <label for="delete">Delete here:</label>
+            <input type="file" id="delete" name="delete">
             <br/><br/>
-            <input type="submit">
+            <input type="submit" value="Delete">
         </form>
-    </body>
+    </div>
+</body>
 </html>
