@@ -1,66 +1,51 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Webserv</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            body {
-            background-image: url('upload/winterMario.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            font-family: 'Courier New', Courier, monospace;
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Awesome Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            height: 100vh;
-        }
-
-        h1 {
-            font-size: 100px;
+            background-color: #f0f0f0;
             text-align: center;
-            margin-top: 10vh;
-            color: white;
         }
-        
-        h2, p {
-            text-align: center;
-            margin: 0 auto;
-            width: 80vh; 
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            line-height: 2;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h3 {
-            text-align: left;
-            color: white;
-            font-size: 10px;
+        h1 {
+            color: #333;
         }
-        .features-text {
-            font-size: 20px;
-            /* font-weight: bold; */
+        p {
+            color: #666;
+            margin-bottom: 20px;
         }
-        .click-text {
-            text-align: center;
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
-        .mario_img {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
+        a:hover {
+            background-color: #0056b3;
         }
-        </style>
-    </head>
-    <h1>Welcome to our Webserv!</h1>
-    <p>Meet our local host web server – it's not just a server; it's a web hosting rockstar! With the finesse of Beyoncé and the charm of a stand-up comedian, this beauty doesn't just host your content; it throws a digital party. Say hello to a server so fabulous; even its errors are entertaining! Welcome to the world of web hosting where our local host is the MVP – Most Valuable Performer!
-
-        <br><br><span class="features-text">Features</span><br>
-
-        Our local host web server boasts a versatile set of functionalities that caters to your every need. Seamlessly handling file operations, it enables effortless file posting and storage, ensuring your data is securely managed. With support for HTTP methods like GET, POST, and DELETE, you have the flexibility to interact with your content dynamically. What's more, all these capabilities are at your fingertips for customization through the configuration file, empowering you to tailor the server's behavior to suit your specific requirements. It's not just a server; it's your adaptable digital companion, putting control in your hands.
-        <br><br>
-        <!-- <span class="click-text">Click here to see magic: <a href="https://queerty-prodweb.s3.amazonaws.com/2019/06/mario-luigi-kiss-nintendo-pride.jpg">click here</a></span>     -->
-        <!-- <a href="/cgi-bin/">Test CGI script</a><br><br> -->
-        A link to our 8081 upload page! <a href="http://localhost:8081/upload">click here</a>
-    </p>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Our Awesome Website</h1>
+        <p>Explore and enjoy!</p>
+        <a href="http://localhost:8081/upload">Go to Upload Page</a>
+    </div>
+</body>
 </html>
