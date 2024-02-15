@@ -72,6 +72,7 @@ void Client::receiveRequest()
     try
     {
         readBuffer();
+
     }
     catch (const std::exception &e)
     {
@@ -85,6 +86,7 @@ void Client::handleRequest(std::string request, ssize_t post)
     {
         parseRequest(request, post);
         checkPathAndMethod();
+
     }
     catch (const std::exception &e)
     {
@@ -133,6 +135,7 @@ void Client::readBuffer()
                 handleRequest(accumulatedRequestData, post);
                 break;
             }
+
         }
         i++;
     }
@@ -225,7 +228,6 @@ bool Client::checkPathAndMethod()
     }
     if (it == methods.end())
     {
-        std::cout << "hi" << std::endl;
         throw std::invalid_argument("405 Method Not Allowed");
     }
     throw std::invalid_argument("400 Bad Request");
@@ -276,7 +278,6 @@ void Client::handleGetMethod()
         filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
     else
         filePath = "root" + getUri();
-
     if (fs::is_directory(filePath) && !_isDir)
     {
         std::ifstream htmlFile("");
@@ -296,7 +297,6 @@ void Client::handleGetMethod()
     }
     else
     {
-        std::cout << "hi" << std::endl;
         if (clientLocation.getAutoIndex() && !_isDir)
         {
             fileContent += generateDirectoryListing(clientLocation.getPath());
@@ -341,10 +341,21 @@ std::string Client::generateDirectoryListing(std::string dirPath)
 /* POST */
 void Client::handlePostMethod()
 {
+
+    std::cout << "$" << getFileNameBody() << "$" << std::endl;
+    if (getFileNameBody().empty())
+    {
+        std::cout << "No file name" << std::endl;
+        handleGetMethod();
+    }
     Response clientResponse(m_socketFd, "302 FOUND");
+    std::string filePath = "root/" + getFileNameBody();
+    std::ifstream htmlFile(filePath);
+    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
+    clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.sendResponse();
-    handleGetMethod();
+    htmlFile.close();
 }
 
 /* DELETE */
