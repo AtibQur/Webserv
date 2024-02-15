@@ -9,14 +9,13 @@ bool Client::checkPathAndMethod()
 
     /* CGI */
     if (getUri().find(".py") != std::string::npos){
-        addCGIProcessToEpoll(&m_cgiOut, EPOLLIN, m_cgiOut.m_pipeFd[READ]);
-		if (handleCGI() == 1) {
+		int val = handleCGI();
+        if (val = 1) {
             throw (std::invalid_argument("500 Internal server error"));
         }
-        if (handleCGI() == 2) {
+        if (val == 2) {
             throw std::invalid_argument("404 Not Found");
         }
-        _isCgi = true; //? delete maybe
         return true;
 	}
     /* CGI */

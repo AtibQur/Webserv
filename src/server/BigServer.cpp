@@ -52,18 +52,24 @@ void BigServer::loopEvents() {
 
 
 void BigServer::incomingRequest(Socket *ptr) {
+    CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr);
+    Server *server = dynamic_cast<Server *>(ptr);
+    Client *client = dynamic_cast<Client *>(ptr);
+
+    std::cout << "ptr: " << ptr << std::endl;
+    std::cout << "cgiout ptr: " << cgiOut << std::endl;
+    std::cout << "server ptr: " << server << std::endl;
+    std::cout << "client ptr: " << client << std::endl;
+
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->receiveRequest();
-
-        if (client->getIsCgi() == true){
-            // std::cout << "execute cgi" << std::endl;
-            // client->executeCgi();
-        }
     }
     if (Server *server = dynamic_cast<Server *>(ptr)){
         connectNewClient(server, _eventFd);
     }
-    // read form pipe
+    if (CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr)){
+        std::cout << "there is something to read from pipe\n";
+    }
 }
 
 void BigServer::connectNewClient(Server *server, int eventFd) 
@@ -90,7 +96,7 @@ void BigServer::outgoingResponse(Socket *ptr){
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->handleResponse();
     }
-    // write from pipe
+    // write to pipe
 }
 
 int BigServer::findServerIndex(int eventFd) {

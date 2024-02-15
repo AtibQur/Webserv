@@ -76,7 +76,7 @@ int Client::execute() {
         close(cgiOutputPipe[1]);
         close(errorLogFd);
 
-        // addCGIProcessToEpoll(cgiOutputPipe[0]);
+        // addCGIProcessToEpoll(&m_cgiOut, EPOLLIN, m_cgiOut.m_pipeFd[READ]); //? add cgiPipeOut to epoll
     } 
     else 
     {
@@ -159,5 +159,5 @@ void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd) {
         exit(EXIT_FAILURE);
     }
     else
-        std::cerr << "add to epoll" << std::endl;
+        std::cerr << "add cgi pipe to epoll" << std::endl;
 }
