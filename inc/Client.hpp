@@ -73,6 +73,7 @@ public:
 	void		setUri(std::string uri);
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
+	std::string getBody() { return _body; };
 	char		hexToChar(const std::string &hex);
 	// SETTERS
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
