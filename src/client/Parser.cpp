@@ -163,6 +163,10 @@ int Client::parseRequest(std::string request, ssize_t post)
         if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {
             break ;
         }
+        if (tmp.find(_boundary) != std::string::npos) {
+            break ;
+        }
+        
         _body.append(tmp);
         _body.append("\n");
     }

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>I'm a Teapot</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,6 +17,8 @@
         .teapot {
             width: 200px;
             margin-bottom: 20px;
+            cursor: pointer;
+            border-radius: 8px;
         }
 
         h1 {
@@ -25,15 +28,50 @@
         p {
             color: #666;
         }
+
+        #enlargedTeapot {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        #enlargedTeapot img {
+            width: 400px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <img class="teapot" src="https://http.cat/418.jpg" alt="Teapot">
-        <h1>I'm a Teapot!</h1>
-        <p>Sorry, I'm just a teapot and can't serve you coffee.</p>
+
+    <figure>
+        <img class="teapot" src="https://http.cat/418.jpg" alt="Teapot" onclick="enlargeImage()">
+        <figcaption>Don't click me</figcaption>
+    </figure>
+    <h1>I'm a Teapot!</h1>
+    <p>Sorry, I'm just a teapot and can't serve you coffee.</p>
+
+    <div id="enlargedTeapot">
+        <img src="https://http.cat/418.jpg" alt="Enlarged Teapot">
     </div>
+
+    <script>
+        function enlargeImage() {
+            var enlargedTeapot = document.getElementById('enlargedTeapot');
+            enlargedTeapot.style.display = 'block';
+        }
+
+        window.onclick = function (event) {
+            var enlargedTeapot = document.getElementById('enlargedTeapot');
+            if (event.target == enlargedTeapot) {
+                enlargedTeapot.style.display = 'none';
+            }
+        };
+    </script>
+
 </body>
 
 </html>
