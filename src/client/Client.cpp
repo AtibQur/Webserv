@@ -349,8 +349,14 @@ void Client::handlePostMethod()
         handleGetMethod();
     }
     Response clientResponse(m_socketFd, "302 FOUND");
+    
     std::string filePath = "root/" + getFileNameBody();
+    if (filePath == "root/") {
+        std::cout << "Error: Empty request" << std::endl;
+        return ;
+    }
     std::cout << "File path: " << filePath << std::endl;
+
     std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     if (!htmlFile.is_open())
