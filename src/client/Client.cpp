@@ -352,7 +352,7 @@ void Client::handlePostMethod()
     
     std::string filePath = "root/" + getFileNameBody();
     if (filePath == "root/") {
-        std::cout << "Error: Empty request" << std::endl;
+        std::cerr << "Error: Empty request" << std::endl;
         return ;
     }
     std::cout << "File path: " << filePath << std::endl;
