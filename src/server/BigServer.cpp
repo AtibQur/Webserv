@@ -40,11 +40,11 @@ void BigServer::loopEvents() {
 
         if (event.events & EPOLLIN) 
         {
-            incomingRequest(epollPtr);
+            incomingRequest(epollPtr); // read
         } 
         else if (event.events & EPOLLOUT) 
         {   
-            outgoingResponse(epollPtr);
+            outgoingResponse(epollPtr); // write
         }
     }
 }
@@ -52,14 +52,14 @@ void BigServer::loopEvents() {
 
 
 void BigServer::incomingRequest(Socket *ptr) {
-    CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr);
-    Server *server = dynamic_cast<Server *>(ptr);
-    Client *client = dynamic_cast<Client *>(ptr);
+    // CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr);
+    // Server *server = dynamic_cast<Server *>(ptr);
+    // Client *client = dynamic_cast<Client *>(ptr);
 
-    std::cout << "ptr: " << ptr << std::endl;
-    std::cout << "cgiout ptr: " << cgiOut << std::endl;
-    std::cout << "server ptr: " << server << std::endl;
-    std::cout << "client ptr: " << client << std::endl;
+    // std::cout << "ptr: " << ptr << std::endl;
+    // std::cout << "cgiout ptr: " << cgiOut << std::endl;
+    // std::cout << "server ptr: " << server << std::endl;
+    // std::cout << "client ptr: " << client << std::endl;
 
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->receiveRequest();
@@ -69,6 +69,8 @@ void BigServer::incomingRequest(Socket *ptr) {
     }
     if (CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr)){
         std::cout << "there is something to read from pipe\n";
+        cgiOut->readFromPipe();
+        
     }
 }
 
@@ -93,10 +95,20 @@ void BigServer::connectNewClient(Server *server, int eventFd)
 }
 
 void BigServer::outgoingResponse(Socket *ptr){
+
+    CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr);
+    Client *client = dynamic_cast<Client *>(ptr);
+
+    std::cout << "ptr: " << ptr << std::endl;
+    std::cout << "cgiout ptr: " << cgiOut << std::endl;
+    std::cout << "client ptr: " << client << std::endl;
+
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->handleResponse();
     }
-    // write to pipe
+    if (CgiIn *cgiIn = dynamic_cast<CgiIn *>(ptr)){
+        std::cout << "cgi can write to client i think" << std::endl;
+    }
 }
 
 int BigServer::findServerIndex(int eventFd) {
@@ -140,3 +152,4 @@ void BigServer::initEpoll() {
         server->initServerEpoll(_epoll);
     }
 }
+

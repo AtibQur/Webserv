@@ -144,7 +144,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     {
         _fileNameBody = subTillChar(tmp, tmp.find("filename=") + 10, '\"');
         _fileNameBody = decodePercentEncoding(_fileNameBody); // Decode filename
-        std::cout << "File name body: " << _fileNameBody << std::endl;
         if (checkForSpaces(_fileNameBody))
         {
             _fileNameBody = urlEncode(_fileNameBody); // Encode spaces
@@ -163,6 +162,10 @@ int Client::parseRequest(std::string request, ssize_t post)
         if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {
             break ;
         }
+        if (tmp.find(_boundary) != std::string::npos) {
+            break ;
+        }
+        
         _body.append(tmp);
         _body.append("\n");
     }
@@ -175,6 +178,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     bodyfile.open("./root/" + _fileNameBody);
     if (!bodyfile)
     {
+        std::cerr << "Error opening file" << std::endl;
         return 0;
     }
     while (getline(ss, read, '\n'))

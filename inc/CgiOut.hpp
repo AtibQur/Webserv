@@ -6,12 +6,19 @@
 #define READ 0
 #define WRITE 1
 
+class Client;
+
 class CgiOut : public Socket {
-private:
 public:
-    int m_pipeFd[2]{};
-    CgiOut();
+    int        m_pipeFd[2]{};
+    Client     &m_client;
+    // Response    &m_response;
+
+    CgiOut() = delete;
+    CgiOut(Client &client);
     ~CgiOut();
+
+    void readFromPipe();
 };
 
 #endif

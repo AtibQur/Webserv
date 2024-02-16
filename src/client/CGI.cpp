@@ -1,7 +1,6 @@
 #include "Client.hpp"
 
 int Client::execute() {
-
     std::string cgiScriptPath = "";
     if (!std::filesystem::exists("root" + getUri()))
     {
@@ -30,10 +29,10 @@ int Client::execute() {
         return 1;
     }
 
-    int cgiInputPipe[2];
-    int cgiOutputPipe[2];
-    pipe(cgiInputPipe);
-    pipe(cgiOutputPipe);
+    // int cgiInputPipe[2];
+    // int cgiOutputPipe[2];
+    // pipe(cgiInputPipe);
+    // pipe(cgiOutputPipe);
 
     // int pip[2];
     // if (pipe(pip) == -1) {
@@ -42,15 +41,15 @@ int Client::execute() {
     //     return 1;
     // }
 
-    int pid = fork();
+    pid_t pid = fork();
     if (pid == 0) { // Child
 
         // Redirect stderr pipe
-        close(cgiInputPipe[1]);
-        close(cgiOutputPipe[0]);
+        // close(cgiInputPipe[1]);
+        // close(cgiOutputPipe[0]);
         
-        dup2(cgiInputPipe[0], STDIN_FILENO);
-        dup2(cgiOutputPipe[1], STDOUT_FILENO);
+        // dup2(cgiInputPipe[0], STDIN_FILENO);
+        // dup2(cgiOutputPipe[1], STDOUT_FILENO);
 
         // // Redirect stdout to tempfile
         // int fd = open("docs/tmpfile.html", O_CREAT | O_RDWR | O_TRUNC, 0777);
@@ -61,23 +60,28 @@ int Client::execute() {
         // dup2(fd, STDOUT_FILENO);
         // close(fd);
 
+        if (close(m_cgiOut.m_pipeFd[READ]) == -1)
+            perror ("500 close read pipe");
+        if (dup2(m_cgiOut.m_pipeFd[WRITE], STDOUT_FILENO) == -1) // Dup the write end of pipe2 to stdout
+            perror ("500 dub2");
+        if (close(m_cgiOut.m_pipeFd[WRITE]) == -1)
+            perror ("500 close write pipe");
+
         execve(pythonPath, argv, envp);
         std::cerr << "Error executing Python script." << std::endl;
     } 
     else if (pid > 0) { // Parent
 
         // Read from the read end of the pipe and write to the error log
-        char buffer[4096];
-        ssize_t bytesRead;
-        while ((bytesRead = read(cgiOutputPipe[1], buffer, sizeof(buffer))) > 0) {
-            write(errorLogFd, buffer, bytesRead);
-        }
-        close(cgiInputPipe[0]);
-        close(cgiOutputPipe[1]);
-        close(errorLogFd);
-
-        // addCGIProcessToEpoll(&m_cgiOut, EPOLLIN, m_cgiOut.m_pipeFd[READ]); //? add cgiPipeOut to epoll
-    } 
+        // char buffer[4096];
+        // ssize_t bytesRead;
+        // while ((bytesRead = read(cgiOutputPipe[1], buffer, sizeof(buffer))) > 0) {
+        //     write(errorLogFd, buffer, bytesRead);
+        // }
+        // close(cgiInputPipe[0]);
+        // close(cgiOutputPipe[1]);
+        // close(errorLogFd);
+    }
     else 
     {
         std::cerr << "Error forking process" << std::endl;
@@ -97,6 +101,11 @@ int Client::execute() {
 }
 
 int Client::handleCGI() {
+
+    // substr executable file
+    // substr PATH_INFO= van de slash to de question mark
+    // substr QUERY_STRING= vanaf de question mark
+    // cgi start 
 
     //? make pipein class and is called in handle write. it added to epollIN and executed
     //? make pipeout class and is called in handle read. read the pipe bytes and put that in m_response
@@ -118,11 +127,6 @@ int Client::handleCGI() {
     {
         _query = "QUERY_STRING=" + remaining.substr(questionMarkPos + 1);
     }
-
-    // substr executable file
-    // substr PATH_INFO= van de slash to de question mark
-    // substr QUERY_STRING= vanaf de question mark
-    // cgi start
 
     if (execute()) {
         return (1);

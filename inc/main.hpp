@@ -34,5 +34,6 @@
 #include "BigServer.hpp"
 #include "Socket.hpp"
 #include "CgiOut.hpp"
+#include "CgiIn.hpp"
 
 void ExitWithMessage(std::string message);

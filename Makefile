@@ -24,6 +24,7 @@ SRCS = 	main.cpp \
 		client/CGI.cpp \
 		client/Parser.cpp \
 		client/CgiOut.cpp \
+		client/CgiIn.cpp \
 		configuration/Location.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/,$(SRCS:.cpp=.o))

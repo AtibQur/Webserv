@@ -1,23 +1,22 @@
 #include "Client.hpp"
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false)
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false), m_cgiOut(*this)
 {
     m_socketFd = -1;
     _query = "";
     _path = "";
-    _isCgi = false;
 }
 
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations)
-    : m_server(server), _boundary("UNSET")
+    : m_server(server), _boundary("UNSET"), m_cgiOut(*this)
 {
     _error_pages = ErrorPages;
     _location = Locations;
     _query = "";
+    _isDir = false;
     _path = "";
     _maxBodySize = server.getConf()->getMaxBodySize();
     _file_if_dir = server.getConf()->getFileIfDir();
-    _isCgi = false;
 
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
     if (m_socketFd == -1)
@@ -67,12 +66,17 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd)
     }
 }
 
+void Client::removeFromEpoll(int fd){
+    modifyEpoll(nullptr, 0, fd);
+    if (epoll_ctl(m_epoll, EPOLL_CTL_DEL, fd, NULL) == -1)
+        perror ("remove epoll");
+}
+
 void Client::receiveRequest()
 {
     try
     {
         readBuffer();
-
     }
     catch (const std::exception &e)
     {
@@ -108,7 +112,7 @@ void Client::readBuffer()
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
         if (bytes_read < 0)
         {
-            std::cerr << "Error reading form client socket" << std::endl;
+            std::cerr << "Error reading from client socket" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
             close(getSocketFd());
             break;

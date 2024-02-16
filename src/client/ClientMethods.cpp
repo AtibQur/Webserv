@@ -7,15 +7,22 @@ bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
+    std::cout << "METHOD: " << getMethod() << "\n";
     /* CGI */
     if (getUri().find(".py") != std::string::npos){
+        static int i = 0;
+        if (i == 0) {
+            addCGIProcessToEpoll(&m_cgiOut, EPOLLIN, m_cgiOut.m_pipeFd[READ]); // add cgiPipeOut to epoll
+            addCGIProcessToEpoll(&m_cgiIn, EPOLLOUT, m_cgiIn.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
+            i++;
+        }
 		int val = handleCGI();
-        if (val = 1) {
-            throw (std::invalid_argument("500 Internal server error"));
-        }
-        if (val == 2) {
-            throw std::invalid_argument("404 Not Found");
-        }
+        // if (val = 1) {
+        //     throw (std::invalid_argument("500 Internal server error"));
+        // }
+        // if (val == 2) {
+        //     throw std::invalid_argument("404 Not Found");
+        // }
         return true;
 	}
     /* CGI */

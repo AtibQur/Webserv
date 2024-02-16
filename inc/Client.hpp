@@ -14,6 +14,7 @@ private:
 	Response							_response;
 
 	CgiOut								m_cgiOut;
+	CgiIn								m_cgiIn;
 
 	std::string 						_method;
 	std::string 						_uri;
@@ -40,7 +41,6 @@ private:
 	std::string							_query;
 	std::string							_path;
 	std::string							_pytyhonScript;
-	bool								_isCgi;
 
 public:
     Client();
@@ -52,9 +52,13 @@ public:
 	void		receiveRequest();
 	void		readBuffer();
 	bool		checkPathAndMethod();
-	void		modifyEpoll(Socket *ptr, int events, int fd);
 	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
+
+	// EPOLL
+	void		removeFromEpoll(int fd);
+	void		modifyEpoll(Socket *ptr, int events, int fd);
+	void		addCGIProcessToEpoll(Socket *ptr, int events, int fd);
 
 	// PARSER
     void		saveClientRequest(char* buffer, int client_socket);
@@ -75,13 +79,16 @@ public:
 	std::string getMethod() { return _method; };
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
-	void		setUri(std::string uri);
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
-	char		hexToChar(const std::string &hex);
+	std::string getBody() { return _body; };
+	Response	getResponse() { return _response; };
+
 	// SETTERS
+	void		setUri(std::string uri);
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
+	char		hexToChar(const std::string &hex);
 	void		handleGetMethod();
 	std::string generateDirectoryListing(std::string dirPath);
 	void		handlePostMethod();
@@ -91,13 +98,6 @@ public:
 	int			handleCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
-
-
-	bool		getIsCgi() { return _isCgi; };
-	void		executeCgi();
-	void		addCGIProcessToEpoll(Socket *ptr, int events, int fd);
-
-
 
 };
 
