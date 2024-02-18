@@ -12,13 +12,13 @@ class CgiOut : public Socket {
 public:
     int        m_pipeFd[2]{};
     Client     &m_client;
-    // Response    &m_response;
 
     CgiOut() = delete;
     CgiOut(Client &client);
     ~CgiOut();
 
     void readFromPipe();
+    void execute();
 };
 
 #endif

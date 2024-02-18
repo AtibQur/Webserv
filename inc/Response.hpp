@@ -26,6 +26,8 @@ public:
     void        sendResponse();
     void        setConf(Config *conf) { _conf = conf; }
     void        setErrorResponse(std::string message);
+
+    std::string getResponseMessage() { return m_response; }
 };
 
 #endif

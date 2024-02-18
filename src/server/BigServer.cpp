@@ -38,7 +38,7 @@ void BigServer::loopEvents() {
         if (epollPtr == nullptr)
             std::cout << "epollPtr Error" << std::endl;
 
-        if (event.events & EPOLLIN) 
+        if (event.events & EPOLLIN)
         {
             incomingRequest(epollPtr); // read
         } 
@@ -52,15 +52,6 @@ void BigServer::loopEvents() {
 
 
 void BigServer::incomingRequest(Socket *ptr) {
-    // CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr);
-    // Server *server = dynamic_cast<Server *>(ptr);
-    // Client *client = dynamic_cast<Client *>(ptr);
-
-    // std::cout << "ptr: " << ptr << std::endl;
-    // std::cout << "cgiout ptr: " << cgiOut << std::endl;
-    // std::cout << "server ptr: " << server << std::endl;
-    // std::cout << "client ptr: " << client << std::endl;
-
     if (Client *client = dynamic_cast<Client *>(ptr)){
         client->receiveRequest();
     }
@@ -68,7 +59,7 @@ void BigServer::incomingRequest(Socket *ptr) {
         connectNewClient(server, _eventFd);
     }
     if (CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr)){
-        std::cout << "there is something to read from pipe\n";
+        std::cout << "CGI OUT\n";
         cgiOut->readFromPipe();
         
     }
@@ -94,20 +85,32 @@ void BigServer::connectNewClient(Server *server, int eventFd)
     }
 }
 
-void BigServer::outgoingResponse(Socket *ptr){
+void BigServer::modEpoll(int fd) {
+    struct epoll_event event;
+    event.events = 0;
+    event.data.ptr = nullptr;
+    if (epoll_ctl(_epoll, EPOLL_CTL_MOD, fd, &event) == -1)
+    {
+        std::cerr << "Error modifying epoll" << std::endl;
+        // setError(m_socketFd, "500 Internal Server Error");
+    }
+}
 
-    CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr);
-    Client *client = dynamic_cast<Client *>(ptr);
-
-    std::cout << "ptr: " << ptr << std::endl;
-    std::cout << "cgiout ptr: " << cgiOut << std::endl;
-    std::cout << "client ptr: " << client << std::endl;
-
-    if (Client *client = dynamic_cast<Client *>(ptr)){
+void BigServer::outgoingResponse(Socket *ptr) {
+    if (Client *client = dynamic_cast<Client *>(ptr)) 
+    {
         client->handleResponse();
     }
-    if (CgiIn *cgiIn = dynamic_cast<CgiIn *>(ptr)){
-        std::cout << "cgi can write to client i think" << std::endl;
+    else if (CgiIn *cgiIn = dynamic_cast<CgiIn *>(ptr)) 
+    {
+        std::cout << "CGI IN\n";
+        modEpoll(cgiIn->m_pipeFd[WRITE]);
+        if (epoll_ctl(_epoll, EPOLL_CTL_DEL, cgiIn->m_pipeFd[WRITE], NULL) == -1)
+            perror ("remove epoll");
+        cgiIn->WriteCgi();
+
+        cgiIn->m_client.addCGIProcessToEpoll(&(cgiIn->m_client.getCgiOut()), EPOLLIN, cgiIn->m_client.getCgiOut().m_pipeFd[READ]);
+        cgiIn->m_client.handleCGI();
     }
 }
 
@@ -152,4 +155,3 @@ void BigServer::initEpoll() {
         server->initServerEpoll(_epoll);
     }
 }
-

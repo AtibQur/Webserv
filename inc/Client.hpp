@@ -83,6 +83,7 @@ public:
 	std::string getFileNameBody() { return _fileNameBody; };
 	std::string getBody() { return _body; };
 	Response	getResponse() { return _response; };
+	CgiOut		&getCgiOut() { return m_cgiOut; };
 
 	// SETTERS
 	void		setUri(std::string uri);

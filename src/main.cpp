@@ -29,14 +29,13 @@ std::vector<Config> confloop(std::string file_name) {
 
 const char* file = "config-files/config.conf";
 int main(int argc, char *argv[]) {
-    // if (argc != 2) {
-    //     std::cout << "2 arguments please ./webserv [config_file]" << std::endl;
-    //     return 1;
-    // }
+    if (argc != 2) {
+        std::cout << "2 arguments please ./webserv [config_file]" << std::endl;
+        return 1;
+    }
 
     std::cout << "\033[1;32mserver is running...\033[0m" << std::endl;
-    // std::vector<Config> conf = confloop(argv[1]);
-    std::vector<Config> conf = confloop(file);
+    std::vector<Config> conf = confloop(argv[1]);
     BigServer bigServer(conf);
 
     return 0;

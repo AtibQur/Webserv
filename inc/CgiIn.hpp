@@ -6,13 +6,17 @@
 #define READ 0
 #define WRITE 1
 
+class Client;
+
 class CgiIn : public Socket {
 public:
     int        m_pipeFd[2]{};
+    Client     &m_client;
 
-    CgiIn();
+    CgiIn() = delete;
+    CgiIn(Client &client);
     ~CgiIn();
-
+    void    WriteCgi();
 };
 
 #endif

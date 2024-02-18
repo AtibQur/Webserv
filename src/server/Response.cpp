@@ -24,6 +24,9 @@ void    Response::setErrorResponse(std::string message)
 }
 
 void Response::sendResponse() {
+    // setResponse("200 OK");
+    // setContent("Content-length: 5\n\nhallo");
+    // std::cout << m_response << std::endl;
     send(_socketFd, m_response.c_str(), m_response.size(), 0);
     printf("------------------Response sent-------------------\n");
 }

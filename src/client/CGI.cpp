@@ -44,13 +44,6 @@ int Client::execute() {
     pid_t pid = fork();
     if (pid == 0) { // Child
 
-        // Redirect stderr pipe
-        // close(cgiInputPipe[1]);
-        // close(cgiOutputPipe[0]);
-        
-        // dup2(cgiInputPipe[0], STDIN_FILENO);
-        // dup2(cgiOutputPipe[1], STDOUT_FILENO);
-
         // // Redirect stdout to tempfile
         // int fd = open("docs/tmpfile.html", O_CREAT | O_RDWR | O_TRUNC, 0777);
         // if (fd < 0) {
@@ -155,12 +148,12 @@ int Client::handleCGI() {
 
 void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd) {
     struct epoll_event event;
-    event.events = EPOLLIN;
+    event.events = events;
     event.data.ptr = ptr;
 
     if (epoll_ctl(this->m_epoll, EPOLL_CTL_ADD, fd, &event) == -1) {
         perror("epoll_ctl cgi_output_pipe");
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
     else
         std::cerr << "add cgi pipe to epoll" << std::endl;

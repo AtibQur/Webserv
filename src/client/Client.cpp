@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false), m_cgiOut(*this)
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false), m_cgiOut(*this), m_cgiIn(*this)
 {
     m_socketFd = -1;
     _query = "";
@@ -8,7 +8,7 @@ Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_
 }
 
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations)
-    : m_server(server), _boundary("UNSET"), m_cgiOut(*this)
+    : m_server(server), _boundary("UNSET"), m_cgiOut(*this), m_cgiIn(*this)
 {
     _error_pages = ErrorPages;
     _location = Locations;
