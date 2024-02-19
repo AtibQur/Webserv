@@ -42,12 +42,26 @@
             width: 400px;
             border-radius: 8px;
         }
+
+        #superEnlargedTeapot {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+        }
+
+        #superEnlargedTeapot img {
+            width: 800px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 
 <body>
 
-    <figure>
+    <figure id="smallTeapotFigure">
         <img class="teapot" src="https://http.cat/418.jpg" alt="Teapot" onclick="enlargeImage()">
         <figcaption>Don't click me</figcaption>
     </figure>
@@ -55,7 +69,11 @@
     <p>Sorry, I'm just a teapot and can't serve you coffee.</p>
 
     <div id="enlargedTeapot">
-        <img src="https://http.cat/418.jpg" alt="Enlarged Teapot">
+        <img src="https://http.cat/418.jpg" alt="Enlarged Teapot" onclick="superEnlargeImage()">
+    </div>
+
+    <div id="superEnlargedTeapot">
+        <img src="https://http.cat/418.jpg" alt="Super Enlarged Teapot" onclick="hideSmallTeapot()">
     </div>
 
     <script>
@@ -64,10 +82,29 @@
             enlargedTeapot.style.display = 'block';
         }
 
+        function superEnlargeImage() {
+            var superEnlargedTeapot = document.getElementById('superEnlargedTeapot');
+            var smallTeapotFigure = document.getElementById('smallTeapotFigure');
+
+            superEnlargedTeapot.style.display = 'block';
+            smallTeapotFigure.style.display = 'none';
+        }
+
+        function hideSmallTeapot() {
+            var smallTeapotFigure = document.getElementById('smallTeapotFigure');
+            smallTeapotFigure.style.display = 'none';
+        }
+
         window.onclick = function (event) {
             var enlargedTeapot = document.getElementById('enlargedTeapot');
+            var superEnlargedTeapot = document.getElementById('superEnlargedTeapot');
+
             if (event.target == enlargedTeapot) {
                 enlargedTeapot.style.display = 'none';
+            }
+
+            if (event.target == superEnlargedTeapot) {
+                superEnlargedTeapot.style.display = 'none';
             }
         };
     </script>
