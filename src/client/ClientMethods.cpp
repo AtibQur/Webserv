@@ -10,14 +10,15 @@ bool Client::checkPathAndMethod()
     /* CGI */
     if (getUri().find(".py") != std::string::npos)
     {
-        addCGIProcessToEpoll(&m_cgiOut, EPOLLIN, m_cgiOut.m_pipeFd[READ]); // add cgiPipeOut to epoll
-		int val = handleCGI();
-        addCGIProcessToEpoll(&m_cgiIn, EPOLLOUT, m_cgiIn.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
+        std::cerr << "cgiToServer to Epollin " << m_cgiToServer.m_pipeFd[READ] << std::endl;
+		int returnValue = handleCGI();
+        addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
+        addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
     
-        // if (val = 1) {
+        // if (returnValue = 1) {
         //     throw (std::invalid_argument("500 Internal server error"));
         // }
-        // if (val == 2) {
+        // if (returnValue == 2) {
         //     throw std::invalid_argument("404 Not Found");
         // }
         return true;
@@ -153,7 +154,8 @@ void Client::handleGetMethod()
     }
     htmlFile.close();
     _isDir = false;
-    clientResponse.sendResponse();
+    _response.setSocketFd(m_socketFd);
+    _response.sendResponse();
 }
 
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */

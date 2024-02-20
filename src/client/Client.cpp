@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false), m_cgiOut(*this), m_cgiIn(*this)
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false), m_cgiToServer(*this), m_serverToCgi(*this)
 {
     m_socketFd = -1;
     _query = "";
@@ -8,7 +8,7 @@ Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_
 }
 
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations)
-    : m_server(server), _boundary("UNSET"), m_cgiOut(*this), m_cgiIn(*this)
+    : m_server(server), _boundary("UNSET"), m_cgiToServer(*this), m_serverToCgi(*this)
 {
     _error_pages = ErrorPages;
     _location = Locations;
@@ -39,6 +39,7 @@ Client &Client::operator=(Client const &copy)
     this->m_socketFd = copy.m_socketFd;
     this->_requestBuffer = copy._requestBuffer;
     this->_response = copy._response;
+    std::cout << "client operator construcotr called " << std::endl;
     return *this;
 }
 
@@ -137,6 +138,7 @@ void Client::readBuffer()
             {
                 modifyEpoll(this, EPOLLOUT, getSocketFd());
                 handleRequest(accumulatedRequestData, post);
+                
                 break;
             }
 

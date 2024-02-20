@@ -31,6 +31,7 @@ void BigServer::runBigServer() {
 void BigServer::loopEvents() {
     struct epoll_event event;
     Socket *epollPtr{};
+    bool iscgi = true;
 
     for (int i = 0; i < _num_events; i++) {
         event = _events[i];
@@ -41,15 +42,13 @@ void BigServer::loopEvents() {
         if (event.events & EPOLLIN)
         {
             incomingRequest(epollPtr); // read
-        } 
-        else if (event.events & EPOLLOUT) 
+        }
+        else if (event.events & EPOLLOUT)
         {   
             outgoingResponse(epollPtr); // write
         }
     }
 }
-
-
 
 void BigServer::incomingRequest(Socket *ptr) {
     if (Client *client = dynamic_cast<Client *>(ptr)){
@@ -58,10 +57,9 @@ void BigServer::incomingRequest(Socket *ptr) {
     if (Server *server = dynamic_cast<Server *>(ptr)){
         connectNewClient(server, _eventFd);
     }
-    if (CgiOut *cgiOut = dynamic_cast<CgiOut *>(ptr)){
-        std::cout << "CGI OUT\n";
-        cgiOut->readFromPipe();
-        
+    if (CgiToServer *cgiToServer = dynamic_cast<CgiToServer *>(ptr)){
+        std::cout << "CGI EPOLLIN \n";
+        cgiToServer->readFromPipe();
     }
 }
 
@@ -101,16 +99,17 @@ void BigServer::outgoingResponse(Socket *ptr) {
     {
         client->handleResponse();
     }
-    else if (CgiIn *cgiIn = dynamic_cast<CgiIn *>(ptr)) 
+    else if (ServerToCgi *serverToCgi = dynamic_cast<ServerToCgi *>(ptr)) 
     {
-        std::cout << "CGI IN\n";
-        modEpoll(cgiIn->m_pipeFd[WRITE]);
-        if (epoll_ctl(_epoll, EPOLL_CTL_DEL, cgiIn->m_pipeFd[WRITE], NULL) == -1)
+        
+        std::cout << "CGI EPOLLOUT \n";
+        modEpoll(serverToCgi->m_pipeFd[WRITE]);
+        if (epoll_ctl(_epoll, EPOLL_CTL_DEL, serverToCgi->m_pipeFd[WRITE], NULL) == -1)
             perror ("remove epoll");
-        cgiIn->WriteCgi();
+        serverToCgi->WriteCgi();
 
-        cgiIn->m_client.addCGIProcessToEpoll(&(cgiIn->m_client.getCgiOut()), EPOLLIN, cgiIn->m_client.getCgiOut().m_pipeFd[READ]);
-        cgiIn->m_client.handleCGI();
+        serverToCgi->m_client.addCGIProcessToEpoll(&(serverToCgi->m_client.getcgiToServer()), EPOLLIN, serverToCgi->m_client.getcgiToServer().m_pipeFd[READ]);
+        serverToCgi->m_client.handleCGI();
     }
 }
 

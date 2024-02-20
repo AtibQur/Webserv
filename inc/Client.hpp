@@ -6,15 +6,15 @@
 
 class Location;
 class Server;
-class CgiOut;
+class cgiToServer;
 
 class Client : public Socket {
 private:
 	const Server						 &m_server;
-	Response							_response;
+	// Response							_response;
 
-	CgiOut								m_cgiOut;
-	CgiIn								m_cgiIn;
+	CgiToServer							m_cgiToServer;
+	ServerToCgi							m_serverToCgi;
 
 	std::string 						_method;
 	std::string 						_uri;
@@ -43,6 +43,7 @@ private:
 	std::string							_pytyhonScript;
 
 public:
+	Response							_response;
     Client();
     Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
     ~Client();
@@ -83,7 +84,7 @@ public:
 	std::string getFileNameBody() { return _fileNameBody; };
 	std::string getBody() { return _body; };
 	Response	getResponse() { return _response; };
-	CgiOut		&getCgiOut() { return m_cgiOut; };
+	CgiToServer	&getcgiToServer() { return m_cgiToServer; };
 
 	// SETTERS
 	void		setUri(std::string uri);

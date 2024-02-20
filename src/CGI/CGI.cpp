@@ -29,50 +29,31 @@ int Client::execute() {
         return 1;
     }
 
-    // int cgiInputPipe[2];
-    // int cgiOutputPipe[2];
-    // pipe(cgiInputPipe);
-    // pipe(cgiOutputPipe);
-
-    // int pip[2];
-    // if (pipe(pip) == -1) {
-    //     std::cerr << "Error creating pipe for stderr redirection" << std::endl;
-    //     close(errorLogFd);
-    //     return 1;
-    // }
-
     pid_t pid = fork();
     if (pid == 0) { // Child
 
-        // // Redirect stdout to tempfile
-        // int fd = open("docs/tmpfile.html", O_CREAT | O_RDWR | O_TRUNC, 0777);
-        // if (fd < 0) {
-        //     std::cerr << "Error opening file" << std::endl;
-        //     exit(EXIT_FAILURE);
-        // }
-        // dup2(fd, STDOUT_FILENO);
-        // close(fd);
-
-        if (close(m_cgiOut.m_pipeFd[READ]) == -1)
+        if (close(m_cgiToServer.m_pipeFd[READ]) == -1)
             perror ("500 close read pipe");
-        if (dup2(m_cgiOut.m_pipeFd[WRITE], STDOUT_FILENO) == -1) // Dup the write end of pipe2 to stdout
+        if (dup2(m_cgiToServer.m_pipeFd[WRITE], STDOUT_FILENO) == -1) // Dup the write end of pipe2 to stdout
             perror ("500 dub2");
-        if (close(m_cgiOut.m_pipeFd[WRITE]) == -1)
+        if (close(m_cgiToServer.m_pipeFd[WRITE]) == -1)
             perror ("500 close write pipe");
 
         execve(pythonPath, argv, envp);
         std::cerr << "Error executing Python script." << std::endl;
     } 
     else if (pid > 0) { // Parent
-
+        close(m_cgiToServer.m_pipeFd[WRITE]);
+        std::cout << "read end is: " << m_cgiToServer.m_pipeFd[READ] << std::endl;
+    
         // Read from the read end of the pipe and write to the error log
         // char buffer[4096];
         // ssize_t bytesRead;
-        // while ((bytesRead = read(cgiOutputPipe[1], buffer, sizeof(buffer))) > 0) {
+        // while ((bytesRead = read(cgiToServerputPipe[1], buffer, sizeof(buffer))) > 0) {
         //     write(errorLogFd, buffer, bytesRead);
         // }
-        // close(cgiInputPipe[0]);
-        // close(cgiOutputPipe[1]);
+        // close(serverToCgiputPipe[0]);
+        // close(cgiToServerputPipe[1]);
         // close(errorLogFd);
     }
     else 
@@ -146,7 +127,7 @@ int Client::handleCGI() {
     return (0);
 }
 
-void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd) {
+void Client:: addCGIProcessToEpoll(Socket *ptr, int events, int fd) {
     struct epoll_event event;
     event.events = events;
     event.data.ptr = ptr;

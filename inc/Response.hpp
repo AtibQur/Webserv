@@ -15,6 +15,7 @@ private:
     Config          *_conf;
 
 public:
+    // std::string     m_response;
     Response();
     Response(int socketFd, std::string error);
     ~Response() {;};
@@ -28,6 +29,7 @@ public:
     void        setErrorResponse(std::string message);
 
     std::string getResponseMessage() { return m_response; }
+    void        setSocketFd(int socketFd) { _socketFd = socketFd; }
 };
 
 #endif

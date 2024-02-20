@@ -12,6 +12,7 @@ Response::Response(int SocketFd, std::string newCode) : _socketFd(SocketFd), _co
 
 void    Response::setResponse(std::string message) {
     m_response = "HTTP/1.1 " + message + "\n";
+    std::cout << "hpp " << m_response;
 }
 
 void    Response::setContent(std::string content) {  
@@ -27,6 +28,8 @@ void Response::sendResponse() {
     // setResponse("200 OK");
     // setContent("Content-length: 5\n\nhallo");
     // std::cout << m_response << std::endl;
+    std::cout << "res: " << m_response << std::endl;
+    
     send(_socketFd, m_response.c_str(), m_response.size(), 0);
     printf("------------------Response sent-------------------\n");
 }

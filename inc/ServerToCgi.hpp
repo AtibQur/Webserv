@@ -1,5 +1,5 @@
-#ifndef CGIIN_HPP
-#define CGIIN_HPP
+#ifndef SERVERTOCGI_HPP
+#define SERVERTOCGI_HPP
 
 #include "main.hpp"
 
@@ -8,14 +8,14 @@
 
 class Client;
 
-class CgiIn : public Socket {
+class ServerToCgi : public Socket {
 public:
     int        m_pipeFd[2]{};
     Client     &m_client;
 
-    CgiIn() = delete;
-    CgiIn(Client &client);
-    ~CgiIn();
+    ServerToCgi() = delete;
+    ServerToCgi(Client &client);
+    ~ServerToCgi();
     void    WriteCgi();
 };
 

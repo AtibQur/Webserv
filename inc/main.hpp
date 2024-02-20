@@ -33,7 +33,7 @@
 #include "Location.hpp"
 #include "BigServer.hpp"
 #include "Socket.hpp"
-#include "CgiOut.hpp"
-#include "CgiIn.hpp"
+#include "CgiToServer.hpp"
+#include "ServerToCgi.hpp"
 
 void ExitWithMessage(std::string message);

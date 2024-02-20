@@ -1,5 +1,5 @@
-#ifndef CGIOUT_HPP
-#define CGIOUT_HPP
+#ifndef CGITOSERVER_HPP
+#define CGITOSERVER_HPP
 
 #include "main.hpp"
 
@@ -8,14 +8,14 @@
 
 class Client;
 
-class CgiOut : public Socket {
+class CgiToServer : public Socket {
 public:
     int        m_pipeFd[2]{};
     Client     &m_client;
 
-    CgiOut() = delete;
-    CgiOut(Client &client);
-    ~CgiOut();
+    CgiToServer() = delete;
+    CgiToServer(Client &client);
+    ~CgiToServer();
 
     void readFromPipe();
     void execute();
