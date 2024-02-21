@@ -28,7 +28,7 @@ void BigServer::runBigServer() {
     }
 }
 
-void BigServer::loopEvents() {
+void BigServer::loopEvents() { //TODO in try and catch
     struct epoll_event event;
     Socket *epollPtr{};
     bool iscgi = true;
@@ -57,7 +57,7 @@ void BigServer::incomingRequest(Socket *ptr) {
     if (Server *server = dynamic_cast<Server *>(ptr)){
         connectNewClient(server, _eventFd);
     }
-    if (CgiToServer *cgiToServer = dynamic_cast<CgiToServer *>(ptr)){
+    if (CgiToServer *cgiToServer = dynamic_cast<CgiToServer *>(ptr)){ //! EPOLLIN for CGI
         std::cout << "CGI EPOLLIN \n";
         cgiToServer->readFromPipe();
     }
@@ -70,7 +70,7 @@ void BigServer::connectNewClient(Server *server, int eventFd)
         perror("no client connected");
         return ;
     }
-    client->setEpoll(server->getEpoll());
+    client->setEpoll(server->getEpoll()); // add client to EPOLLIN //TODO in try and catch
     struct epoll_event event;
     event.events = EPOLLIN;
 
@@ -99,7 +99,7 @@ void BigServer::outgoingResponse(Socket *ptr) {
     {
         client->handleResponse();
     }
-    else if (ServerToCgi *serverToCgi = dynamic_cast<ServerToCgi *>(ptr)) 
+    else if (ServerToCgi *serverToCgi = dynamic_cast<ServerToCgi *>(ptr)) //! EPOLOUT for CGI
     {
         
         std::cout << "CGI EPOLLOUT \n";

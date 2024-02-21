@@ -115,6 +115,7 @@ void Client::readBuffer()
         {
             std::cerr << "Error reading from client socket" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
+            delete this;
             close(getSocketFd());
             break;
         }
@@ -136,9 +137,8 @@ void Client::readBuffer()
                 continue;
             if (isRequestComplete(accumulatedRequestData, post))
             {
-                modifyEpoll(this, EPOLLOUT, getSocketFd());
+                modifyEpoll(this, EPOLLOUT, getSocketFd()); //? add Client to EPOLLOUT
                 handleRequest(accumulatedRequestData, post);
-                
                 break;
             }
 

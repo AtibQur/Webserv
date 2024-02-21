@@ -8,10 +8,11 @@
 
 class Client;
 
-class CgiToServer : public Socket {
+class CgiToServer : public Socket
+{
 public:
-    int        m_pipeFd[2]{};
-    Client     &m_client;
+    int m_pipeFd[2]{};
+    Client &m_client;
 
     CgiToServer() = delete;
     CgiToServer(Client &client);

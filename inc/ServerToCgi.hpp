@@ -8,15 +8,16 @@
 
 class Client;
 
-class ServerToCgi : public Socket {
+class ServerToCgi : public Socket
+{
 public:
-    int        m_pipeFd[2]{};
-    Client     &m_client;
+    int m_pipeFd[2]{};
+    Client &m_client;
 
     ServerToCgi() = delete;
     ServerToCgi(Client &client);
     ~ServerToCgi();
-    void    WriteCgi();
+    void WriteCgi();
 };
 
 #endif

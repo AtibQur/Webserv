@@ -14,7 +14,8 @@ bool Client::checkPathAndMethod()
 		int returnValue = handleCGI();
         addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
         addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
-    
+
+        //TODO check return value for right error throws
         // if (returnValue = 1) {
         //     throw (std::invalid_argument("500 Internal server error"));
         // }
@@ -101,7 +102,7 @@ void Client::handleResponse()
             std::cout << "Default Method" << std::endl;
         }
     }
-    else
+    else //TODO try catch
     {
         std::cout << "Creating Error Response" << std::endl;
         createErrorResponse();
@@ -114,7 +115,7 @@ void Client::handleResponse()
 /* GET */
 void Client::handleGetMethod()
 {
-    Response clientResponse(m_socketFd, "200 OK");
+    Response clientResponse(m_socketFd, "200 OK"); //TODO use _response instead of Response clientResponse
 
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
@@ -154,8 +155,7 @@ void Client::handleGetMethod()
     }
     htmlFile.close();
     _isDir = false;
-    _response.setSocketFd(m_socketFd);
-    _response.sendResponse();
+    clientResponse.sendResponse();
 }
 
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
@@ -169,8 +169,8 @@ std::string Client::generateDirectoryListing(std::string dirPath)
         listing += "<li>";
 
         std::string fileName = entry.path().filename().string();
-        std::string displayName = entry.path().stem().string(); // Remove extension
-        // std::cou400 METHOD NOT ALLOWEDt << "Display Name = " << displayName << std::endl;
+        std::string displayName = entry.path().stem().string(); //? Remove extension
+        // std::cout << 400 METHOD NOT ALLOWED << "Display Name = " << displayName << std::endl;
 
         if (fs::is_directory(entry.path()))
         {
@@ -200,12 +200,12 @@ void Client::handlePostMethod()
 /* DELETE */
 void Client::handleDeleteMethod()
 {
-    std::string filePath = "root/" + getFileNameBody(); // Replace with your actual file path
+    std::string filePath = "root/" + getFileNameBody();
     if (fs::exists(filePath))
-    { // Check if the file exists
+    {
         try
         {
-            fs::remove(filePath); // Remove the file
+            fs::remove(filePath); //? Remove the file
             std::cout << "File deleted successfully." << std::endl;
             Response goodResponse(m_socketFd, "204 No Content");
             goodResponse.sendResponse();
