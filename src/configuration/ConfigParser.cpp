@@ -12,8 +12,10 @@ void ConfigParser::readFile() {
     // check if file is opened correctly, if so store lines in vector
     if (_conf_file.is_open()) {
         std::string line;
-        while (getline(_conf_file, line))
+        while (getline(_conf_file, line)) {
+            line.erase(std::remove(line.begin(), line.end(), '\"'), line.end());
             _lines.push_back(line);
+        }
     } else {
         std::cerr << "Error: could not open file" << std::endl;
         std::quick_exit(EXIT_FAILURE);
