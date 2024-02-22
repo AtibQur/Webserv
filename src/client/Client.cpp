@@ -195,7 +195,8 @@ bool Client::checkPathAndMethod()
         _isDir = true;
         if (_file_if_dir.empty())
         {
-            throw std::invalid_argument("404 Not Found"); // Set a default file to answer if the request is a directory
+            setError(getSocketFd(), "404");
+            createErrorResponse();
         }
     }
     if (clientLocation.getIndex().empty() && clientLocation.getAutoIndex() == false)
