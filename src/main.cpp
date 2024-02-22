@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error setting up config: " << e.what() << std::endl;
         return 1;
     }
-    std::cout << conf.size() << std::endl;
     std::cout << "\033[1;32mserver is running...\033[0m" << std::endl;
     BigServer bigServer(conf);
 
