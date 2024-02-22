@@ -15,7 +15,6 @@ SRCS = 	main.cpp \
 		server/Server.cpp \
 		server/Response.cpp \
 		server/BigServer.cpp \
-		server/ServerRequest.cpp \
 		configuration/Config.cpp \
 		configuration/ConfigParser.cpp \
 		configuration/ConfigParserUtils.cpp \

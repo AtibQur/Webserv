@@ -7,6 +7,7 @@ void ExitWithMessage(std::string message) {
 
 std::vector<Config> confloop(std::string file_name) {
     ConfigParser        confParser(file_name);
+    std::unordered_map<std::string, int>  usedPorts;
     confParser.readFile();
 
     std::vector<Config>  conf;
@@ -16,11 +17,15 @@ std::vector<Config> confloop(std::string file_name) {
         // making subarray for each server block and constructing config object
         ConfigParser parse_temp(confParser.getLines(), start, end);
         Config  conf_temp(parse_temp.getLines());
-        conf.push_back(conf_temp);
+        if (!usedPorts[std::to_string(conf_temp.getPort())]) {
+            conf.push_back(conf_temp);
+        }
+        usedPorts[std::to_string(conf_temp.getPort())] = 1;
         // continue searching for server blocks from old end index till none are found
 		start = confParser.findServerBlock(end, end);
         // conf_temp.outputConfig();
 	}
+
     if (conf.empty()) {
         ExitWithMessage("Error: no server blocks found in config file");
     }
@@ -34,13 +39,13 @@ int main(int argc, char *argv[]) {
     }
 
     std::vector<Config> conf;
-
     try {
         conf = confloop(argv[1]);
     } catch (std::exception &e) {
         std::cerr << "Error setting up config: " << e.what() << std::endl;
         return 1;
     }
+    std::cout << conf.size() << std::endl;
     std::cout << "\033[1;32mserver is running...\033[0m" << std::endl;
     BigServer bigServer(conf);
 
