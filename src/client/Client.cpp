@@ -135,10 +135,15 @@ void Client::readBuffer()
             accumulatedRequestData.append(buffer, bytes_read);
             if (bytes_read == 1024)
                 continue;
-            if (isRequestComplete(accumulatedRequestData, post))
-            {
-                handleRequest(accumulatedRequestData, post);
-                break;
+            try {
+                if (isRequestComplete(accumulatedRequestData, post))
+                {
+                    handleRequest(accumulatedRequestData, post);
+                    break;
+                }
+            } catch (const std::exception &e) {
+                setError(getSocketFd(), e.what());
+                createErrorResponse();
             }
         }
         i++;
@@ -148,15 +153,11 @@ void Client::readBuffer()
 bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
 {
     ssize_t requestEnd;
-    std::string boundary;
-    ssize_t startOfBoundary = accumulatedRequestData.find("boundary=");
-    if (post)
-        requestEnd = accumulatedRequestData.find("\r\n\r\n");
-    else
-        requestEnd = accumulatedRequestData.find("\r\n\r\n");
+
+    requestEnd = accumulatedRequestData.find("\r\n\r\n");
     if (requestEnd == std::string::npos)
     {
-        std::cout << "the request is not complete" << std::endl;
+        throw std::invalid_argument("400 Bad Request");
         return false;
     }
     else

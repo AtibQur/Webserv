@@ -51,8 +51,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     std::stringstream httpRequest(request);
     std::string tmp;
 
-    // std::cout << "Request: " << request << std::endl;
-
     if (!checkRequestLine(request))
     {
         throw std::invalid_argument("400 Bad Request");
