@@ -69,6 +69,8 @@ void Location::findVarName(std::string line, std::vector<std::string> &variables
     std::string::iterator it = line.begin();
     while (it != line.end() && (*it == ' ' || *it == '\t'))
         it++;
+    if (*it == '#')
+        return ;
     while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') {
         variable += *it++;
     }
