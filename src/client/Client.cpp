@@ -137,11 +137,9 @@ void Client::readBuffer()
                 continue;
             if (isRequestComplete(accumulatedRequestData, post))
             {
-                modifyEpoll(this, EPOLLOUT, getSocketFd()); //? add Client to EPOLLOUT
                 handleRequest(accumulatedRequestData, post);
                 break;
             }
-
         }
         i++;
     }
@@ -179,8 +177,8 @@ void Client::createErrorResponse()
     std::string file;
     std::string response;
 
-    file = m_server.getConf()->getErrorPage(_response.getHeader());
-    std::cout << "Error code: " << _response.getHeader() << std::endl;
+    file = m_server.getConf()->getErrorPage(_response.getCode());
+    std::cout << "Error code: " << _response.getCode() << std::endl;
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));

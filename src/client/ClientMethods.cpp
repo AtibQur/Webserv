@@ -10,8 +10,11 @@ bool Client::checkPathAndMethod()
     /* CGI */
     if (getUri().find(".py") != std::string::npos)
     {
+        std::cout << "getMethod: " << getMethod() << std::endl;
+        std::cerr << "serverToCgi to Epollout " << m_serverToCgi.m_pipeFd[WRITE] << std::endl;
         std::cerr << "cgiToServer to Epollin " << m_cgiToServer.m_pipeFd[READ] << std::endl;
-		int returnValue = handleCGI();
+    
+        //TODO seperate depening on GET or POST
         addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
         addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
 
@@ -25,7 +28,7 @@ bool Client::checkPathAndMethod()
         return true;
 	}
     /* CGI */
-
+    modifyEpoll(this, EPOLLOUT, getSocketFd()); //? add Client to EPOLLOUT
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");
@@ -84,7 +87,7 @@ bool Client::checkPathAndMethod()
 
 void Client::handleResponse()
 {
-    if (_response.getCode().empty())
+    if (_response.getHeader().empty())
     {
         int method = getNbMethod();
         switch (method)
@@ -115,7 +118,15 @@ void Client::handleResponse()
 /* GET */
 void Client::handleGetMethod()
 {
-    Response clientResponse(m_socketFd, "200 OK"); //TODO use _response instead of Response clientResponse
+    if (!_response.getResponseMessage().empty()) //? Is CGI!
+    {
+        _response.setSocketFd(m_socketFd);
+        _response.sendResponse();
+        return;
+    }
+
+    Response clientResponse(m_socketFd, "200 OK");
+    _response = clientResponse;
 
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
@@ -133,9 +144,9 @@ void Client::handleGetMethod()
         std::ifstream htmlFile("");
         std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
         fileContent += generateDirectoryListing(clientLocation.getPath());
-        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+        _response.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
         htmlFile.close();
-        clientResponse.sendResponse();
+        _response.sendResponse();
         return;
     }
     std::ifstream htmlFile(filePath);
@@ -143,7 +154,7 @@ void Client::handleGetMethod()
 
     if (!htmlFile.is_open())
     {
-        clientResponse.setContent("14\n\nFile not found");
+        _response.setContent("14\n\nFile not found");
     }
     else
     {
@@ -151,11 +162,11 @@ void Client::handleGetMethod()
         {
             fileContent += generateDirectoryListing(clientLocation.getPath());
         }
-        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+        _response.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     }
     htmlFile.close();
     _isDir = false;
-    clientResponse.sendResponse();
+    _response.sendResponse();
 }
 
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */

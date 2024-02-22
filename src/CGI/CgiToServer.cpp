@@ -26,7 +26,8 @@ void CgiToServer::readFromPipe()
         perror("Error reading from pipe");
     else
     {
-        std::cerr << "Buf = " << buf << std::endl;
+        m_client._response.setResponse("200 OK");
+        m_client._response.setContent("Content-Length: " + std::to_string(bytes_read) + "\n\n" + buf);
     }
 
     m_client.removeFromEpoll(m_pipeFd[READ]);

@@ -112,6 +112,7 @@ int Client::handleCGI()
 
 void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd)
 {
+
     struct epoll_event event;
     event.events = events;
     event.data.ptr = ptr;

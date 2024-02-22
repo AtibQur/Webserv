@@ -24,14 +24,15 @@ void ServerToCgi::WriteCgi()
         perror("close read error");
     m_pipeFd[READ] = -1;
 
-    const char *temp = "3\n\nHOI";
-    write(STDIN_FILENO, temp, strlen(temp)); // write to stdin
+    std::cout << "What's in here?: " << m_client._response.getResponseMessage() << std::endl;
+    write(m_pipeFd[WRITE], "3\n\nHoi", 7); // write to stdin
+
     // TODO check for bytes writen is not -1
 
     if (close(m_pipeFd[WRITE]) == -1)
         perror("close write error");
     std::cout << "write cgi response " << std::endl;
-    m_pipeFd[WRITE] = -1;
+    // m_pipeFd[WRITE] = -1; //? cleanup
 }
 
-//! this is not working
+//! not working correctly
