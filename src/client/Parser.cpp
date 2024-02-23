@@ -69,6 +69,11 @@ int Client::parseRequest(std::string request, ssize_t post)
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
+    if (!allowedMethods())
+    {
+        throw std::invalid_argument("405 Method not Allowed");
+    }
+
     getline(httpRequest, tmp);
 
     if (tmp.compare("HTTP/1.1\r")) // \r\n
@@ -311,6 +316,17 @@ bool Client::checkMethod(std::string tmp)
     for (int i = 0; i < 3; i++)
     {
         if (tmp == validMethods[i])
+            return true;
+    }
+    return false;
+}
+
+bool Client::allowedMethods()
+{
+    std::vector<std::string> methods = _location[_uri].getMethods();
+    for (size_t i = 0; i < methods.size(); i++)
+    {
+        if (methods[i] == _method)
             return true;
     }
     return false;
