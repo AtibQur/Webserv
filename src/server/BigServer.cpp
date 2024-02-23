@@ -79,7 +79,6 @@ void BigServer::connectNewClient(Server *server, int eventFd)
 
     if (epoll_ctl(_epoll, EPOLL_CTL_ADD, client->getSocketFd(), &event) == -1) {
         perror("epoll_ctl client"); 
-        exit(EXIT_FAILURE);
     }
 }
 
