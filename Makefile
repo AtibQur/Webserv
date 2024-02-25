@@ -22,7 +22,6 @@ SRCS = 	main.cpp \
 		CGI/CgiToServer.cpp \
 		CGI/ServerToCgi.cpp \
 		client/Client.cpp \
-		client/ClientMethods.cpp \
 		client/Parser.cpp \
 		configuration/Location.cpp
 
