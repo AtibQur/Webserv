@@ -1,4 +1,4 @@
-#include "../../inc/main.hpp"
+#include "Client.hpp"
 
 /* Parse the client request */
 
@@ -50,7 +50,6 @@ int Client::parseRequest(std::string request, ssize_t post)
 {
     std::stringstream httpRequest(request);
     std::string tmp;
-
 
     if (!checkRequestLine(request))
     {

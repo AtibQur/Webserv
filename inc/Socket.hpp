@@ -3,10 +3,9 @@
 
 class Socket
 {
-protected:
+public:
     int m_socketFd{};
     int m_epoll;
-public:
     virtual ~Socket(void) = 0;
 };
 

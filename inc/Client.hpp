@@ -1,15 +1,20 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+// #ifndef CLIENT_HPP
+// #define CLIENT_HPP
+#pragma once
 
 #include "main.hpp"
 
 class Location;
 class Server;
+class cgiToServer;
 
 class Client : public Socket {
 private:
 	const Server						 &m_server;
-	Response							_response;
+	// Response							_response;
+
+	CgiToServer							m_cgiToServer;
+	ServerToCgi							m_serverToCgi;
 
 	std::string 						_method;
 	std::string 						_uri;
@@ -38,6 +43,7 @@ private:
 	std::string							_pytyhonScript;
 
 public:
+	Response							_response;
     Client();
     Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
     ~Client();
@@ -47,9 +53,13 @@ public:
 	void		receiveRequest();
 	void		readBuffer();
 	bool		checkPathAndMethod();
-	void		modifyEpoll(Socket *ptr, int events, int fd);
 	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
+
+	// EPOLL
+	void		removeFromEpoll(int fd);
+	void		modifyEpoll(Socket *ptr, int events, int fd);
+	void		addCGIProcessToEpoll(Socket *ptr, int events, int fd);
 
 	// PARSER
     void		saveClientRequest(char* buffer, int client_socket);
@@ -70,14 +80,17 @@ public:
 	std::string getMethod() { return _method; };
 	int			getNbMethod();
 	std::string getUri() { return _uri; };
-	void		setUri(std::string uri);
 	std::string getProtocol() { return _protocol; };
 	std::string getFileNameBody() { return _fileNameBody; };
 	std::string getBody() { return _body; };
-	char		hexToChar(const std::string &hex);
+	Response	getResponse() { return _response; };
+	CgiToServer	&getcgiToServer() { return m_cgiToServer; };
+
 	// SETTERS
+	void		setUri(std::string uri);
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
+	char		hexToChar(const std::string &hex);
 	void		handleGetMethod();
 	std::string generateDirectoryListing(std::string dirPath);
 	void		handlePostMethod();
@@ -85,11 +98,9 @@ public:
 	void		createErrorResponse();
 
 	int			handleCGI();
-	int			createCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
-	void		addCgiPath();
 
 };
 
-#endif
+// #endif
