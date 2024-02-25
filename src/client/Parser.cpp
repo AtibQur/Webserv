@@ -96,7 +96,7 @@ int Client::parseRequest(std::string request, ssize_t post)
         // save name
         if (_contentType == "text/plain" && tmp.find("post=") != std::string::npos)
         {
-            m_name = tmp.substr(5);
+            m_cgiBody = tmp.substr(5);
         }
         if (tmp.find("--" + _boundary) != std::string::npos)
             break;
