@@ -159,16 +159,23 @@ int Client::parseRequest(std::string request, ssize_t post)
         return (0);
     getline(httpRequest, tmp);
     
+    std::cout << "Content type is: " << _contentType << std::endl;
+    if (!checkBoundary(_contentType)) {
+        std::cout << "Wrong content type uploaded" << std::endl;
+        throw std::invalid_argument("400 Bad Request");
+    }
+    std::cout << "chalas" << std::endl;
     while (getline(httpRequest, tmp)) {
+
         if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {
             break ;
         }
         if (tmp.find(_boundary) != std::string::npos) {
             break ;
         }
-        
         _body.append(tmp);
         _body.append("\n");
+
     }
     std::stringstream ss(_body);
     std::string read;
@@ -195,6 +202,14 @@ int Client::parseRequest(std::string request, ssize_t post)
     // content length bepaalt of the body compleet is (als er een body is)
 
     return (0);
+}
+
+int Client::checkBoundary(std::string contentType) {
+    std::cout << "contentType 2: " << contentType << std::endl;
+    if (contentType == "text/plain" || contentType == "image/jpeg" 
+    || contentType == "image/png" || contentType == "image/jpg")
+        return 1;
+    return 0;
 }
 
 int Client::transferData()
