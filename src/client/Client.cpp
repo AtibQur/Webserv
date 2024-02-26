@@ -97,7 +97,7 @@ void Client::handleRequest(std::string request, ssize_t post)
     }
     catch (const std::exception &e)
     {
-        setError(getSocketFd(), e.what());
+        throw(std::invalid_argument(e.what()));
     }
 }
 
@@ -144,6 +144,7 @@ void Client::readBuffer()
                     break;
                 }
             } catch (const std::exception &e) {
+                modifyEpoll(this, EPOLLOUT, getSocketFd());
                 setError(getSocketFd(), e.what());
                 createErrorResponse();
             }
@@ -260,6 +261,7 @@ void Client::handleResponse()
 {
     if (_response.getHeader().empty())
     {
+        std::cout << "Creating NOT Error Response" << std::endl;
         int method = getNbMethod();
         switch (method)
         {
