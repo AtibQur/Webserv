@@ -6,6 +6,8 @@
 #define READ 0
 #define WRITE 1
 
+#define CHILD 0
+
 class Client;
 
 class CgiToServer : public Socket

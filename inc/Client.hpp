@@ -35,7 +35,7 @@ private:
     struct sockaddr_storage 			m_client_address {};
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 	std::string 						_requestBuffer;
-	std::string							m_name;
+	std::string							m_cgiBody;
 	std::string						    _file_if_dir;
 
 	std::string							_query;
@@ -86,6 +86,7 @@ public:
 	std::string getBody() { return _body; };
 	Response	getResponse() { return _response; };
 	CgiToServer	&getcgiToServer() { return m_cgiToServer; };
+	std::string getCgiBody () { return m_cgiBody; };
 
 	// SETTERS
 	void		setUri(std::string uri);
@@ -101,6 +102,7 @@ public:
 	int			handleCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
+	void		extractcgiUri();
 
 };
 

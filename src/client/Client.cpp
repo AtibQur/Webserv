@@ -2,7 +2,7 @@
 
 namespace fs = std::filesystem;
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false), m_cgiToServer(*this), m_serverToCgi(*this)
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_cgiBody(""), _isDir(false), m_cgiToServer(*this), m_serverToCgi(*this)
 {
     m_socketFd = -1;
     _query = "";
@@ -60,11 +60,10 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd)
 {
     struct epoll_event event;
     event.events = events;
-
     event.data.ptr = ptr;
+
     if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1)
     {
-        std::cerr << "Error modifying epoll" << std::endl;
         setError(m_socketFd, "500 Internal Server Error");
     }
 }
@@ -97,7 +96,7 @@ void Client::handleRequest(std::string request, ssize_t post)
     }
     catch (const std::exception &e)
     {
-        throw(std::invalid_argument(e.what()));
+        setError(getSocketFd(), e.what());
     }
 }
 
@@ -137,16 +136,10 @@ void Client::readBuffer()
             accumulatedRequestData.append(buffer, bytes_read);
             if (bytes_read == 1024)
                 continue;
-            try {
-                if (isRequestComplete(accumulatedRequestData, post))
-                {
-                    handleRequest(accumulatedRequestData, post);
-                    break;
-                }
-            } catch (const std::exception &e) {
-                modifyEpoll(this, EPOLLOUT, getSocketFd());
-                setError(getSocketFd(), e.what());
-                createErrorResponse();
+            if (isRequestComplete(accumulatedRequestData, post))
+            {
+                handleRequest(accumulatedRequestData, post);
+                break;
             }
         }
         i++;
@@ -175,28 +168,30 @@ bool Client::checkPathAndMethod()
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
     /* CGI */
-    // if (getUri().find(".py") != std::string::npos)
-    // {
-    //     std::cout << "getMethod: " << getMethod() << std::endl;
-    //     std::cerr << "serverToCgi to Epollout " << m_serverToCgi.m_pipeFd[WRITE] << std::endl;
-    //     std::cerr << "cgiToServer to Epollin " << m_cgiToServer.m_pipeFd[READ] << std::endl;
-    
-    //     //TODO seperate depening on GET or POST
-    //     addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
-    //     addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
+    if (getUri().find(".py") != std::string::npos)
+    {
+        if (getMethod() == "GET")
+        {
+            try 
+            {
+                addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
+                m_cgiToServer.m_client.handleCGI();
+            } catch (const std::exception &e) 
+            {
+                std::cout << "Error: " << e.what() << std::endl;
+                throw (std::invalid_argument(e.what()));
+            }
+        }
+        else if (getMethod() == "POST")
+        {
+            addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
+        }
+        return true;
+	}
+    modifyEpoll(this, EPOLLOUT, getSocketFd());
 
-    //     //TODO check return value for right error throws
-    //     // if (returnValue = 1) {
-    //     //     throw (std::invalid_argument("500 Internal server error"));
-    //     // }
-    //     // if (returnValue == 2) {
-    //     //     throw std::invalid_argument("404 Not Found");
-    //     // }
-    //     return true;
-	// }
-    /* CGI */
-
-    modifyEpoll(this, EPOLLOUT, getSocketFd()); //? add Client to EPOLLOUT
+    //! need to make sure to seperate this
+    //! add client or cgi to epollout depening on if it's a cgi or not
 
     if (_method == "DELETE")
         return true;
@@ -261,7 +256,6 @@ void Client::handleResponse()
 {
     if (_response.getHeader().empty())
     {
-        std::cout << "Creating NOT Error Response" << std::endl;
         int method = getNbMethod();
         switch (method)
         {
@@ -433,6 +427,7 @@ void Client::handleDeleteMethod()
 
 void Client::setError(int socket, std::string message)
 {
+    modifyEpoll(this, EPOLLOUT, getSocketFd()); // client error epollout
     Response errorResponse(socket, message);
     _response = errorResponse;
 }
