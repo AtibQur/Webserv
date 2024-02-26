@@ -73,6 +73,7 @@ public:
 	std::string urlEncode(const std::string& input);
 	std::string decodePercentEncoding(const std::string &encoded);
 	int			transferData();
+	int 		checkBoundary(std::string contentType);
 
 	// GETTERS
 	int			getSocketFd() const { return this->m_socketFd; };
