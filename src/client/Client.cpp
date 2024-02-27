@@ -427,7 +427,7 @@ void Client::handleDeleteMethod()
 
 void Client::setError(int socket, std::string message)
 {
-    modifyEpoll(this, EPOLLOUT, getSocketFd()); // client error epollout
+    // modifyEpoll(this, EPOLLOUT, getSocketFd()); // client error epollout
     Response errorResponse(socket, message);
     _response = errorResponse;
 }
