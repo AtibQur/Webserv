@@ -308,8 +308,8 @@ void Client::handleGetMethod()
     {
         std::ifstream htmlFile("");
         std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+        _response.setContent("server: " + m_server.getConf()->getServerNames()[0] + "\n");
         fileContent += generateDirectoryListing(clientLocation.getPath());
-        _response.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
         htmlFile.close();
         _response.sendResponse();
         return;
@@ -390,6 +390,7 @@ void Client::handlePostMethod()
 
     }
     clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
+    clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.sendResponse();
     htmlFile.close();
