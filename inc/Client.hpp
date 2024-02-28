@@ -99,7 +99,7 @@ public:
 	void		handleDeleteMethod();
 	void		createErrorResponse();
 
-	int			handleCGI();
+	void		handleCGI();
 	int			execute();
 	void		setError(int socket, std::string message);
 	void		extractcgiUri();
