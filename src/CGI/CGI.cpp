@@ -120,15 +120,3 @@ void Client::handleCGI()
         throw (std::invalid_argument(e.what()));
     }
 }
-
-void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd)
-{
-    struct epoll_event event;
-    event.events = events;
-    event.data.ptr = ptr;
-
-    if (epoll_ctl(this->m_epoll, EPOLL_CTL_ADD, fd, &event) == -1)
-    {
-        throw (std::invalid_argument("500 cgi epoll Error"));
-    }
-}
