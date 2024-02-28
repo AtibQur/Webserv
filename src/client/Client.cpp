@@ -391,7 +391,6 @@ void Client::handlePostMethod()
     }
     clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
     clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-    clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.sendResponse();
     htmlFile.close();
 }
