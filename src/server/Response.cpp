@@ -13,6 +13,12 @@ void    Response::setResponse(std::string message) {
     m_response = "HTTP/1.1 " + message + "\n";
 }
 
+void    Response::setServerName(std::vector<std::string> server_names) {
+    if (server_names[0] != "") {
+        m_response += "server: " + server_names[0] + "\n";
+    }
+}
+
 void    Response::setContent(std::string content) {  
     m_response += content;
 }

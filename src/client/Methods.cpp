@@ -30,8 +30,7 @@ void Client::handleGetMethod()
         std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
         fileContent += generateDirectoryListing(clientLocation.getPath());
 
-        std::cout << "hier" << std::endl;
-        _response.setContent("server: " + m_server.getConf()->getServerNames()[0] + "\n");
+        _response.setServerName(m_server.getConf()->getServerNames());
         _response.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
         htmlFile.close();
         _response.sendResponse();
@@ -50,13 +49,7 @@ void Client::handleGetMethod()
         {
             fileContent += generateDirectoryListing(clientLocation.getPath());
         }
-
-        try {
-            std::cout << "hier1" << std::endl;
-            _response.setContent("server: " + m_server.getConf()->getServerNames()[0] + "\n");
-        } catch (std::exception &e) {
-            std::cout << "foutje" << std::endl;
-        }
+        _response.setServerName(m_server.getConf()->getServerNames());
         _response.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     }
     _isDir = false;
