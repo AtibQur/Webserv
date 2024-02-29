@@ -51,6 +51,8 @@ int Client::parseRequest(std::string request, ssize_t post)
     std::stringstream httpRequest(request);
     std::string tmp;
 
+    std::cout << request << std::endl;
+
     if (!checkRequestLine(request))
     {
         throw std::invalid_argument("400 Bad Request");
@@ -93,6 +95,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     // parse header
     while (getline(httpRequest, tmp))
     {
+        std::cout << ">" << tmp << std::endl;
         // save name
         if (_contentType == "text/plain" && tmp.find("post=") != std::string::npos)
         {
@@ -164,7 +167,6 @@ int Client::parseRequest(std::string request, ssize_t post)
         std::cout << "Wrong content type uploaded" << std::endl;
         throw std::invalid_argument("400 Bad Request");
     }
-    std::cout << "chalas" << std::endl;
     while (getline(httpRequest, tmp)) {
 
         if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {

@@ -2,7 +2,7 @@
 
 namespace fs = std::filesystem;
 
-/* TO BE IMPLEMENTED 
+/* TO BE IMPLEMENTED
     Config::Config() {
         this->config_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)] = parsed_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)];
         this->config_map[Config::ConfigKeyToString(ConfigKey::INDEX)] = parsed_map[Config::ConfigKeyToString(ConfigKey::INDEX)];
@@ -28,12 +28,14 @@ namespace fs = std::filesystem;
     retrieving the values for each key and storing them in the class object
 */
 
-Config::Config(std::vector<std::string> lines) :_port(8080), _client_max_body_size(1000000) {
+Config::Config(std::vector<std::string> lines) : _port(8080), _client_max_body_size(1000000)
+{
     _lines = lines;
     std::string var = "";
     int index = 0;
     setDefaultErrorPages();
-    while (index < lines.size()) {
+    while (index < lines.size())
+    {
         findVarName(lines[index], index);
         index++;
     }
@@ -46,69 +48,78 @@ Config::Config(std::vector<std::string> lines) :_port(8080), _client_max_body_si
     if succeeded we are calling the setAttribute function to store the value in the class object
 */
 
-void Config::findVarName(std::string line, int &index) {
+void Config::findVarName(std::string line, int &index)
+{
     std::string variable = "";
     std::string value = "";
     std::string::iterator it = line.begin();
     while (it != line.end() && (*it == ' ' || *it == '\t'))
         it++;
     if (it == line.end() || *it == '#') // after every key we check if line is finished
-        return ;
-    while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') { // copy word till first whitespace and repeat for value
+        return;
+    while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';')
+    { // copy word till first whitespace and repeat for value
         variable += *it++;
     }
     if (variable == "}")
-        return ;
+        return;
     while (it != line.end() && (*it == ' ' || *it == '\t'))
         it++;
     if (it == line.end() || *it == '#')
-        return ;
-    while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') {
+        return;
+    while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';')
+    {
         value += *it++;
     }
     setAttribute(variable, value, index, std::distance(line.begin(), it));
 }
 
-void Config::setAttribute(std::string variable, std::string value, int &index, int line_i) {
-    if (value.empty()) return ;
-    std::string options[8] = { // all possible options for server block
-        "listen",
-        "server_name",
-        "index",
-        "root",
-        "location",
-        "client_max_body_size",
-        "error_page",
-        "file_if_dir"
-    };
+void Config::setAttribute(std::string variable, std::string value, int &index, int line_i)
+{
+    if (value.empty())
+        return;
+    std::string options[8] = {// all possible options for server block
+                              "listen",
+                              "server_name",
+                              "index",
+                              "root",
+                              "location",
+                              "client_max_body_size",
+                              "error_page",
+                              "file_if_dir"};
 
-    for (int i = 0; i < 8; i++) {
-        if (variable == options[i]) { // if variable name matches expected name we store it
-            switch (i) {
-                case 0:
-                    _port = std::stoi(value);
-                    break;
-                case 1:
-                    setServerName(value, index, line_i);
-                    break;
-                case 2:
-                    _index = value;
-                    break;
-                case 3:
-                    setRoot(value);
-                    break;
-                case 4:
-                    setLocation(value, index);
-                    break;
-                case 5:
-                    setMaxBodySize(value);
-                    break;
-                case 6:
-                    setErrorPage(value, index, line_i);
-                    break;
-                case 7:
-                    _file_if_dir = value;
-                    break;
+    _server_names.push_back("");
+
+    for (int i = 0; i < 8; i++)
+    {    
+        if (variable == options[i])
+        { // if variable name matches expected name we store it
+            switch (i)
+            {
+            case 0:
+                _port = std::stoi(value);
+                break;
+            case 1:
+                setServerName(value, index, line_i);
+                break;
+            case 2:
+                _index = value;
+                break;
+            case 3:
+                setRoot(value);
+                break;
+            case 4:
+                setLocation(value, index);
+                break;
+            case 5:
+                setMaxBodySize(value);
+                break;
+            case 6:
+                setErrorPage(value, index, line_i);
+                break;
+            case 7:
+                _file_if_dir = value;
+                break;
             }
         }
     }
@@ -118,14 +129,17 @@ void Config::setAttribute(std::string variable, std::string value, int &index, i
     in this function we are looping through the line and storing all server names
 */
 
-void Config::setServerName(std::string server_name, int &index, int line_i) {
+void Config::setServerName(std::string server_name, int &index, int line_i)
+{
+    _server_names.clear();
     std::string name;
     std::string line = _lines[index].substr(line_i); // start from first server name
     std::string::iterator it = line.begin();
     _server_names.push_back(server_name);
     while (it != line.end() && (*it == ' ' || *it == '\t')) // skip whitespace
         it++;
-    while (it != line.end() && *it != ';') {
+    while (it != line.end() && *it != ';')
+    {
         while (it != line.end() && *it != ' ' && *it != '\t' && *it != ';') // copy every character of the name to name
             name += *it++;
         _server_names.push_back(name);
@@ -135,15 +149,20 @@ void Config::setServerName(std::string server_name, int &index, int line_i) {
     }
 }
 
-void Config::setRoot(std::string value) {
-    if (fs::exists(value) && fs::is_directory(value)) {
+void Config::setRoot(std::string value)
+{
+    if (fs::exists(value) && fs::is_directory(value))
+    {
         _root = value;
-    } else {
+    }
+    else
+    {
         _root = "root";
     }
 }
 
-void Config::setErrorPage(std::string error_code, int &index, int line_i) {
+void Config::setErrorPage(std::string error_code, int &index, int line_i)
+{
     std::string page;
     std::string line = _lines[index].substr(line_i); // start from index where page is
     std::string::iterator it = line.begin();
@@ -154,16 +173,20 @@ void Config::setErrorPage(std::string error_code, int &index, int line_i) {
     _error_pages[error_code] = page;
 }
 
-void Config::setMaxBodySize(std::string value) {
+void Config::setMaxBodySize(std::string value)
+{
     char multiplier = 'M';
-    if (toupper(value[value.size() - 1]) == 'B') {
-            if (isdigit(value[value.size() - 2])) {
-                _client_max_body_size = std::stoull(value.substr(0, value.size() - 1));
-                return ;
-            }
+    if (toupper(value[value.size() - 1]) == 'B')
+    {
+        if (isdigit(value[value.size() - 2]))
+        {
+            _client_max_body_size = std::stoull(value.substr(0, value.size() - 1));
+            return;
+        }
         value.pop_back();
     }
-    if (isalpha(value[value.size() - 1])) { 
+    if (isalpha(value[value.size() - 1]))
+    {
         multiplier = toupper(value[value.size() - 1]);
         value.pop_back();
     }
@@ -184,7 +207,8 @@ void Config::setMaxBodySize(std::string value) {
     when we reach the closing bracket we store the temporary object in the _locations map
 */
 
-void Config::setDefaultErrorPages() {
+void Config::setDefaultErrorPages()
+{
     _error_pages["400"] = "docs/error_pages/400.html";
     _error_pages["401"] = "docs/error_pages/401.html";
     _error_pages["403"] = "docs/error_pages/403.html";
@@ -197,12 +221,14 @@ void Config::setDefaultErrorPages() {
     _error_pages["505"] = "docs/error_pages/505.html";
 }
 
-void Config::setLocation(std::string path, int &index) {
+void Config::setLocation(std::string path, int &index)
+{
     Location temp;
     std::vector<std::string> variables;
-    index++;    // skip opening bracket as we already got the value
+    index++; // skip opening bracket as we already got the value
     temp.setPath(path);
-    while (_lines[index].find("}") == std::string::npos) {
+    while (_lines[index].find("}") == std::string::npos)
+    {
         temp.findVarName(_lines[index], variables, 0);
         index++;
     }
@@ -212,7 +238,8 @@ void Config::setLocation(std::string path, int &index) {
 
 // OUTPUT
 
-void Config::outputConfig() {
+void Config::outputConfig()
+{
     std::cout << "port: " << _port << std::endl;
     std::cout << "index: " << _index << std::endl;
     std::cout << "root: " << _root << std::endl;
@@ -220,45 +247,56 @@ void Config::outputConfig() {
     std::cout << "default file for dir req: " << _file_if_dir << std::endl;
     outputServerNames();
     std::cout << "locations: " << std::endl;
-    for (auto it = _locations.begin(); it != _locations.end(); it++) {
+    for (auto it = _locations.begin(); it != _locations.end(); it++)
+    {
         std::cout << "path: " << it->first << std::endl;
         it->second.outputLocation();
     }
     std::cout << "client_max_body_size: " << _client_max_body_size << std::endl;
     std::cout << "error_pages: " << std::endl;
-    for (auto it = _error_pages.begin(); it != _error_pages.end(); it++) {
+    for (auto it = _error_pages.begin(); it != _error_pages.end(); it++)
+    {
         std::cout << "error_code: " << it->first << std::endl;
         std::cout << "error_page: " << it->second << std::endl;
     }
 }
 
-void Config::outputServerNames() {
+void Config::outputServerNames()
+{
     for (std::string name : _server_names)
         std::cout << name << std::endl;
 }
 
-void Config::outputLines() {
+void Config::outputLines()
+{
     for (std::string line : _lines)
         std::cout << line << std::endl;
 }
 
-std::string trimTillLastSlash(std::string path) {
+std::string trimTillLastSlash(std::string path)
+{
     std::string::iterator it = path.end();
     while (it != path.begin() && *it != '/')
         it--;
-    
+
     return (path.substr(0, std::distance(path.begin(), it)));
 }
 
-Location Config::getLocation(std::string path) 
+Location Config::getLocation(std::string path)
 {
     if (path == "/")
         return _locations[path];
-    while (1) {
+    while (1)
+    {
         if (_locations.find(path) != _locations.end())
             return (_locations[path]);
         if (path == "/" || path.empty())
             return (_locations["/"]);
         path = trimTillLastSlash(path);
     }
+};
+
+std::vector<std::string> Config::getServerNames()
+{
+    return _server_names;
 };

@@ -25,12 +25,13 @@ public:
     std::string getHeader() { return m_header; }
 
     /* SETTERS */
-    void        setHeader(std::string header) { m_header = header; }
+    void        setHeader(std::string header) { m_header = header; };
     void        setResponse(std::string message);
     void        setContent(std::string content);
     void        setConf(Config *conf) { _conf = conf; }
     void        setErrorResponse(std::string message);
-    void        setSocketFd(int socketFd) { _socketFd = socketFd; }
+    void        setSocketFd(int socketFd) { _socketFd = socketFd; };
+    void        setServerName(std::vector<std::string> server_names);
 
     void        sendResponse();
     std::string getResponseMessage() { return m_response; }
