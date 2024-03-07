@@ -51,7 +51,7 @@ public:
 
     // GETTERS
     int getPort() { return _port; };
-    std::vector<std::string> getServerNames() { return _server_names; };
+    std::vector<std::string> getServerNames();
     std::string getIndex() { return _index; };
     std::string getRoot() { return _root; };
     Location getLocation(std::string path);

@@ -1,8 +1,8 @@
-#include "../../inc/main.hpp"
+#include "Client.hpp"
 
 namespace fs = std::filesystem;
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_name(""), _isDir(false)
+Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_cgiBody(""), _isDir(false), m_cgiToServer(*this), m_serverToCgi(*this)
 {
     m_socketFd = -1;
     _query = "";
@@ -10,7 +10,7 @@ Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_
 }
 
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations)
-    : m_server(server), _boundary("UNSET")
+    : m_server(server), _boundary("UNSET"), m_cgiToServer(*this), m_serverToCgi(*this)
 {
     _error_pages = ErrorPages;
     _location = Locations;
@@ -41,6 +41,7 @@ Client &Client::operator=(Client const &copy)
     this->m_socketFd = copy.m_socketFd;
     this->_requestBuffer = copy._requestBuffer;
     this->_response = copy._response;
+    std::cout << "client operator construcotr called " << std::endl;
     return *this;
 }
 
@@ -55,25 +56,11 @@ int Client::getNbMethod()
     return (0);
 }
 
-void Client::modifyEpoll(Socket *ptr, int events, int fd)
-{
-    struct epoll_event event;
-    event.events = events;
-
-    event.data.ptr = ptr;
-    if (epoll_ctl(m_epoll, EPOLL_CTL_MOD, fd, &event) == -1)
-    {
-        std::cerr << "Error modifying epoll" << std::endl;
-        setError(m_socketFd, "500 Internal Server Error");
-    }
-}
-
 void Client::receiveRequest()
 {
     try
     {
         readBuffer();
-
     }
     catch (const std::exception &e)
     {
@@ -87,10 +74,10 @@ void Client::handleRequest(std::string request, ssize_t post)
     {
         parseRequest(request, post);
         checkPathAndMethod();
-
     }
     catch (const std::exception &e)
     {
+        std::cout << "Hello from handleRequest" << std::endl;
         setError(getSocketFd(), e.what());
     }
 }
@@ -109,8 +96,9 @@ void Client::readBuffer()
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
         if (bytes_read < 0)
         {
-            std::cerr << "Error reading form client socket" << std::endl;
+            std::cerr << "Error reading from client socket" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
+            delete this;
             close(getSocketFd());
             break;
         }
@@ -130,16 +118,10 @@ void Client::readBuffer()
             accumulatedRequestData.append(buffer, bytes_read);
             if (bytes_read == 1024)
                 continue;
-            try {
-                if (isRequestComplete(accumulatedRequestData, post))
-                {
-                    modifyEpoll(this, EPOLLOUT, getSocketFd());
-                    handleRequest(accumulatedRequestData, post);
-                    break;
-                }
-            } catch (const std::exception &e) {
-                setError(getSocketFd(), e.what());
-                createErrorResponse();
+            if (isRequestComplete(accumulatedRequestData, post))
+            {
+                handleRequest(accumulatedRequestData, post);
+                break;
             }
         }
         i++;
@@ -167,17 +149,36 @@ bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
-    if (_method == "DELETE")
-        return true;
-    if (getUri().find(".py") != std::string::npos){
-		if (handleCGI() == 1) {
-            throw (std::invalid_argument("500 Internal server error"));
+    /* CGI */
+    if (getUri().find(".py") != std::string::npos)
+    {
+        if (getMethod() == "GET")
+        {
+            try 
+            {
+                addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
+                m_cgiToServer.m_client.handleCGI();
+            } catch (const std::exception &e) 
+            {
+                std::cout << "ERROR: " << e.what() << std::endl;
+                Response cgiError(getSocketFd(), e.what());
+                _response = cgiError;
+                return true;
+            }
         }
-        if (handleCGI() == 2) {
-            throw std::invalid_argument("404 Not Found");
+        else if (getMethod() == "POST")
+        {
+            addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
         }
         return true;
 	}
+    modifyEpoll(this, EPOLLOUT, getSocketFd());
+
+    //! need to make sure to seperate this
+    //! add client or cgi to epollout depening on if it's a cgi or not
+
+    if (_method == "DELETE")
+        return true;
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");
@@ -237,7 +238,7 @@ bool Client::checkPathAndMethod()
 
 void Client::handleResponse()
 {
-    if (_response.getCode().empty())
+    if (_response.getHeader().empty())
     {
         int method = getNbMethod();
         switch (method)
@@ -265,144 +266,9 @@ void Client::handleResponse()
     _response = empty;
 }
 
-/* GET */
-void Client::handleGetMethod()
-{
-    Response clientResponse(m_socketFd, "200 OK");
-
-    std::string filePath;
-    Location clientLocation = m_server.getConf()->getLocation(getUri());
-    if (_isDir)
-    {   
-        filePath = "root/" + _file_if_dir;
-    }
-    else if (clientLocation.getPath() == getUri())
-        filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
-    else
-        filePath = "root" + getUri();
-    if (fs::is_directory(filePath) && !_isDir)
-    {
-        std::ifstream htmlFile("");
-        std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
-        fileContent += generateDirectoryListing(clientLocation.getPath());
-        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-        htmlFile.close();
-        clientResponse.sendResponse();
-        return;
-    }
-    std::ifstream htmlFile(filePath);
-    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
-
-    if (!htmlFile.is_open())
-    {
-        clientResponse.setContent("14\n\nFile not found");
-    }
-    else
-    {
-        if (clientLocation.getAutoIndex() && !_isDir)
-        {
-            fileContent += generateDirectoryListing(clientLocation.getPath());
-        }
-        clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-    }
-    _isDir = false;
-    htmlFile.close();
-    clientResponse.sendResponse();
-}
-
-/* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
-std::string Client::generateDirectoryListing(std::string dirPath)
-{
-    std::string listing;
-    listing += "<h3>";
-    listing += "<ul>";
-    for (const auto &entry : fs::directory_iterator("root/" + dirPath))
-    {
-        listing += "<li>";
-
-        std::string fileName = entry.path().filename().string();
-        std::string displayName = entry.path().stem().string(); // Remove extension
-        // std::cou400 METHOD NOT ALLOWEDt << "Display Name = " << displayName << std::endl;
-
-        if (fs::is_directory(entry.path()))
-        {
-            listing += "[DIR] " + fileName;
-            listing += generateDirectoryListing(dirPath + "/" + fileName);
-        }
-        else
-        {
-            listing += displayName;
-        }
-        listing += "</li>";
-    }
-    listing += "</ul>";
-    listing += "</h3>";
-    return listing;
-}
-
-/* POST */
-void Client::handlePostMethod()
-{
-
-    if (getFileNameBody().empty())
-    {
-        std::cout << "No file name" << std::endl;
-        handleGetMethod();
-    }
-    Response clientResponse(m_socketFd, "302 FOUND");
-    
-    std::string filePath = "root/" + getFileNameBody();
-    if (filePath == "root/") {
-        std::cerr << "Error: Empty request" << std::endl;
-        return ;
-    }
-    std::cout << "File path: " << filePath << std::endl;
-
-    std::ifstream htmlFile(filePath);
-    std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
-    if (!htmlFile.is_open())
-    {
-        std::cerr << "Error opening file" << std::endl;
-
-    }
-    clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
-    clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
-    clientResponse.sendResponse();
-    htmlFile.close();
-}
-
-/* DELETE */
-void Client::handleDeleteMethod()
-{
-    std::string filePath = "root/" + getFileNameBody(); // Replace with your actual file path
-    std::cout << "File path: " << filePath << std::endl;
-    if (fs::exists(filePath))
-    { // Check if the file exists
-        try
-        {
-            fs::remove(filePath); // Remove the file
-            std::cout << "File deleted successfully." << std::endl;
-            Response goodResponse(m_socketFd, "202 Accepted");
-            goodResponse.sendResponse();
-        }
-        catch (const fs::filesystem_error &e)
-        {
-            std::cerr << "Error deleting the file: " << e.what() << std::endl;
-            // setError(m_socketFd, "500 Internal Server Error");
-            handleGetMethod();
-        }
-    }
-    else
-    {
-        std::cout << "File does not exist." << std::endl;
-        Response goodResponse(m_socketFd, "204 No Content");
-        goodResponse.sendResponse();
-    }
-    handleGetMethod();
-}
-
 void Client::setError(int socket, std::string message)
 {
+    modifyEpoll(this, EPOLLOUT, getSocketFd()); // client error epollout
     Response errorResponse(socket, message);
     _response = errorResponse;
 }
@@ -413,8 +279,7 @@ void Client::createErrorResponse()
     std::string file;
     std::string response;
 
-    file = m_server.getConf()->getErrorPage(_response.getHeader());
-    std::cout << "Error code: " << _response.getHeader() << std::endl;
+    file = m_server.getConf()->getErrorPage(_response.getCode());
     std::ifstream htmlFile(file);
 
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));

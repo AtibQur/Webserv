@@ -34,6 +34,8 @@ public:
 
     int     findServerIndex(int eventFd);
     int     getEpoll() { return this->_epoll; };
+
+    void    modEpoll(int fd);
 };
 
 #endif

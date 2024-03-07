@@ -14,7 +14,6 @@ print("\t<input type=\"text\" id=\"text\" name=\"post\">")
 print("\t<input type=\"submit\">")
 print("</form>")
 
-
 print("<body>")
 import cgi
 form = cgi.FieldStorage()
