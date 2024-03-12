@@ -10,6 +10,7 @@ BigServer::BigServer(std::vector<Config> newConfig) : _config(newConfig) {
     size_t size = _config.size();
     for (size_t i = 0; i < size; i++) {
         Server *server = new Server(&_config[i]);
+        std::cout << "New server created" << std::endl;
         _server.push_back(server);
     }
     runBigServer();
@@ -66,6 +67,7 @@ void BigServer::incomingRequest(Socket *ptr) {
 void BigServer::connectNewClient(Server *server, int eventFd) 
 {
     Client *client = new Client(*server, server->getConf()->getErrorPages(), server->getConf()->getLocations());
+    std::cout << "New client connected" << std::endl;
     if (!client) {
         perror("no client connected");
         return ;

@@ -105,6 +105,8 @@ public:
 	void		setError(int socket, std::string message);
 	void		extractcgiUri();
 
+	// SIGNAL
+	static void		handleSignal(int signum);
 };
 
 // #endif
