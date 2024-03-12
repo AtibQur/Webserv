@@ -54,7 +54,6 @@ public:
 	void		readBuffer();
 	bool		checkPathAndMethod();
 	bool		allowedMethods();
-	void		modifyEpoll(Socket *ptr, int events, int fd);
 	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
 

@@ -262,7 +262,7 @@ void Client::handleResponse()
         createErrorResponse();
     }
     modifyEpoll(this, EPOLLIN, getSocketFd());
-    Response empty;
+}
     _response = empty;
 }
 
