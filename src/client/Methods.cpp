@@ -17,7 +17,7 @@ void Client::handleGetMethod()
     std::string filePath;
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     if (_isDir)
-    {   
+    {
         filePath = "root/" + _file_if_dir;
     }
     else if (clientLocation.getPath() == getUri())
@@ -97,11 +97,12 @@ void Client::handlePostMethod()
         handleGetMethod();
     }
     Response clientResponse(m_socketFd, "302 FOUND");
-    
+
     std::string filePath = "root/" + getFileNameBody();
-    if (filePath == "root/") {
+    if (filePath == "root/")
+    {
         std::cerr << "Error: Empty request" << std::endl;
-        return ;
+        return;
     }
     std::cout << "File path: " << filePath << std::endl;
 
@@ -110,7 +111,6 @@ void Client::handlePostMethod()
     if (!htmlFile.is_open())
     {
         std::cerr << "Error opening file" << std::endl;
-
     }
     clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
     clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
@@ -147,4 +147,3 @@ void Client::handleDeleteMethod()
     }
     handleGetMethod();
 }
-
