@@ -13,10 +13,11 @@ void Client::modifyEpoll(Socket *ptr, int events, int fd)
     }
 }
 
-void Client::removeFromEpoll(int fd){
+void Client::removeFromEpoll(int fd)
+{
     modifyEpoll(nullptr, 0, fd);
     if (epoll_ctl(m_epoll, EPOLL_CTL_DEL, fd, NULL) == -1)
-        perror ("remove epoll");
+        perror("remove epoll");
 }
 
 void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd)
@@ -27,6 +28,6 @@ void Client::addCGIProcessToEpoll(Socket *ptr, int events, int fd)
 
     if (epoll_ctl(this->m_epoll, EPOLL_CTL_ADD, fd, &event) == -1)
     {
-        throw (std::invalid_argument("500 cgi epoll Error"));
+        throw(std::invalid_argument("500 cgi epoll Error"));
     }
 }
