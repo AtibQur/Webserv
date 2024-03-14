@@ -4,6 +4,7 @@
 #include "main.hpp"
 
 class Config;
+class Client;
 class Server;
 
 class BigServer
@@ -11,6 +12,7 @@ class BigServer
 private:
     std::vector<Config>     _config;
     std::vector<Server *>   _server;
+    std::vector<Client *>   _client;
 
     int _epoll;
     int _num_events;

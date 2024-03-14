@@ -3,7 +3,6 @@
 bool g_state = true;
 
 void handleSignal(int signum) {
-    std::cout << "aaaa" << std::endl;
     g_state = false;
 }
 
@@ -36,11 +35,7 @@ void BigServer::runBigServer() {
         setupNewEvents();
         loopEvents();
     }
-
     std::cout << "Server closed" << std::endl;
-    for (auto& server : _server) {
-        delete server;
-    }
 }
 
 void BigServer::loopEvents() { //TODO in try and catch
@@ -81,6 +76,7 @@ void BigServer::incomingRequest(Socket *ptr) {
 void BigServer::connectNewClient(Server *server, int eventFd) 
 {
     Client *client = new Client(*server, server->getConf()->getErrorPages(), server->getConf()->getLocations());
+    _client.push_back(client);
     std::cout << "New client connected" << std::endl;
     if (!client) {
         perror("no client connected");
@@ -143,6 +139,12 @@ void BigServer::setupNewEvents() {
     _num_events = epoll_wait(getEpoll(), _events, 10, -1);
     if (_num_events == -1) {
         perror("epoll_wait");
+        for (auto& server : _server) {
+            delete server;
+        }
+        for (auto& client : _client) {
+            delete client;
+        }
     }
 }
 
