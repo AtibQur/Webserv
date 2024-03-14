@@ -1,5 +1,12 @@
 #include "../../inc/main.hpp"
 
+bool g_state = true;
+
+void handleSignal(int signum) {
+    std::cout << "aaaa" << std::endl;
+    g_state = false;
+}
+
 BigServer::BigServer() {
     _MAX_EVENTS = 10;
     std::cout << "Default bigServer constructor" << std::endl;
@@ -22,10 +29,17 @@ BigServer::~BigServer() {
 
 void BigServer::runBigServer() {
     initEpoll();
-    while (1)
+    signal(SIGINT, handleSignal);
+    std::cout << g_state << std::endl;
+    while (g_state)
     {
         setupNewEvents();
         loopEvents();
+    }
+
+    std::cout << "Server closed" << std::endl;
+    for (auto& server : _server) {
+        delete server;
     }
 }
 
@@ -129,7 +143,6 @@ void BigServer::setupNewEvents() {
     _num_events = epoll_wait(getEpoll(), _events, 10, -1);
     if (_num_events == -1) {
         perror("epoll_wait");
-        exit(EXIT_FAILURE);
     }
 }
 

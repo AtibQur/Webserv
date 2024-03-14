@@ -82,13 +82,8 @@ void Client::handleRequest(std::string request, ssize_t post)
     }
 }
 
-void Client::handleSignal(int signum) {
-    delete this;
-}
-
 void Client::readBuffer()
 {
-    signal(SIGINT, handleSignal);
     ssize_t post = 0;
     ssize_t i = 0;
     char buffer[1024] = {0};
