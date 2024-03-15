@@ -1,10 +1,5 @@
 #include "../../inc/main.hpp"
 
-bool g_state = true;
-
-void handleSignal(int signum) {
-    g_state = false;
-}
 
 BigServer::BigServer() {
     _MAX_EVENTS = 10;
@@ -28,9 +23,7 @@ BigServer::~BigServer() {
 
 void BigServer::runBigServer() {
     initEpoll();
-    signal(SIGINT, handleSignal);
-    std::cout << g_state << std::endl;
-    while (g_state)
+    while (1)
     {
         setupNewEvents();
         loopEvents();
@@ -119,7 +112,7 @@ void BigServer::outgoingResponse(Socket *ptr) {
 
         serverToCgi->WriteCgi();
         serverToCgi->m_client.addCGIProcessToEpoll(&(serverToCgi->m_client.getcgiToServer()), EPOLLIN, serverToCgi->m_client.getcgiToServer().m_pipeFd[READ]);
-        serverToCgi->m_client.handleCGI();
+        serverToCgi->m_client.handleCGI();   
     }
 }
 

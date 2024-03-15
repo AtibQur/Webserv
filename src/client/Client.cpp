@@ -96,17 +96,19 @@ void Client::readBuffer()
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
         if (bytes_read < 0)
         {
+            close(getSocketFd());
             delete this;
             std::cout << "client deleted" << std::endl;
-            close(getSocketFd());
             throw(std::invalid_argument("400 Bad Request"));
             break;
         }
         else if (bytes_read == 0)
         {
             close(getSocketFd());
-            delete this;
+
+            std::cout << "hier fout" << std::endl;
             std::cout << "client deleted" << std::endl;
+
             break;
         }
         else if (i = 0)
@@ -217,6 +219,7 @@ bool Client::checkPathAndMethod()
     std::vector<std::string> methods = clientLocation.getMethods();
     if (methods.empty())
     {
+        std::cout << "HIER" << std::endl;
         throw std::invalid_argument("405 Method Not Allowed");
     }
     std::vector<std::string>::iterator it = methods.begin();
@@ -229,6 +232,7 @@ bool Client::checkPathAndMethod()
     }
     if (it == methods.end())
     {
+        std::cout << "NEE HIER" << std::endl;
         throw std::invalid_argument("405 Method Not Allowed");
     }
     throw std::invalid_argument("400 Bad Request");

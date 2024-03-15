@@ -59,6 +59,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     getline(httpRequest, tmp, ' ');
     if (!checkMethod(tmp))
     {
+        std::cout << "here" << std::endl;
         throw std::invalid_argument("405 Method not Allowed");
     }
     _method = tmp;
@@ -69,10 +70,11 @@ int Client::parseRequest(std::string request, ssize_t post)
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
-    if (!allowedMethods())
-    {
-        throw std::invalid_argument("405 Method not Allowed");
-    }
+    // if (!allowedMethods())
+    // {
+    //     std::cout << "ih    405 Method not Allowed" << std::endl;
+    //     throw std::invalid_argument("405 Method not Allowed");
+    // }
 
     getline(httpRequest, tmp);
 
@@ -99,7 +101,6 @@ int Client::parseRequest(std::string request, ssize_t post)
     // parse header
     while (getline(httpRequest, tmp))
     {
-        std::cout << ">" << tmp << std::endl;
         // save name
         if (_contentType == "text/plain" && tmp.find("post=") != std::string::npos)
         {
@@ -117,7 +118,7 @@ int Client::parseRequest(std::string request, ssize_t post)
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength > _maxBodySize)
+    if (_contentLength > _maxBodySize || _contentLength > 10000000)
     { // needs to be updated from conf file
     
         throw std::invalid_argument("413 Payload Too Large");
@@ -167,10 +168,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     getline(httpRequest, tmp);
     
     std::cout << "Content type is: " << _contentType << std::endl;
-    if (!checkBoundary(_contentType)) {
-        std::cout << "Wrong content type uploaded" << std::endl;
-        throw std::invalid_argument("400 Bad Request");
-    }
+    checkBoundary(_contentType);
     while (getline(httpRequest, tmp)) {
 
         if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {
@@ -210,12 +208,10 @@ int Client::parseRequest(std::string request, ssize_t post)
     return (0);
 }
 
-int Client::checkBoundary(std::string contentType) {
-    std::cout << "contentType 2: " << contentType << std::endl;
-    if (contentType == "text/plain" || contentType == "image/jpeg" 
-    || contentType == "image/png" || contentType == "image/jpg")
-        return 1;
-    return 0;
+void Client::checkBoundary(std::string contentType) {
+    if (_contentType != "text/plain" && _contentType != "image/jpeg" 
+    && _contentType != "image/png" && _contentType != "image/jpg")
+        throw std::invalid_argument("415");
 }
 
 int Client::transferData()
@@ -339,6 +335,11 @@ bool Client::checkMethod(std::string tmp)
 bool Client::allowedMethods()
 {
     std::vector<std::string> methods = _location[_uri].getMethods();
+    for (auto &i: methods)
+    {
+        std::cout << "Allowed methods: " << i << std::endl;
+        std::cout << "Method: " << _method << std::endl;
+    }
     for (size_t i = 0; i < methods.size(); i++)
     {
         if (methods[i] == _method)

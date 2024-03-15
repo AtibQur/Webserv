@@ -215,6 +215,7 @@ void Config::setDefaultErrorPages()
     _error_pages["404"] = "docs/error_pages/404.html";
     _error_pages["405"] = "docs/error_pages/405.html";
     _error_pages["413"] = "docs/error_pages/413.html";
+    _error_pages["415"] = "docs/error_pages/415.html";
     _error_pages["418"] = "docs/error_pages/418.html";
     _error_pages["500"] = "docs/error_pages/500.html";
     _error_pages["501"] = "docs/error_pages/501.html";
