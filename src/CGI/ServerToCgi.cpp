@@ -2,18 +2,18 @@
 
 ServerToCgi::ServerToCgi(Client &client) : m_client(client)
 {
-    if (pipe(m_pipeFd) == -1)
-        perror("pipeOut error");
-    m_socketFd = m_pipeFd[WRITE];
+    // if (pipe(m_pipeFd) == -1)
+    //     perror("pipeOut error");
+    // m_socketFd = m_pipeFd[WRITE];
 }
 
 ServerToCgi::~ServerToCgi()
 {
-    if (m_pipeFd[READ] != -1)
-        close(m_pipeFd[READ]);
-    if (m_pipeFd[WRITE] != -1)
-        close(m_pipeFd[WRITE]);
-    std::cout << "ServerToCgi destructor" << std::endl;
+    // if (m_pipeFd[READ] != -1)
+    //     close(m_pipeFd[READ]);
+    // if (m_pipeFd[WRITE] != -1)
+    //     close(m_pipeFd[WRITE]);
+    // std::cout << "ServerToCgi destructor" << std::endl;
 }
 
 void ServerToCgi::WriteCgi()

@@ -19,6 +19,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <csignal>
 #include <stdexcept>
 #include <unordered_map>
 #include <filesystem>

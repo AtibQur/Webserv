@@ -1,7 +1,7 @@
 #include "../../inc/main.hpp"
 
-BigServer::BigServer()
-{
+
+BigServer::BigServer() {
     _MAX_EVENTS = 10;
     std::cout << "Default bigServer constructor" << std::endl;
 }
@@ -13,6 +13,7 @@ BigServer::BigServer(std::vector<Config> newConfig) : _config(newConfig)
     for (size_t i = 0; i < size; i++)
     {
         Server *server = new Server(&_config[i]);
+        std::cout << "New server created" << std::endl;
         _server.push_back(server);
     }
     runBigServer();
@@ -31,6 +32,7 @@ void BigServer::runBigServer()
         setupNewEvents();
         loopEvents();
     }
+    std::cout << "Server closed" << std::endl;
 }
 
 void BigServer::loopEvents()
@@ -45,15 +47,6 @@ void BigServer::loopEvents()
         epollPtr = static_cast<Socket *>(event.data.ptr);
         if (epollPtr == nullptr)
             std::cout << "epollPtr Error" << std::endl;
-
-        if (event.events & EPOLLIN)
-        {
-            incomingRequest(epollPtr); // read
-        }
-        else if (event.events & EPOLLOUT)
-        {
-            outgoingResponse(epollPtr); // write
-        }
     }
 }
 
@@ -77,8 +70,9 @@ void BigServer::incomingRequest(Socket *ptr)
 void BigServer::connectNewClient(Server *server, int eventFd)
 {
     Client *client = new Client(*server, server->getConf()->getErrorPages(), server->getConf()->getLocations());
-    if (!client)
-    {
+    _client.push_back(client);
+    std::cout << "New client connected" << std::endl;
+    if (!client) {
         perror("no client connected");
         return;
     }
@@ -122,7 +116,7 @@ void BigServer::outgoingResponse(Socket *ptr)
 
         serverToCgi->WriteCgi();
         serverToCgi->m_client.addCGIProcessToEpoll(&(serverToCgi->m_client.getcgiToServer()), EPOLLIN, serverToCgi->m_client.getcgiToServer().m_pipeFd[READ]);
-        serverToCgi->m_client.handleCGI();
+        serverToCgi->m_client.handleCGI();   
     }
 }
 
@@ -147,7 +141,12 @@ void BigServer::setupNewEvents()
     if (_num_events == -1)
     {
         perror("epoll_wait");
-        exit(EXIT_FAILURE);
+        for (auto& server : _server) {
+            delete server;
+        }
+        for (auto& client : _client) {
+            delete client;
+        }
     }
 }
 

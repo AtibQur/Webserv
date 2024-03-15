@@ -96,16 +96,16 @@ void Client::readBuffer()
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
         if (bytes_read < 0)
         {
-            std::cerr << "Error reading from client socket" << std::endl;
-            throw(std::invalid_argument("400 Bad Request"));
-            delete this;
             close(getSocketFd());
+            delete this;
+            std::cout << "client deleted" << std::endl;
+            throw(std::invalid_argument("400 Bad Request"));
             break;
         }
         else if (bytes_read == 0)
         {
-            std::cout << "Connection closed by the client." << std::endl;
             close(getSocketFd());
+            std::cout << "client deleted" << std::endl;
             break;
         }
         else if (i = 0)
@@ -192,7 +192,6 @@ bool Client::checkPathAndMethod()
         return true;
     if (fs::is_directory("root" + getUri()) && clientLocation.getPath() != getUri())
     {
-        std::cout << "2" << std::endl;
         _isDir = true;
         if (_file_if_dir.empty())
         {
@@ -202,12 +201,10 @@ bool Client::checkPathAndMethod()
     }
     if (clientLocation.getIndex().empty() && clientLocation.getAutoIndex() == false)
     {
-        std::cout << "3" << std::endl;
         throw std::invalid_argument("404 Not Found");
     }
     if (clientLocation.getPath().empty())
     {
-        std::cout << "4" << std::endl;
         throw std::invalid_argument("404 Not Found");
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
@@ -262,8 +259,7 @@ void Client::handleResponse()
         createErrorResponse();
     }
     modifyEpoll(this, EPOLLIN, getSocketFd());
-    Response empty;
-    _response = empty;
+    _response = Response();
 }
 
 void Client::setError(int socket, std::string message)
@@ -289,3 +285,30 @@ void Client::createErrorResponse()
 
     _response.sendResponse();
 }
+
+/*
+Stackoverflows top answer
+
+
+Alternatively, don't catch the signal and just let the OS handle the cleanup
+as it's going to do during process cleanup anyway. You're not releasing any 
+resources that aren't tied directly to the process
+, so there's no particular need to manually release them.
+
+*/
+
+/*
+ what were doing
+
+
+
+
+    Have your program run a main processing loop.
+    Have your main processing loop check a flag to see if it should "keep running".
+    Have your signal handler simply set the "keep running" flag to false, but not otherwise terminate the program.
+    Have your main processing loop do the memory cleanup prior to exiting.
+
+This has the benefit of placing both the allocation and de-allocation in blocks of code 
+which are called with a known sequence. Doing so can be a godsend when dealing with webs of interrelated objects, and there is not going to be race condition between two processing flows trying to mess with the same object.
+
+*/

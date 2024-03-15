@@ -13,6 +13,7 @@ private:
 	const Server						 &m_server;
 	// Response							_response;
 
+
 	CgiToServer							m_cgiToServer;
 	ServerToCgi							m_serverToCgi;
 
@@ -23,7 +24,7 @@ private:
 
 	std::string 						_body;
 	std::string 						_boundary;
-	long long							_contentLength;
+long long							_contentLength;
 	std::string 						_fileNameBody;
 	bool								_isDelete;
 	bool								_isDir;
@@ -53,6 +54,7 @@ public:
 	void		receiveRequest();
 	void		readBuffer();
 	bool		checkPathAndMethod();
+	bool		allowedMethods();
 	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
 
@@ -73,7 +75,7 @@ public:
 	std::string urlEncode(const std::string& input);
 	std::string decodePercentEncoding(const std::string &encoded);
 	int			transferData();
-	int 		checkBoundary(std::string contentType);
+	void		checkBoundary(std::string contentType);
 
 	// GETTERS
 	int			getSocketFd() const { return this->m_socketFd; };
@@ -104,6 +106,7 @@ public:
 	void		setError(int socket, std::string message);
 	void		extractcgiUri();
 
+	// SIGNAL
 };
 
 // #endif
