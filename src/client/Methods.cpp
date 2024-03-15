@@ -55,6 +55,7 @@ void Client::handleGetMethod()
     _isDir = false;
     htmlFile.close();
     _response.sendResponse();
+    close(getSocketFd());
 }
 
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
