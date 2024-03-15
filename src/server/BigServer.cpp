@@ -47,8 +47,7 @@ void BigServer::loopEvents()
         epollPtr = static_cast<Socket *>(event.data.ptr);
         if (epollPtr == nullptr)
             std::cout << "epollPtr Error" << std::endl;
-
-Total 7 (delta 5), reused 0 (delta 0), pack-reused 0
+    }
 }
 
 void BigServer::incomingRequest(Socket *ptr)

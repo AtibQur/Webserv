@@ -204,19 +204,10 @@ int Client::parseRequest(std::string request, ssize_t post)
     return (0);
 }
 
-<<<<<<< HEAD
 void Client::checkBoundary(std::string contentType) {
     if (_contentType != "text/plain" && _contentType != "image/jpeg" 
     && _contentType != "image/png" && _contentType != "image/jpg")
         throw std::invalid_argument("415");
-=======
-int Client::checkBoundary(std::string contentType)
-{
-    std::cout << "contentType 2: " << contentType << std::endl;
-    if (contentType == "text/plain" || contentType == "image/jpeg" || contentType == "image/png" || contentType == "image/jpg")
-        return 1;
-    return 0;
->>>>>>> 383b822efa4275eed016749332b535fda6224613
 }
 
 int Client::transferData()
