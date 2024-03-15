@@ -1,6 +1,6 @@
 #include "ConfigParserUtils.hpp"
 
-std::string ConfigParserUtils::trim(const std::string& str)
+std::string ConfigParserUtils::trim(const std::string &str)
 {
     size_t first = str.find_first_not_of(' ');
     if (std::string::npos == first)

@@ -4,31 +4,37 @@
 Response::Response() : m_response(""), _socketFd(0), _code("") {}
 
 // error
-Response::Response(int SocketFd, std::string header) : _socketFd(SocketFd), m_header(header) {
+Response::Response(int SocketFd, std::string header) : _socketFd(SocketFd), m_header(header)
+{
     _code = m_header.substr(0, 3);
     setResponse(_code);
 }
 
-void    Response::setResponse(std::string message) {
+void Response::setResponse(std::string message)
+{
     m_response = "HTTP/1.1 " + message + "\n";
 }
 
-void    Response::setServerName(std::vector<std::string> server_names) {
-    if (server_names[0] != "") {
+void Response::setServerName(std::vector<std::string> server_names)
+{
+    if (server_names[0] != "")
+    {
         m_response += "server: " + server_names[0] + "\n";
     }
 }
 
-void    Response::setContent(std::string content) {  
+void Response::setContent(std::string content)
+{
     m_response += content;
 }
 
-void    Response::setErrorResponse(std::string message)
+void Response::setErrorResponse(std::string message)
 {
     m_response = message;
 }
 
-void Response::sendResponse() {
+void Response::sendResponse()
+{
     send(_socketFd, m_response.c_str(), m_response.size(), 0);
     printf("------------------Response sent-------------------\n");
 }

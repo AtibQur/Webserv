@@ -87,7 +87,7 @@ int Client::parseRequest(std::string request, ssize_t post)
         std::cout << "the request is not complete" << std::endl;
         return 1;
     }
-    if (_method == "DELETE") 
+    if (_method == "DELETE")
     {
         _fileNameBody = _uri;
         return 0;
@@ -119,7 +119,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     }
     if (_contentLength > _maxBodySize || _contentLength > 10000000)
     { // needs to be updated from conf file
-    
+
         throw std::invalid_argument("413 Payload Too Large");
     }
     if (_contentType != "multipart/form-data" || _contentType.empty())
@@ -165,20 +165,21 @@ int Client::parseRequest(std::string request, ssize_t post)
     if (_method == "DELETE")
         return (0);
     getline(httpRequest, tmp);
-    
+
     std::cout << "Content type is: " << _contentType << std::endl;
     checkBoundary(_contentType);
     while (getline(httpRequest, tmp)) {
 
-        if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain") {
-            break ;
+        if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain")
+        {
+            break;
         }
-        if (tmp.find(_boundary) != std::string::npos) {
-            break ;
+        if (tmp.find(_boundary) != std::string::npos)
+        {
+            break;
         }
         _body.append(tmp);
         _body.append("\n");
-
     }
     std::stringstream ss(_body);
     std::string read;
@@ -200,17 +201,22 @@ int Client::parseRequest(std::string request, ssize_t post)
 
     bodyfile.close();
 
-    // response zin eindigt met /r/n
-    // hele response eidigt met /r/n/r/n
-    // content length bepaalt of the body compleet is (als er een body is)
-
     return (0);
 }
 
+<<<<<<< HEAD
 void Client::checkBoundary(std::string contentType) {
     if (_contentType != "text/plain" && _contentType != "image/jpeg" 
     && _contentType != "image/png" && _contentType != "image/jpg")
         throw std::invalid_argument("415");
+=======
+int Client::checkBoundary(std::string contentType)
+{
+    std::cout << "contentType 2: " << contentType << std::endl;
+    if (contentType == "text/plain" || contentType == "image/jpeg" || contentType == "image/png" || contentType == "image/jpg")
+        return 1;
+    return 0;
+>>>>>>> 383b822efa4275eed016749332b535fda6224613
 }
 
 int Client::transferData()
