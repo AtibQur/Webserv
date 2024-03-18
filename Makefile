@@ -2,7 +2,7 @@ NAME = webserv
 
 CFLAGS = 
 
-CC = g++ -std=c++17 -g
+CC = g++ -std=c++17 -g -Wall -Wextra -Werror 
 
 INCLUDE_DIR = inc
 OBJS_DIR = objs

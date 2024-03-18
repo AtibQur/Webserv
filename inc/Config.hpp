@@ -19,10 +19,10 @@ private:
     std::vector<std::string> _server_names;
     std::string _file_if_dir;
     std::string _index;
+    unsigned long long _client_max_body_size;
     std::string _root;
     std::map<std::string, Location> _locations;
     std::vector<std::string> _lines;
-    unsigned long long _client_max_body_size;
     std::map<std::string, std::string> _error_pages;
 
 public:

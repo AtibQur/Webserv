@@ -10,11 +10,21 @@ class cgiToServer;
 
 class Client : public Socket {
 private:
+
+
 	const Server						 &m_server;
-
-
+	std::string 						_requestBuffer;
+	std::string 						_boundary;
+	std::string							m_cgiBody;
+	bool								_isDir;
 	CgiToServer							m_cgiToServer;
 	ServerToCgi							m_serverToCgi;
+	std::map <std::string, std::string> _error_pages;
+	std::map <std::string, Location>	_location;
+	std::string							_query;
+	std::string							_path;
+	long long							_maxBodySize;
+	std::string						    _file_if_dir;
 
 	std::string 						_method;
 	std::string 						_uri;
@@ -22,29 +32,18 @@ private:
 	std::map <std::string, std::string> headerMap;
 
 	std::string 						_body;
-	std::string 						_boundary;
-long long							_contentLength;
+	long long							_contentLength;
 	std::string 						_fileNameBody;
 	bool								_isDelete;
-	bool								_isDir;
 	std::string 						_contentType;
-	std::map <std::string, std::string> _error_pages;
-	long long							_maxBodySize;
-	std::map <std::string, Location>	_location;
 
     struct sockaddr_storage 			m_client_address {};
     socklen_t 							m_addrlen{sizeof(m_client_address)};
-	std::string 						_requestBuffer;
-	std::string							m_cgiBody;
-	std::string						    _file_if_dir;
 
-	std::string							_query;
-	std::string							_path;
 	std::string							_pytyhonScript;
 
 public:
 	Response							_response;
-    Client();
     Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations );
     ~Client();
     Client &operator=(Client const &copy);
@@ -65,16 +64,16 @@ public:
 	// PARSER
     void		saveClientRequest(char* buffer, int client_socket);
 	bool		checkMethod(std::string tmp);
-	void		handleRequest(std::string request, ssize_t post);
+	void		handleRequest(std::string request);
 	bool		checkRequestLine(std::string httpRequest);
-	int			parseRequest(std::string request, ssize_t post);
-	bool		isRequestComplete(std::string accumulatedRequestData, ssize_t post);
+	int			parseRequest(std::string request);
+	bool		isRequestComplete(std::string accumulatedRequestData);
 	void		checkBytesInFile();
 	bool 		checkForSpaces(std::string fileNameBody);
 	std::string urlEncode(const std::string& input);
 	std::string decodePercentEncoding(const std::string &encoded);
 	int			transferData();
-	void		checkBoundary(std::string contentType);
+	void		checkBoundary();
 
 	// GETTERS
 	int			getSocketFd() const { return this->m_socketFd; };

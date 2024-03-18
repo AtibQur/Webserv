@@ -42,7 +42,8 @@ int ConfigParser::findServerBlock(int start, int &end)
     int i = start;
     int bracket_count = 0;
     int line_count = 0;
-    while (i < _lines.size())
+    int size = _lines.size();
+    while (i < size)
     {
         if (_lines[i].find("server ") != std::string::npos)
         {
@@ -51,7 +52,7 @@ int ConfigParser::findServerBlock(int start, int &end)
         }
         i++;
     }
-    while (i < _lines.size() && bracket_count >= 0)
+    while (i < size && bracket_count >= 0)
     {
         if (_lines[i].find("{") != std::string::npos)
             bracket_count++;
@@ -65,12 +66,12 @@ int ConfigParser::findServerBlock(int start, int &end)
             bracket_count -= line_count;
         i++;
     }
-    if (bracket_count == -1 && i != _lines.size())
+    if (bracket_count == -1 && i != size)
     {
         end = i;
         return start;
     }
-    if (i == _lines.size())
+    if (i == size)
         return -1;
     return start;
 }

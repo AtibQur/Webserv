@@ -9,9 +9,9 @@ class Response
 {
 private:
     std::string     m_response;
+    int             _socketFd;
     std::string     m_header;
     std::string     _code;
-    int             _socketFd;
     Config          *_conf;
 
 public:

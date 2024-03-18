@@ -32,7 +32,7 @@ public:
     void    loopEvents();
     void    incomingRequest(Socket *ptr);
     void    outgoingResponse(Socket *ptr);
-    void    connectNewClient(Server *server, int eventFd);
+    void    connectNewClient(Server *server);
 
     int     findServerIndex(int eventFd);
     int     getEpoll() { return this->_epoll; };

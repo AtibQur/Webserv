@@ -2,13 +2,6 @@
 
 namespace fs = std::filesystem;
 
-Client::Client() : m_server(nullptr), _requestBuffer(""), _boundary("UNSET"), m_cgiBody(""), _isDir(false), m_cgiToServer(*this), m_serverToCgi(*this)
-{
-    m_socketFd = -1;
-    _query = "";
-    _path = "";
-}
-
 Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, std::map<std::string, Location> Locations)
     : m_server(server), _boundary("UNSET"), m_cgiToServer(*this), m_serverToCgi(*this)
 {
@@ -68,11 +61,11 @@ void Client::receiveRequest()
     }
 }
 
-void Client::handleRequest(std::string request, ssize_t post)
+void Client::handleRequest(std::string request)
 {
     try
     {
-        parseRequest(request, post);
+        parseRequest(request);
         checkPathAndMethod();
     }
     catch (const std::exception &e)
@@ -84,7 +77,6 @@ void Client::handleRequest(std::string request, ssize_t post)
 
 void Client::readBuffer()
 {
-    ssize_t post = 0;
     ssize_t i = 0;
     char buffer[1024] = {0};
     ssize_t bytes_read;
@@ -108,19 +100,14 @@ void Client::readBuffer()
             std::cout << "client deleted" << std::endl;
             break;
         }
-        else if (i = 0)
-        {
-            if (buffer[0] == 'P' && buffer[1] == 'O' && buffer[2] == 'S' && buffer[3] == 'T' && buffer[4] == ' ')
-                post = 1;
-        }
         else
         {
             accumulatedRequestData.append(buffer, bytes_read);
             if (bytes_read == 1024)
                 continue;
-            if (isRequestComplete(accumulatedRequestData, post))
+            if (isRequestComplete(accumulatedRequestData))
             {
-                handleRequest(accumulatedRequestData, post);
+                handleRequest(accumulatedRequestData);
                 break;
             }
         }
@@ -128,9 +115,9 @@ void Client::readBuffer()
     }
 }
 
-bool Client::isRequestComplete(std::string accumulatedRequestData, ssize_t post)
+bool Client::isRequestComplete(std::string accumulatedRequestData)
 {
-    ssize_t requestEnd;
+    size_t requestEnd;
 
     requestEnd = accumulatedRequestData.find("\r\n\r\n");
     if (requestEnd == std::string::npos)
@@ -154,11 +141,12 @@ bool Client::checkPathAndMethod()
     {
         if (getMethod() == "GET")
         {
-            try 
+            try
             {
                 addCGIProcessToEpoll(&m_cgiToServer, EPOLLIN, m_cgiToServer.m_pipeFd[READ]); // add PipeOut to epoll
                 m_cgiToServer.m_client.handleCGI();
-            } catch (const std::exception &e) 
+            }
+            catch (const std::exception &e)
             {
                 std::cout << "ERROR: " << e.what() << std::endl;
                 Response cgiError(getSocketFd(), e.what());
@@ -171,7 +159,7 @@ bool Client::checkPathAndMethod()
             addCGIProcessToEpoll(&m_serverToCgi, EPOLLOUT, m_serverToCgi.m_pipeFd[WRITE]); // add write end to pipeIn to epoll
         }
         return true;
-	}
+    }
     modifyEpoll(this, EPOLLOUT, getSocketFd());
 
     //! need to make sure to seperate this
@@ -209,7 +197,8 @@ bool Client::checkPathAndMethod()
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
-        std::cout << "error after" << "\n";
+        std::cout << "error after"
+                  << "\n";
         return true;
     }
 
@@ -218,19 +207,14 @@ bool Client::checkPathAndMethod()
     {
         throw std::invalid_argument("405 Method Not Allowed");
     }
-    std::vector<std::string>::iterator it = methods.begin();
-    for (it; it < methods.end(); it++)
+    for (std::string method : methods)
     {
-        if (getMethod() == *it)
+        if (method == getMethod())
         {
             return true;
         }
     }
-    if (it == methods.end())
-    {
-        throw std::invalid_argument("405 Method Not Allowed");
-    }
-    throw std::invalid_argument("400 Bad Request");
+    throw std::invalid_argument("405 Method Not Allowed");
 }
 
 void Client::handleResponse()
@@ -291,7 +275,7 @@ Stackoverflows top answer
 
 
 Alternatively, don't catch the signal and just let the OS handle the cleanup
-as it's going to do during process cleanup anyway. You're not releasing any 
+as it's going to do during process cleanup anyway. You're not releasing any
 resources that aren't tied directly to the process
 , so there's no particular need to manually release them.
 
@@ -308,7 +292,7 @@ resources that aren't tied directly to the process
     Have your signal handler simply set the "keep running" flag to false, but not otherwise terminate the program.
     Have your main processing loop do the memory cleanup prior to exiting.
 
-This has the benefit of placing both the allocation and de-allocation in blocks of code 
+This has the benefit of placing both the allocation and de-allocation in blocks of code
 which are called with a known sequence. Doing so can be a godsend when dealing with webs of interrelated objects, and there is not going to be race condition between two processing flows trying to mess with the same object.
 
 */

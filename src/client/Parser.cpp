@@ -46,7 +46,7 @@ void ptn(std::string str)
     }
 }
 
-int Client::parseRequest(std::string request, ssize_t post)
+int Client::parseRequest(std::string request)
 {
     std::stringstream httpRequest(request);
     std::string tmp;
@@ -167,7 +167,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     getline(httpRequest, tmp);
 
     std::cout << "Content type is: " << _contentType << std::endl;
-    checkBoundary(_contentType);
+    checkBoundary();
     while (getline(httpRequest, tmp)) {
 
         if (_boundary.find(tmp) != std::string::npos && _contentType == "text/plain")
@@ -204,7 +204,7 @@ int Client::parseRequest(std::string request, ssize_t post)
     return (0);
 }
 
-void Client::checkBoundary(std::string contentType) {
+void Client::checkBoundary() {
     if (_contentType != "text/plain" && _contentType != "image/jpeg" 
     && _contentType != "image/png" && _contentType != "image/jpg")
         throw std::invalid_argument("415");
