@@ -49,12 +49,11 @@ void BigServer::loopEvents()
 
         if (event.events & EPOLLIN)
         {
-            incomingRequest(epollPtr); // read
+            incomingRequest(epollPtr);
         }
         else if (event.events & EPOLLOUT)
         {   
-           outgoingResponse(epollPtr); // write
-           
+            outgoingResponse(epollPtr);
         }
     }
 }

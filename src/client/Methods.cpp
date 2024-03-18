@@ -2,6 +2,18 @@
 
 namespace fs = std::filesystem;
 
+void Client::openAndClose()
+{
+    if (m_serverToCgi.m_pipeFd[READ] != -1)
+        close(m_serverToCgi.m_pipeFd[READ]);
+    if (m_serverToCgi.m_pipeFd[WRITE] != -1)
+        close(m_serverToCgi.m_pipeFd[WRITE]);
+    if (m_cgiToServer.m_pipeFd[READ] != -1)
+        close(m_cgiToServer.m_pipeFd[READ]);
+    if (m_cgiToServer.m_pipeFd[WRITE] != -1)
+        close(m_cgiToServer.m_pipeFd[WRITE]);
+}
+
 /* GET */
 void Client::handleGetMethod()
 {
@@ -9,8 +21,10 @@ void Client::handleGetMethod()
     {
         _response.setSocketFd(m_socketFd);
         _response.sendResponse();
-        return;
+        close(getSocketFd());
+        openAndClose();
     }
+
     Response clientResponse(m_socketFd, "200 OK");
     _response = clientResponse;
 
@@ -56,6 +70,7 @@ void Client::handleGetMethod()
     htmlFile.close();
     _response.sendResponse();
     close(getSocketFd());
+    openAndClose();
 }
 
 /* WHEN AUTOINDEX IS ON, LIST ALL DIRECTORIES ON THE SCREEN */
