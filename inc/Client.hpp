@@ -53,7 +53,6 @@ public:
 	void		readBuffer();
 	bool		checkPathAndMethod();
 	bool		allowedMethods();
-	void		createErrorResponse(const std::string& errorMessage);
 	void		handleResponse();
 
 	// EPOLL
@@ -62,7 +61,6 @@ public:
 	void		addCGIProcessToEpoll(Socket *ptr, int events, int fd);
 
 	// PARSER
-    void		saveClientRequest(char* buffer, int client_socket);
 	bool		checkMethod(std::string tmp);
 	void		handleRequest(std::string request);
 	bool		checkRequestLine(std::string httpRequest);
@@ -89,7 +87,6 @@ public:
 	std::string getCgiBody () { return m_cgiBody; };
 
 	// SETTERS
-	void		setUri(std::string uri);
 	void		setEpoll(int newEpoll) { m_epoll = newEpoll; };
 
 	char		hexToChar(const std::string &hex);
