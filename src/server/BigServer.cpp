@@ -147,6 +147,7 @@ void BigServer::setupNewEvents()
     _num_events = epoll_wait(getEpoll(), _events, 10, -1);
     if (_num_events == -1)
     {
+        close(getEpoll());
         perror("epoll_wait");
         for (auto& server : _server) {
             delete server;
