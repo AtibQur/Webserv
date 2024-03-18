@@ -39,7 +39,6 @@ int Client::execute()
     {
         if (close(m_cgiToServer.m_pipeFd[READ]) == -1)
             throw (std::invalid_argument("500 close read error"));
-
         std::cerr << "m_pipeFd[WRITE] " << m_cgiToServer.m_pipeFd[WRITE] << std::endl;
         if (dup2(m_cgiToServer.m_pipeFd[WRITE], STDOUT_FILENO) == -1) // Dup the write end of pipe2 to stdout
             throw (std::invalid_argument("500 dub2 error"));

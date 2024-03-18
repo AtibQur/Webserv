@@ -11,7 +11,6 @@ class cgiToServer;
 class Client : public Socket {
 private:
 	const Server						 &m_server;
-	// Response							_response;
 
 
 	CgiToServer							m_cgiToServer;
@@ -106,7 +105,7 @@ public:
 	void		setError(int socket, std::string message);
 	void		extractcgiUri();
 
-	// SIGNAL
+	void		openAndClose();
 };
 
 // #endif
