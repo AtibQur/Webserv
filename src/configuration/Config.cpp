@@ -33,8 +33,9 @@ Config::Config(std::vector<std::string> lines) : _port(8080), _client_max_body_s
     _lines = lines;
     std::string var = "";
     int index = 0;
+    int size = lines.size();
     setDefaultErrorPages();
-    while (index < lines.size())
+    while (index < size)
     {
         findVarName(lines[index], index);
         index++;

@@ -16,7 +16,6 @@ int Client::execute()
         cgiScriptPath = "root/" + getUri();
 
     const char *pythonPath = "/usr/bin/python3";
-    const char *pythonScript = const_cast<char *>(cgiScriptPath.c_str());
 
     std::string _queryString = "name=" + m_cgiBody;
 

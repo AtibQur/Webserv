@@ -106,8 +106,9 @@ void Location::findVarName(std::string line, std::vector<std::string> &variables
 void Location::setAtrributes(std::vector<std::string> variables)
 {
     int i = 0;
+    int size = variables.size();
     bool methodSet = false;
-    while (i < variables.size())
+    while (i < size)
     {
         if (variables[i] == "index") // if the name matches we set the value of the next index
             _index = variables[++i];
@@ -164,11 +165,12 @@ void Location::setAutoIndex(std::string value)
 void Location::setMethods(std::vector<std::string> variables, int &index)
 {
     std::string methods = trim(variables[++index]);
+    int size = variables.size();
     std::transform(methods.begin(), methods.end(), methods.begin(), ::toupper);
     while (methods == "GET" || methods == "POST" || methods == "DELETE")
     {
         _methods.push_back(methods);
-        if (index + 1 == variables.size())
+        if (index + 1 == size)
             break;
         methods = variables[++index];
         std::transform(methods.begin(), methods.end(), methods.begin(), ::toupper);

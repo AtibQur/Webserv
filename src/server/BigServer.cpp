@@ -39,7 +39,6 @@ void BigServer::loopEvents()
 {
     struct epoll_event event;
     Socket *epollPtr{};
-    bool iscgi = true;
 
     for (int i = 0; i < _num_events; i++) {
         event = _events[i];
@@ -66,7 +65,7 @@ void BigServer::incomingRequest(Socket *ptr)
     }
     if (Server *server = dynamic_cast<Server *>(ptr))
     {
-        connectNewClient(server, _eventFd);
+        connectNewClient(server);
     }
     if (CgiToServer *cgiToServer = dynamic_cast<CgiToServer *>(ptr))
     {
@@ -75,7 +74,7 @@ void BigServer::incomingRequest(Socket *ptr)
     }
 }
 
-void BigServer::connectNewClient(Server *server, int eventFd)
+void BigServer::connectNewClient(Server *server)
 {
     Client *client = new Client(*server, server->getConf()->getErrorPages(), server->getConf()->getLocations());
     _client.push_back(client);
