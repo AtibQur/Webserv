@@ -22,6 +22,7 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
 
 Client::~Client()
 {
+    close(m_socketFd);
     std::cout << "Client removed" << std::endl;
 }
 
@@ -148,9 +149,9 @@ bool Client::checkPathAndMethod()
             }
             catch (const std::exception &e)
             {
-                std::cout << "ERROR: " << e.what() << std::endl;
                 Response cgiError(getSocketFd(), e.what());
                 _response = cgiError;
+                modifyEpoll(this, EPOLLOUT, getSocketFd());
                 return true;
             }
         }
@@ -265,6 +266,7 @@ void Client::createErrorResponse()
     _response.setErrorResponse("HTTP/1.1 " + _response.getCode() + "\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
 
     _response.sendResponse();
+    openAndClose();
 }
 
 /*
