@@ -117,7 +117,7 @@ int Client::parseRequest(std::string request)
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength > _maxBodySize || _contentLength > 10000000)
+    if (_contentLength > _maxBodySize )
     { // needs to be updated from conf file
 
         throw std::invalid_argument("413 Payload Too Large");
