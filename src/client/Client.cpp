@@ -162,9 +162,6 @@ bool Client::checkPathAndMethod()
     }
     modifyEpoll(this, EPOLLOUT, getSocketFd());
 
-    //! need to make sure to seperate this
-    //! add client or cgi to epollout depening on if it's a cgi or not
-
     if (_method == "DELETE")
         return true;
     if (getUri() == "/teapot")
