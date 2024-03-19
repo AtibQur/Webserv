@@ -1,5 +1,16 @@
 #include "Client.hpp"
 
+pid_t child_pid;
+
+void alarmHandler(int signal)
+{
+	(void)signal;
+	if (child_pid > 0)
+	{
+		kill(child_pid, SIGKILL);
+	}
+}
+
 int Client::execute()
 {
     std::string cgiScriptPath = "";
@@ -20,15 +31,7 @@ int Client::execute()
     std::string _queryString = "name=" + m_cgiBody;
 
     char *const argv[] = {const_cast<char *>(pythonPath), const_cast<char *>(_pytyhonScript.c_str()), const_cast<char *>(_queryString.c_str()), nullptr};
-    char *const envp[] = {const_cast<char *>(_query.c_str()), NULL};
-
-    // const char *errorLogPath = "docs/error.log";
-    // int errorLogFd = open(errorLogPath, O_CREAT | O_RDWR | O_TRUNC, 0777);
-    // if (errorLogFd < 0)
-    // {
-    //     std::cerr << "Error opening error log file" << std::endl;
-    //     return 1;
-    // }        
+    char *const envp[] = {const_cast<char *>(_query.c_str()), const_cast<char *>(_pathInfo.c_str()), NULL};
 
     pid_t pid = fork();
     if (pid == -1) {
@@ -36,57 +39,42 @@ int Client::execute()
     }
     if (pid == CHILD)
     {
+
+		signal(SIGALRM, alarmHandler);
+		alarm(1);
+		child_pid = getpid();
         if (close(m_cgiToServer.m_pipeFd[READ]) == -1)
-            throw (std::invalid_argument("500 close read error"));
-        std::cerr << "m_pipeFd[WRITE] " << m_cgiToServer.m_pipeFd[WRITE] << std::endl;
+            throw (std::invalid_argument("500"));
         if (dup2(m_cgiToServer.m_pipeFd[WRITE], STDOUT_FILENO) == -1) // Dup the write end of pipe2 to stdout
-            throw (std::invalid_argument("500 dub2 error"));
+            throw (std::invalid_argument("500"));
         if (close(m_cgiToServer.m_pipeFd[WRITE]) == -1)
-            throw (std::invalid_argument("500 close write error"));
+            throw (std::invalid_argument("500"));
 
         execve(pythonPath, argv, envp);
-        std::cerr << "Error executing Python script." << std::endl;
-        throw (std::invalid_argument("500 execve error"));
+		alarm(0);
+        std::cerr << "Error executing python script" << std::endl;
+        throw (std::invalid_argument("500"));
         exit(EXIT_SUCCESS);
     }
     else if (pid > 0)
     {
-        waitpid(pid, NULL, 0);
+        int status;
+        waitpid(pid, &status, 0);
 
-        //? Read from the read end of the pipe and write to the error log to check if py script has errors
-        /* char buffer[4096];
-        ssize_t bytesRead;
-        while ((bytesRead = read(cgiToServerputPipe[1], buffer, sizeof(buffer))) > 0) {
-            write(errorLogFd, buffer, bytesRead);
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+			throw (std::invalid_argument("500"));
         }
-        close(errorLogFd); */
-
-
-        // dup2(og_in, STDIN_FILENO);
-        // dup2(og_out, STDOUT_FILENO);
-        // close(og_in);
-        // close(og_out);
     }
     else
     {
-        std::cerr << "Error forking process" << std::endl;
-        // close(errorLogFd);
+        std::cerr << "Error forking process" << std::endl;;
         return 1;
     }
-    // std::ifstream errorLogFile(errorLogPath);
-    // std::string errorLogContent((std::istreambuf_iterator<char>(errorLogFile)), (std::istreambuf_iterator<char>()));
-    // errorLogFile.close();
-    // if (!errorLogContent.empty())
-    // {
-    //     std::cerr << "Python script encountered errors" << std::endl;
-    //     return (1);
-    // }
     return 0;
 }
 
 void    Client::extractcgiUri() 
 {
-    // TODO substr PATH_INFO= van de slash to de question mark    /*
 
     std::string path = "root" + getUri();
     size_t py = path.find(".py");
@@ -97,10 +85,14 @@ void    Client::extractcgiUri()
         _pytyhonScript = script + ".py";
     }
     else
-        throw std::invalid_argument("404 Not Found");
+        throw std::invalid_argument("404");
     std::string remaining = path.substr(py + 3);
 
-    size_t questionMarkPos = remaining.find("?");
+    // TODO substr PATH_INFO= van de slash to de question mark /*
+	size_t questionMarkPos = remaining.find("?");
+	if (remaining[0] == '/'){
+		_pathInfo = "PATH_INFO=" + remaining.substr(0, questionMarkPos);
+	}
     if (questionMarkPos != std::string::npos)
     {
         _query = "QUERY_STRING=" + remaining.substr(questionMarkPos + 1);

@@ -19,8 +19,6 @@ void CgiToServer::readFromPipe()
 {
     char buf[BUFSIZ] = {0};
 
-    std::cout << "Cgi reading from pipe: " << m_pipeFd[READ] << std::endl;
-
     size_t bytes_read = read(m_pipeFd[READ], &buf, BUFSIZ - 1);
     if (bytes_read <= 0)
         perror("Error reading from pipe");
