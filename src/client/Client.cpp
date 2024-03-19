@@ -22,6 +22,7 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
 
 Client::~Client()
 {
+    close(m_socketFd);
     std::cout << "Client removed" << std::endl;
 }
 
@@ -90,6 +91,7 @@ void Client::readBuffer()
         {
             close(getSocketFd());
             delete this;
+            std::cout << "1" << std::endl;
             std::cout << "client deleted" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
             break;
@@ -118,11 +120,10 @@ void Client::readBuffer()
 bool Client::isRequestComplete(std::string accumulatedRequestData)
 {
     size_t requestEnd;
-
     requestEnd = accumulatedRequestData.find("\r\n\r\n");
     if (requestEnd == std::string::npos)
     {
-        throw std::invalid_argument("400 Bad Request");
+        std::cout << "Request not complete" << std::endl;
         return false;
     }
     else
@@ -148,9 +149,9 @@ bool Client::checkPathAndMethod()
             }
             catch (const std::exception &e)
             {
-                std::cout << "ERROR: " << e.what() << std::endl;
                 Response cgiError(getSocketFd(), e.what());
                 _response = cgiError;
+                modifyEpoll(this, EPOLLOUT, getSocketFd());
                 return true;
             }
         }
@@ -265,6 +266,7 @@ void Client::createErrorResponse()
     _response.setErrorResponse("HTTP/1.1 " + _response.getCode() + "\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
 
     _response.sendResponse();
+    openAndClose();
 }
 
 /*

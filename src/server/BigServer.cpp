@@ -1,7 +1,15 @@
 #include "../../inc/main.hpp"
 
+int g_state = 1;
 
-BigServer::BigServer() {
+static void handleSignal(int signal)
+{
+    (void)signal;
+    g_state = 0;
+}
+
+BigServer::BigServer()
+{
     _MAX_EVENTS = 10;
     std::cout << "Default bigServer constructor" << std::endl;
 }
@@ -26,21 +34,25 @@ BigServer::~BigServer()
 
 void BigServer::runBigServer()
 {
+    signal(SIGINT, handleSignal);
     initEpoll();
-    while (1)
+    while (g_state)
     {
         setupNewEvents();
         loopEvents();
     }
+
+    close(_epoll);
     std::cout << "Server closed" << std::endl;
 }
 
-void BigServer::loopEvents() 
+void BigServer::loopEvents()
 {
     struct epoll_event event;
     Socket *epollPtr{};
 
-    for (int i = 0; i < _num_events; i++) {
+    for (int i = 0; i < _num_events; i++)
+    {
         event = _events[i];
         epollPtr = static_cast<Socket *>(event.data.ptr);
         if (epollPtr == nullptr)
@@ -51,7 +63,7 @@ void BigServer::loopEvents()
             incomingRequest(epollPtr);
         }
         else if (event.events & EPOLLOUT)
-        {   
+        {
             outgoingResponse(epollPtr);
         }
     }
@@ -79,11 +91,12 @@ void BigServer::connectNewClient(Server *server)
     Client *client = new Client(*server, server->getConf()->getErrorPages(), server->getConf()->getLocations());
     _client.push_back(client);
     std::cout << "New client connected" << std::endl;
-    if (!client) {
+    if (!client)
+    {
         perror("no client connected");
         return;
     }
-    client->setEpoll(server->getEpoll()); //TODO in try and catch
+    client->setEpoll(server->getEpoll()); // TODO in try and catch
     struct epoll_event event;
     event.events = EPOLLIN;
 
@@ -123,7 +136,7 @@ void BigServer::outgoingResponse(Socket *ptr)
 
         serverToCgi->WriteCgi();
         serverToCgi->m_client.addCGIProcessToEpoll(&(serverToCgi->m_client.getcgiToServer()), EPOLLIN, serverToCgi->m_client.getcgiToServer().m_pipeFd[READ]);
-        serverToCgi->m_client.handleCGI();   
+        serverToCgi->m_client.handleCGI();
     }
 }
 
@@ -147,13 +160,21 @@ void BigServer::setupNewEvents()
     _num_events = epoll_wait(getEpoll(), _events, 10, -1);
     if (_num_events == -1)
     {
+        std::cout << "Error in epoll_wait" << std::endl;
         perror("epoll_wait");
-        for (auto& server : _server) {
+
+        for (auto &server : _server)
+        {
+            close(server->getSockFd());
             delete server;
         }
-        for (auto& client : _client) {
+        for (auto &client : _client)
+        {
             delete client;
         }
+        close(103);
+        close(40);
+        close(38);
     }
 }
 
