@@ -41,6 +41,7 @@ private:
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 
 	std::string							_pytyhonScript;
+	std::string							_pathInfo;
 
 public:
 	Response							_response;
