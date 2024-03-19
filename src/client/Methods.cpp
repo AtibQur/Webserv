@@ -21,7 +21,6 @@ void Client::handleGetMethod()
     {
         _response.setSocketFd(m_socketFd);
         _response.sendResponse();
-        close(getSocketFd());
         openAndClose();
     }
 
@@ -69,7 +68,6 @@ void Client::handleGetMethod()
     _isDir = false;
     htmlFile.close();
     _response.sendResponse();
-    close(getSocketFd());
     openAndClose();
 }
 

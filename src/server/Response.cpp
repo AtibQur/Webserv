@@ -37,4 +37,5 @@ void Response::sendResponse()
 {
     send(_socketFd, m_response.c_str(), m_response.size(), 0);
     printf("------------------Response sent-------------------\n");
+    close(_socketFd);
 }
