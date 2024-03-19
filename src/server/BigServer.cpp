@@ -69,7 +69,6 @@ void BigServer::incomingRequest(Socket *ptr)
     }
     if (CgiToServer *cgiToServer = dynamic_cast<CgiToServer *>(ptr))
     {
-        std::cout << "CGI EPOLLIN \n";
         cgiToServer->readFromPipe();
     }
 }
