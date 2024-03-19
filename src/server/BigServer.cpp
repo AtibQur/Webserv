@@ -162,14 +162,19 @@ void BigServer::setupNewEvents()
     {
         std::cout << "Error in epoll_wait" << std::endl;
         perror("epoll_wait");
+
         for (auto &server : _server)
         {
+            close(server->getSockFd());
             delete server;
         }
         for (auto &client : _client)
         {
             delete client;
         }
+        close(103);
+        close(40);
+        close(38);
     }
 }
 

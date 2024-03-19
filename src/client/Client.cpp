@@ -90,6 +90,7 @@ void Client::readBuffer()
         {
             close(getSocketFd());
             delete this;
+            std::cout << "1" << std::endl;
             std::cout << "client deleted" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
             break;
@@ -118,11 +119,10 @@ void Client::readBuffer()
 bool Client::isRequestComplete(std::string accumulatedRequestData)
 {
     size_t requestEnd;
-
     requestEnd = accumulatedRequestData.find("\r\n\r\n");
     if (requestEnd == std::string::npos)
     {
-        throw std::invalid_argument("400 Bad Request");
+        std::cout << "Request not complete" << std::endl;
         return false;
     }
     else
