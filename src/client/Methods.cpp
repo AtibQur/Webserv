@@ -139,6 +139,10 @@ void Client::handleDeleteMethod()
     std::cout << "File path: " << filePath << std::endl;
     if (fs::exists(filePath))
     { // Check if the file exists
+        if (filePath == "root/")
+        {
+            handleGetMethod();
+        }
         try
         {
             fs::remove(filePath); // Remove the file
@@ -148,7 +152,6 @@ void Client::handleDeleteMethod()
         }
         catch (const fs::filesystem_error &e)
         {
-            std::cerr << "Error deleting the file: " << e.what() << std::endl;
             setError(m_socketFd, "500 Internal Server Error");
             handleGetMethod();
         }

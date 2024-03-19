@@ -58,7 +58,6 @@ int Client::parseRequest(std::string request)
     getline(httpRequest, tmp, ' ');
     if (!checkMethod(tmp))
     {
-        std::cout << "here" << std::endl;
         throw std::invalid_argument("405 Method not Allowed");
     }
     _method = tmp;
@@ -78,8 +77,9 @@ int Client::parseRequest(std::string request)
     getline(httpRequest, tmp);
 
     if (tmp.compare("HTTP/1.1\r")) // \r\n
-        throw std::invalid_argument("400 Bad Request");
+        throw std::invalid_argument("505 HTTP Version Not Supported");
     _protocol = tmp;
+
 
     // start header
     if (request.find("\r\n\r\n") == std::string::npos)
@@ -117,7 +117,7 @@ int Client::parseRequest(std::string request)
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength > _maxBodySize || _contentLength > 10000000)
+    if (_contentLength > _maxBodySize )
     { // needs to be updated from conf file
 
         throw std::invalid_argument("413 Payload Too Large");

@@ -13,7 +13,6 @@ CgiToServer::~CgiToServer()
         close(m_pipeFd[READ]);
     if (m_pipeFd[WRITE] != -1)
         close(m_pipeFd[WRITE]);
-    std::cout << "CgiToServer destructor" << std::endl;
 }
 
 void CgiToServer::readFromPipe()
