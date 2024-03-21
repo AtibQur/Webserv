@@ -269,30 +269,3 @@ void Client::createErrorResponse()
 
     _response.sendResponse();
 }
-
-/*
-Stackoverflows top answer
-
-
-Alternatively, don't catch the signal and just let the OS handle the cleanup
-as it's going to do during process cleanup anyway. You're not releasing any
-resources that aren't tied directly to the process
-, so there's no particular need to manually release them.
-
-*/
-
-/*
- what were doing
-
-
-
-
-    Have your program run a main processing loop.
-    Have your main processing loop check a flag to see if it should "keep running".
-    Have your signal handler simply set the "keep running" flag to false, but not otherwise terminate the program.
-    Have your main processing loop do the memory cleanup prior to exiting.
-
-This has the benefit of placing both the allocation and de-allocation in blocks of code
-which are called with a known sequence. Doing so can be a godsend when dealing with webs of interrelated objects, and there is not going to be race condition between two processing flows trying to mess with the same object.
-
-*/
