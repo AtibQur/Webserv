@@ -2,32 +2,6 @@
 
 namespace fs = std::filesystem;
 
-/* TO BE IMPLEMENTED
-    Config::Config() {
-        this->config_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)] = parsed_map[Config::ConfigKeyToString(ConfigKey::SERVER_NAME)];
-        this->config_map[Config::ConfigKeyToString(ConfigKey::INDEX)] = parsed_map[Config::ConfigKeyToString(ConfigKey::INDEX)];
-        this->config_map[Config::ConfigKeyToString(ConfigKey::ROOT)] = parsed_map[Config::ConfigKeyToString(ConfigKey::ROOT)];
-        this->config_map[Config::ConfigKeyToString(ConfigKey::LISTEN)] = parsed_map[Config::ConfigKeyToString(ConfigKey::LISTEN)];
-    }
-
-
-    const std::string& Config::ConfigKeyToString(ConfigKey configKey) {
-        static std::unordered_map<ConfigKey, std::string> stringMap{
-            {ConfigKey::LISTEN, "listen"},
-            {ConfigKey::SERVER_NAME, "server_name"},
-            {ConfigKey::INDEX, "index"},
-            {ConfigKey::ROOT, "root"}
-        };
-
-        return stringMap[configKey];
-    }
-*/
-
-/*
-    in this function we are looping through the parsed server block and
-    retrieving the values for each key and storing them in the class object
-*/
-
 Config::Config(std::vector<std::string> lines) : _port(8080), _client_max_body_size(1000000)
 {
     _lines = lines;
