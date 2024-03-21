@@ -91,15 +91,13 @@ void Client::readBuffer()
         {
             close(getSocketFd());
             delete this;
-            std::cout << "1" << std::endl;
-            std::cout << "client deleted" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
             break;
         }
         else if (bytes_read == 0)
         {
             close(getSocketFd());
-            std::cout << "client deleted" << std::endl;
+            std::cout << "client closed" << std::endl;
             break;
         }
         else
