@@ -19,11 +19,12 @@ void CgiToServer::readFromPipe()
 {
     char buf[BUFSIZ] = {0};
 
-    std::cout << "Cgi reading from pipe: " << m_pipeFd[READ] << std::endl;
-
-    size_t bytes_read = read(m_pipeFd[READ], &buf, BUFSIZ - 1);
-    if (bytes_read <= 0)
+    int bytes_read = read(m_pipeFd[READ], &buf, BUFSIZ - 1);
+    if (bytes_read == -1) 
+    {
         perror("Error reading from pipe");
+        m_client._response.setResponse("500 Internal Server Error");
+    }    
     else
     {
         m_client._response.setResponse("200 OK");

@@ -41,6 +41,7 @@ private:
     socklen_t 							m_addrlen{sizeof(m_client_address)};
 
 	std::string							_pytyhonScript;
+	std::string							_pathInfo;
 
 public:
 	Response							_response;
@@ -65,7 +66,6 @@ public:
 	void		handleRequest(std::string request);
 	bool		checkRequestLine(std::string httpRequest);
 	int			parseRequest(std::string request);
-	bool		isRequestComplete(std::string accumulatedRequestData);
 	void		checkBytesInFile();
 	bool 		checkForSpaces(std::string fileNameBody);
 	std::string urlEncode(const std::string& input);

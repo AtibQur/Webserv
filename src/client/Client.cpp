@@ -22,6 +22,7 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
 
 Client::~Client()
 {
+    close(m_socketFd);
     std::cout << "Client removed" << std::endl;
 }
 
@@ -77,7 +78,6 @@ void Client::handleRequest(std::string request)
 
 void Client::readBuffer()
 {
-    ssize_t i = 0;
     char buffer[1024] = {0};
     ssize_t bytes_read;
     std::string accumulatedRequestData;
@@ -86,19 +86,18 @@ void Client::readBuffer()
     while (1)
     {
         bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
+        std::cout << "whatsup??" << std::endl;
         if (bytes_read < 0)
         {
             close(getSocketFd());
             delete this;
-            std::cout << "1" << std::endl;
-            std::cout << "client deleted" << std::endl;
             throw(std::invalid_argument("400 Bad Request"));
             break;
         }
         else if (bytes_read == 0)
         {
             close(getSocketFd());
-            std::cout << "client deleted" << std::endl;
+            std::cout << "client closed" << std::endl;
             break;
         }
         else
@@ -106,28 +105,12 @@ void Client::readBuffer()
             accumulatedRequestData.append(buffer, bytes_read);
             if (bytes_read == 1024)
                 continue;
-            if (isRequestComplete(accumulatedRequestData))
+            else
             {
                 handleRequest(accumulatedRequestData);
                 break;
             }
         }
-        i++;
-    }
-}
-
-bool Client::isRequestComplete(std::string accumulatedRequestData)
-{
-    size_t requestEnd;
-    requestEnd = accumulatedRequestData.find("\r\n\r\n");
-    if (requestEnd == std::string::npos)
-    {
-        std::cout << "Request not complete" << std::endl;
-        return false;
-    }
-    else
-    {
-        return true;
     }
 }
 
@@ -148,9 +131,9 @@ bool Client::checkPathAndMethod()
             }
             catch (const std::exception &e)
             {
-                std::cout << "ERROR: " << e.what() << std::endl;
                 Response cgiError(getSocketFd(), e.what());
                 _response = cgiError;
+                modifyEpoll(this, EPOLLOUT, getSocketFd());
                 return true;
             }
         }
@@ -161,9 +144,6 @@ bool Client::checkPathAndMethod()
         return true;
     }
     modifyEpoll(this, EPOLLOUT, getSocketFd());
-
-    //! need to make sure to seperate this
-    //! add client or cgi to epollout depening on if it's a cgi or not
 
     if (_method == "DELETE")
         return true;
@@ -268,4 +248,5 @@ void Client::createErrorResponse()
     _response.setErrorResponse("HTTP/1.1 " + _response.getCode() + "\nContent-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
 
     _response.sendResponse();
+    openAndClose();
 }

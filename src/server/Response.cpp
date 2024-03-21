@@ -35,6 +35,19 @@ void Response::setErrorResponse(std::string message)
 
 void Response::sendResponse()
 {
-    send(_socketFd, m_response.c_str(), m_response.size(), 0);
-    printf("------------------Response sent-------------------\n");
+
+    int bytes_send = send(_socketFd, m_response.c_str(), m_response.size(), 0);
+    if (bytes_send == -1)
+    {
+        std::cerr << "Error: failed to send data" << std::endl;
+    }
+    else if (bytes_send == 0)
+    {
+        std::cerr << "----------------Empty Response sent----------------" << std::endl;
+    }
+    else
+    {
+        std::cout << "------------------Response sent-------------------" << std::endl;
+    }
+    close(_socketFd);
 }
