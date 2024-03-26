@@ -68,11 +68,11 @@ int Client::parseRequest(std::string request)
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
-    // if (!allowedMethods())
-    // {
-    //     std::cout << "ih    405 Method not Allowed" << std::endl;
-    //     throw std::invalid_argument("405 Method not Allowed");
-    // }
+    if (!allowedMethods())
+    {
+        std::cout << _method << _method << std::endl;
+        throw std::invalid_argument("405 Method not Allowed");
+    }
 
     getline(httpRequest, tmp);
 
@@ -341,5 +341,6 @@ bool Client::allowedMethods()
         if (methods[i] == _method)
             return true;
     }
+    std::cout << _method << std::endl;
     return false;
 }

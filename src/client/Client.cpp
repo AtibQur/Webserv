@@ -12,6 +12,8 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
     _path = "";
     _maxBodySize = server.getConf()->getMaxBodySize();
     _file_if_dir = server.getConf()->getFileIfDir();
+    _accumulatedRequestData = "";
+    _contentLength = 0;
 
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
     if (m_socketFd == -1)
@@ -54,7 +56,9 @@ void Client::receiveRequest()
 {
     try
     {
-        readBuffer();
+        if (readBuffer() == 1){
+            return ;
+        }
     }
     catch (const std::exception &e)
     {
@@ -71,48 +75,44 @@ void Client::handleRequest(std::string request)
     }
     catch (const std::exception &e)
     {
-        std::cout << "Hello from handleRequest" << std::endl;
         setError(getSocketFd(), e.what());
     }
 }
 
-void Client::readBuffer()
+int Client::readBuffer()
 {
-    ssize_t i = 0;
     char buffer[1024] = {0};
     ssize_t bytes_read;
-    std::string accumulatedRequestData;
-    std::string hardcodedrequest;
 
-    while (1)
+    bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
+    std::string tmp(buffer);
+    if (tmp.find("Content-Length: ") != std::string::npos)
     {
-        bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
-        if (bytes_read < 0)
-        {
-            close(getSocketFd());
-            delete this;
-            throw(std::invalid_argument("400 Bad Request"));
-            break;
-        }
-        else if (bytes_read == 0)
-        {
-            close(getSocketFd());
-            std::cout << "client closed" << std::endl;
-            break;
+        _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
+    }
+    if (bytes_read < 0)
+    {
+        close(getSocketFd());
+        delete this;
+        throw(std::invalid_argument("400 Bad Request"));
+    }
+    else if (bytes_read == 0)
+    {
+        close(getSocketFd());
+        std::cout << "client closed" << std::endl;
+    }
+    else
+    {
+        _accumulatedRequestData.append(buffer, bytes_read);
+        if (isRequestComplete(_accumulatedRequestData) == false){
+            return 1;
         }
         else
         {
-            accumulatedRequestData.append(buffer, bytes_read);
-            if (bytes_read == 1024)
-                continue;
-            if (isRequestComplete(accumulatedRequestData))
-            {
-                handleRequest(accumulatedRequestData);
-                break;
-            }
+            handleRequest(_accumulatedRequestData);
         }
-        i++;
     }
+    return 0;
 }
 
 bool Client::isRequestComplete(std::string accumulatedRequestData)
@@ -121,11 +121,23 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     requestEnd = accumulatedRequestData.find("\r\n\r\n");
     if (requestEnd == std::string::npos)
     {
-        std::cout << "Request not complete" << std::endl;
         return false;
+    }
+    if (_contentLength != 0) //? if post request
+    {
+        if (accumulatedRequestData.size() < _contentLength + requestEnd + 4)
+        {
+            return false;
+        }
+        else
+        {
+            std::cout << "Request complete" << std::endl;
+            return true;
+        }
     }
     else
     {
+        std::cout << "Request complete" << std::endl;
         return true;
     }
 }
