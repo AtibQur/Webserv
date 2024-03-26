@@ -188,8 +188,6 @@ bool Client::checkPathAndMethod()
     }
     modifyEpoll(this, EPOLLOUT, getSocketFd());
 
-    if (_method == "DELETE")
-        return true;
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");

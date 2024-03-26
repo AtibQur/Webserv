@@ -103,7 +103,6 @@ std::string Client::generateDirectoryListing(std::string dirPath)
 /* POST */
 void Client::handlePostMethod()
 {
-
     if (getFileNameBody().empty())
     {
         std::cout << "No file name" << std::endl;

@@ -66,7 +66,6 @@ public:
 	bool		checkRequestLine(std::string httpRequest);
 	int			parseRequest(std::string request);
 	bool		isRequestComplete(std::string accumulatedRequestData);
-	void		checkBytesInFile();
 	bool 		checkForSpaces(std::string fileNameBody);
 	std::string urlEncode(const std::string& input);
 	std::string decodePercentEncoding(const std::string &encoded);

@@ -21,13 +21,6 @@ std::string subTillChar(std::string str, size_t index, char c)
     return tmp;
 }
 
-void Client::checkBytesInFile()
-{
-    std::ifstream in_file("root/body.txt", std::ios::binary);
-    in_file.seekg(0, std::ios::end);
-    int file_size = in_file.tellg();
-}
-
 int Client::parseRequest(std::string request)
 {
     std::stringstream httpRequest(request);
@@ -50,7 +43,6 @@ int Client::parseRequest(std::string request)
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
-
     getline(httpRequest, tmp);
     if (tmp.compare("HTTP/1.1\r")) // \r\n
         throw std::invalid_argument("505 HTTP Version Not Supported");
@@ -93,7 +85,7 @@ int Client::parseRequest(std::string request)
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength > _maxBodySize )
+    if (_contentLength > _maxBodySize)
     {
 
         throw std::invalid_argument("413 Payload Too Large");
@@ -114,6 +106,10 @@ int Client::parseRequest(std::string request)
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
 
     // parse body
+    if (!allowedMethods()) // so we don't post when method is not allowed
+    {
+        throw std::invalid_argument("405 Method not Allowed");
+    }
     getline(httpRequest, tmp);
     if (tmp.find("name=") != std::string::npos)
     {
