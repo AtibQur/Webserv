@@ -28,10 +28,6 @@ Client::~Client()
     std::cout << "Client removed" << std::endl;
 }
 
-// Client::Client(Client const &copy) {
-//     *this = copy;
-// }
-
 Client &Client::operator=(Client const &copy)
 {
     this->m_socketFd = copy.m_socketFd;
@@ -125,11 +121,10 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     {
         return false;
     }
-    if (_contentLength != 0) //? if post request
+    if (_contentLength != 0) // if post request
     {
         if (accumulatedRequestData.size() < _contentLength + requestEnd + 4)
         {
-            std::cout << "Request not complete" << std::endl;
             return false;
         }
         else
@@ -140,7 +135,6 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     }
     else
     {
-        std::cout << "Request complete" << std::endl;
         return true;
     }
 }
