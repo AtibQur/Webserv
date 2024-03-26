@@ -56,8 +56,9 @@ void Client::receiveRequest()
 {
     try
     {
-        if (readBuffer() == 1){
-            return ;
+        if (readBuffer() == 1)
+        {
+            return;
         }
     }
     catch (const std::exception &e)
@@ -104,7 +105,8 @@ int Client::readBuffer()
     else
     {
         _accumulatedRequestData.append(buffer, bytes_read);
-        if (isRequestComplete(_accumulatedRequestData) == false){
+        if (isRequestComplete(_accumulatedRequestData) == false)
+        {
             return 1;
         }
         else
@@ -152,13 +154,9 @@ int checkCgiPath(std::string path)
         if ((pos + 3) != path.size())
         {
             if (path[pos + 3] != '/' && path[pos + 3] != '?')
-            {
                 return 0;
-            }
             else
-            {
                 return 1;
-            }
         }
         return 1;
     }
