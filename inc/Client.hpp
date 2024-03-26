@@ -50,7 +50,7 @@ public:
 
 	// REQUEST AND RESPONSE 
 	void		receiveRequest();
-	int		readBuffer();
+	int			readBuffer();
 	bool		checkPathAndMethod();
 	bool		allowedMethods();
 	void		handleResponse();

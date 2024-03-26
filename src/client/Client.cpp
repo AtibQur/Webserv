@@ -181,7 +181,6 @@ bool Client::checkPathAndMethod()
     }
     if (!fs::exists("root" + getUri()))
     {
-        std::cout << "1" << std::endl;
         throw std::invalid_argument("404 Not Found");
     }
     if (fs::is_regular_file("root" + getUri()))
@@ -205,8 +204,6 @@ bool Client::checkPathAndMethod()
     }
     if ("/root/" + access(getUri().c_str(), R_OK) == 0)
     {
-        std::cout << "error after"
-                  << "\n";
         return true;
     }
 
