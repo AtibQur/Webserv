@@ -127,6 +127,7 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     {
         if (accumulatedRequestData.size() < _contentLength + requestEnd + 4)
         {
+            std::cout << "Request not complete" << std::endl;
             return false;
         }
         else
@@ -142,13 +143,35 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     }
 }
 
+int checkCgiPath(std::string path)
+{
+    size_t pos = path.find(".py");
+
+    if (pos != std::string::npos)
+    {
+        if ((pos + 3) != path.size())
+        {
+            if (path[pos + 3] != '/' && path[pos + 3] != '?')
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
+
 /* REQUEST CHECK IF THE URI IS IN LOCATIONS AND IF THE METHOD IS ALLOWED*/
 bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
     /* CGI */
-    if (getUri().find(".py") != std::string::npos)
+    if (checkCgiPath(getUri()))
     {
         if (getMethod() == "GET")
         {
