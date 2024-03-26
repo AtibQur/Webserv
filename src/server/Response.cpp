@@ -35,7 +35,11 @@ void Response::setErrorResponse(std::string message)
 
 void Response::sendResponse()
 {
-    send(_socketFd, m_response.c_str(), m_response.size(), 0);
+    ssize_t bytes_sent = send(_socketFd, m_response.c_str(), m_response.size(), 0);
+    if (bytes_sent <= 0)
+    {
+        printf("Error sending response\n");
+    }
     printf("------------------Response sent-------------------\n");
     close(_socketFd);
 }

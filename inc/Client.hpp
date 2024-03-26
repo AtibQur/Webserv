@@ -10,8 +10,6 @@ class cgiToServer;
 
 class Client : public Socket {
 private:
-
-
 	const Server						 &m_server;
 	std::string 						_requestBuffer;
 	std::string 						_boundary;
@@ -42,6 +40,7 @@ private:
 
 	std::string							_pytyhonScript;
 	std::string							_pathInfo;
+	std::string							_accumulatedRequestData;
 
 public:
 	Response							_response;
@@ -51,7 +50,7 @@ public:
 
 	// REQUEST AND RESPONSE 
 	void		receiveRequest();
-	void		readBuffer();
+	int		readBuffer();
 	bool		checkPathAndMethod();
 	bool		allowedMethods();
 	void		handleResponse();
