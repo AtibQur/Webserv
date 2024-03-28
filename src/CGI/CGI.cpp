@@ -35,7 +35,7 @@ int Client::execute()
 
     pid_t pid = fork();
     if (pid == -1) {
-        throw (std::invalid_argument("500 fork error"));
+        throw (std::invalid_argument("500"));
     }
     if (pid == CHILD)
     {

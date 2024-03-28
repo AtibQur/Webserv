@@ -5,6 +5,7 @@ int g_state = 1;
 static void handleSignal(int signal)
 {
     (void)signal;
+    std::cout << signal << " signal received" << std::endl;
     g_state = 0;
 }
 
@@ -32,6 +33,23 @@ BigServer::~BigServer()
     std::cout << "Big Server closed" << std::endl;
 }
 
+void BigServer::cleanUp()
+{
+    for (auto &server : _server)
+    {
+        close(server->getSockFd());
+        delete server;
+    }
+    for (auto &client : _client)
+    {
+        delete client;
+    }
+    close(103);
+    close(40);
+    close(38);
+    std::cout << "Server closed" << std::endl;
+}
+
 void BigServer::runBigServer()
 {
     signal(SIGINT, handleSignal);
@@ -43,7 +61,7 @@ void BigServer::runBigServer()
     }
 
     close(_epoll);
-    std::cout << "Server closed" << std::endl;
+    cleanUp();
 }
 
 void BigServer::loopEvents()
@@ -81,7 +99,16 @@ void BigServer::incomingRequest(Socket *ptr)
     }
     if (CgiToServer *cgiToServer = dynamic_cast<CgiToServer *>(ptr))
     {
-        cgiToServer->readFromPipe();
+        try
+        {
+            cgiToServer->readFromPipe();
+        } 
+        catch (std::invalid_argument &e)
+        {
+            std::cerr << e.what() << std::endl;
+            cgiToServer->m_client.setError(cgiToServer->m_client.getSocketFd(), e.what());
+            return;
+        }
     }
 }
 
@@ -95,16 +122,16 @@ void BigServer::connectNewClient(Server *server)
         perror("no client connected");
         return;
     }
-    client->setEpoll(server->getEpoll()); // TODO in try and catch
+    // add client to epollin
+    client->setEpoll(server->getEpoll());
     struct epoll_event event;
     event.events = EPOLLIN;
 
     Socket *ptr = client;
     event.data.ptr = ptr;
-
     if (epoll_ctl(_epoll, EPOLL_CTL_ADD, client->getSocketFd(), &event) == -1)
     {
-        perror("epoll_ctl client");
+        client->setError(client->getSocketFd(), "500");
     }
 }
 
@@ -116,8 +143,10 @@ void BigServer::modEpoll(int fd)
     if (epoll_ctl(_epoll, EPOLL_CTL_MOD, fd, &event) == -1)
     {
         std::cerr << "Error modifying epoll" << std::endl;
-        // setError(m_socketFd, "500 Internal Server Error");
+        throw std::invalid_argument("500");
     }
+    if (epoll_ctl(_epoll, EPOLL_CTL_DEL, fd, NULL) == -1)
+        throw std::invalid_argument("500");
 }
 
 void BigServer::outgoingResponse(Socket *ptr)
@@ -128,11 +157,16 @@ void BigServer::outgoingResponse(Socket *ptr)
     }
     else if (ServerToCgi *serverToCgi = dynamic_cast<ServerToCgi *>(ptr))
     {
-        modEpoll(serverToCgi->m_pipeFd[WRITE]);
-        if (epoll_ctl(_epoll, EPOLL_CTL_DEL, serverToCgi->m_pipeFd[WRITE], NULL) == -1)
-            perror("remove epoll");
-
-        serverToCgi->WriteCgi();
+        try {
+            modEpoll(serverToCgi->m_pipeFd[WRITE]);
+            serverToCgi->WriteCgi();
+        } catch (std::invalid_argument &e) 
+        {
+            std::cerr << e.what() << std::endl;
+            serverToCgi->m_client.setError(serverToCgi->m_client.getSocketFd(), e.what());
+            serverToCgi->m_client.handleResponse();
+            return;
+        }
         serverToCgi->m_client.addCGIProcessToEpoll(&(serverToCgi->m_client.getcgiToServer()), EPOLLIN, serverToCgi->m_client.getcgiToServer().m_pipeFd[READ]);
         serverToCgi->m_client.handleCGI();
     }
@@ -160,19 +194,6 @@ void BigServer::setupNewEvents()
     {
         std::cout << "Error in epoll_wait" << std::endl;
         perror("epoll_wait");
-
-        for (auto &server : _server)
-        {
-            close(server->getSockFd());
-            delete server;
-        }
-        for (auto &client : _client)
-        {
-            delete client;
-        }
-        close(103);
-        close(40);
-        close(38);
     }
 }
 

@@ -38,6 +38,7 @@ public:
     int     getEpoll() { return this->_epoll; };
 
     void    modEpoll(int fd);
+    void    cleanUp();
 };
 
 #endif

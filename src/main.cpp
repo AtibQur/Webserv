@@ -27,7 +27,6 @@ std::vector<Config> confloop(std::string file_name)
         usedPorts[std::to_string(conf_temp.getPort())] = 1;
         // continue searching for server blocks from old end index till none are found
         start = confParser.findServerBlock(end, end);
-        // conf_temp.outputConfig();
     }
 
     if (conf.empty())
