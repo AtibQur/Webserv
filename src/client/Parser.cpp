@@ -190,8 +190,8 @@ void Client::checkBoundary() {
 
 int Client::transferData()
 {
-    std::string decodedFileName = "./root/" + decodePercentEncoding(_fileNameBody);
-    std::string encodedFileName = "./root/" + urlEncode(_fileNameBody);
+    std::string decodedFileName = "./" + m_server.getConf()->getRoot() + "/" + decodePercentEncoding(_fileNameBody);
+    std::string encodedFileName = "./" + m_server.getConf()->getRoot() + "/" + urlEncode(_fileNameBody);
 
     // Open the source file for reading
     std::ifstream sourceFile(decodedFileName);

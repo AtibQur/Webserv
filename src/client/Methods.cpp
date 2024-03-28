@@ -34,9 +34,9 @@ void Client::handleGetMethod()
         filePath = m_server.getConf()->getRoot() + "/" + _file_if_dir;
     }
     else if (clientLocation.getPath() == getUri())
-        filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
+        filePath = m_server.getConf()->getRoot() + clientLocation.getPath() + "/" + clientLocation.getIndex();
     else
-        filePath = "root" + getUri();
+        filePath = m_server.getConf()->getRoot() + getUri();
     if (fs::is_directory(filePath) && !_isDir)
     {
         std::ifstream htmlFile("");
@@ -111,7 +111,6 @@ void Client::handlePostMethod()
     Response clientResponse(m_socketFd, "302 FOUND");
 
     std::string filePath = "/" + m_server.getConf()->getRoot() + "/" + _location[_uri].getUploadPath() + "/" + getFileNameBody();
-    std::cout << filePath << std::endl;
     if (filePath == m_server.getConf()->getRoot() + "/")
     {
         std::cerr << "Error: Empty request" << std::endl;
@@ -123,7 +122,7 @@ void Client::handlePostMethod()
     {
         std::cerr << "Error opening file" << std::endl;
     }
-    clientResponse.setContent("Location: " + getFileNameBody() + "\n\n");
+    clientResponse.setContent("Location: " + _location[_uri].getUploadPath() + "/" + getFileNameBody() + "\n\n");
     clientResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
     clientResponse.sendResponse();
     htmlFile.close();
