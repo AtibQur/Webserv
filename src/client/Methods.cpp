@@ -17,7 +17,7 @@ void Client::openAndClose()
 /* GET */
 void Client::handleGetMethod()
 {
-    if (!_response.getResponseMessage().empty()) //? Is CGI!
+    if (!_response.getResponseMessage().empty()) // Is CGI!
     {
         _response.setSocketFd(m_socketFd);
         _response.sendResponse();
@@ -82,8 +82,7 @@ std::string Client::generateDirectoryListing(std::string dirPath)
         listing += "<li>";
 
         std::string fileName = entry.path().filename().string();
-        std::string displayName = entry.path().stem().string(); // Remove extension
-        // std::cou400 METHOD NOT ALLOWEDt << "Display Name = " << displayName << std::endl;
+        std::string displayName = entry.path().stem().string();
 
         if (fs::is_directory(entry.path()))
         {
@@ -104,7 +103,6 @@ std::string Client::generateDirectoryListing(std::string dirPath)
 /* POST */
 void Client::handlePostMethod()
 {
-
     if (getFileNameBody().empty())
     {
         std::cout << "No file name" << std::endl;
@@ -118,8 +116,6 @@ void Client::handlePostMethod()
         std::cerr << "Error: Empty request" << std::endl;
         return;
     }
-    std::cout << "File path: " << filePath << std::endl;
-
     std::ifstream htmlFile(filePath);
     std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
     if (!htmlFile.is_open())
@@ -135,17 +131,16 @@ void Client::handlePostMethod()
 /* DELETE */
 void Client::handleDeleteMethod()
 {
-    std::string filePath = "root/" + getFileNameBody(); // Replace with your actual file path
-    std::cout << "File path: " << filePath << std::endl;
+    std::string filePath = "root/" + getFileNameBody();
     if (fs::exists(filePath))
-    { // Check if the file exists
+    {
         if (filePath == "root/")
         {
             handleGetMethod();
         }
         try
         {
-            fs::remove(filePath); // Remove the file
+            fs::remove(filePath);
             std::cout << "File deleted successfully." << std::endl;
             handleGetMethod();
             Response goodResponse(m_socketFd, "202 Accepted");

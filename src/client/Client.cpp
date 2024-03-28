@@ -28,10 +28,6 @@ Client::~Client()
     std::cout << "Client removed" << std::endl;
 }
 
-// Client::Client(Client const &copy) {
-//     *this = copy;
-// }
-
 Client &Client::operator=(Client const &copy)
 {
     this->m_socketFd = copy.m_socketFd;
@@ -56,8 +52,9 @@ void Client::receiveRequest()
 {
     try
     {
-        if (readBuffer() == 1){
-            return ;
+        if (readBuffer() == 1)
+        {
+            return;
         }
     }
     catch (const std::exception &e)
@@ -104,7 +101,8 @@ int Client::readBuffer()
     else
     {
         _accumulatedRequestData.append(buffer, bytes_read);
-        if (isRequestComplete(_accumulatedRequestData) == false){
+        if (isRequestComplete(_accumulatedRequestData) == false)
+        {
             return 1;
         }
         else
@@ -123,7 +121,7 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     {
         return false;
     }
-    if (_contentLength != 0) //? if post request
+    if (_contentLength != 0) // if post request
     {
         if (accumulatedRequestData.size() < _contentLength + requestEnd + 4)
         {
@@ -137,9 +135,26 @@ bool Client::isRequestComplete(std::string accumulatedRequestData)
     }
     else
     {
-        std::cout << "Request complete" << std::endl;
         return true;
     }
+}
+
+int checkCgiPath(std::string path)
+{
+    size_t pos = path.find(".py");
+
+    if (pos != std::string::npos)
+    {
+        if ((pos + 3) != path.size())
+        {
+            if (path[pos + 3] != '/' && path[pos + 3] != '?')
+                return 0;
+            else
+                return 1;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 /* REQUEST CHECK IF THE URI IS IN LOCATIONS AND IF THE METHOD IS ALLOWED*/
@@ -148,7 +163,7 @@ bool Client::checkPathAndMethod()
     Location clientLocation = m_server.getConf()->getLocation(getUri());
 
     /* CGI */
-    if (getUri().find(".py") != std::string::npos)
+    if (checkCgiPath(getUri()))
     {
         if (getMethod() == "GET")
         {
@@ -173,8 +188,6 @@ bool Client::checkPathAndMethod()
     }
     modifyEpoll(this, EPOLLOUT, getSocketFd());
 
-    if (_method == "DELETE")
-        return true;
     if (getUri() == "/teapot")
     {
         throw std::invalid_argument("418 I'm a teapot");

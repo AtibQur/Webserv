@@ -21,31 +21,6 @@ std::string subTillChar(std::string str, size_t index, char c)
     return tmp;
 }
 
-void Client::checkBytesInFile()
-{
-    std::ifstream in_file("root/body.txt", std::ios::binary);
-    in_file.seekg(0, std::ios::end);
-    int file_size = in_file.tellg();
-    std::cout << "Size of the file is " << file_size << " bytes";
-}
-
-void ptn(std::string str)
-{
-    std::cout << str << std::endl;
-    int i = 0;
-    while (str[i])
-    {
-        if (str[i] == '\r')
-            std::cout << "r";
-        else if (str[i] == '\n')
-            std::cout << "n";
-        else
-            std::cout << str[i];
-        i++;
-        break;
-    }
-}
-
 int Client::parseRequest(std::string request)
 {
     std::stringstream httpRequest(request);
@@ -68,11 +43,6 @@ int Client::parseRequest(std::string request)
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
-    // if (!allowedMethods()) //? not needed
-    // {
-    //     throw std::invalid_argument("405 Method not Allowed");
-    // }
-
     getline(httpRequest, tmp);
     if (tmp.compare("HTTP/1.1\r")) // \r\n
         throw std::invalid_argument("505 HTTP Version Not Supported");
@@ -115,8 +85,8 @@ int Client::parseRequest(std::string request)
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
     }
-    if (_contentLength > _maxBodySize )
-    { // needs to be updated from conf file
+    if (_contentLength > _maxBodySize)
+    {
 
         throw std::invalid_argument("413 Payload Too Large");
     }
@@ -136,6 +106,10 @@ int Client::parseRequest(std::string request)
         throw std::invalid_argument("400 Bad Request: Boundary is empty");
 
     // parse body
+    if (!allowedMethods()) // so we don't post when method is not allowed
+    {
+        throw std::invalid_argument("405 Method not Allowed");
+    }
     getline(httpRequest, tmp);
     if (tmp.find("name=") != std::string::npos)
     {
@@ -164,7 +138,6 @@ int Client::parseRequest(std::string request)
         return (0);
     getline(httpRequest, tmp);
 
-    std::cout << "Content type is: " << _contentType << std::endl;
     checkBoundary();
     while (getline(httpRequest, tmp)) {
 
@@ -329,18 +302,12 @@ bool Client::checkMethod(std::string tmp)
 bool Client::allowedMethods()
 {
     std::vector<std::string> methods = _location[_uri].getMethods();
-
-    std::cout << _uri << std::endl;
-
-    std::cout << "size of methods: " << methods.size() << "\n";
     for (size_t i = 0; i < methods.size(); i++)
     {
         if (methods[i] == _method)
         {
-            std::cout << "Method allowed\n";
             return true;
         }
     }
-    std::cout << "Method not allowed\n";
     return false;
 }

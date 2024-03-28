@@ -126,10 +126,9 @@ void BigServer::outgoingResponse(Socket *ptr)
     {
         client->handleResponse();
     }
-    else if (ServerToCgi *serverToCgi = dynamic_cast<ServerToCgi *>(ptr)) //! EPOLOUT for CGI
+    else if (ServerToCgi *serverToCgi = dynamic_cast<ServerToCgi *>(ptr))
     {
-        std::cout << "CGI EPOLLOUT \n";
-        modEpoll(serverToCgi->m_pipeFd[WRITE]); // TODO new function
+        modEpoll(serverToCgi->m_pipeFd[WRITE]);
         if (epoll_ctl(_epoll, EPOLL_CTL_DEL, serverToCgi->m_pipeFd[WRITE], NULL) == -1)
             perror("remove epoll");
 
