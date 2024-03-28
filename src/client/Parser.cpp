@@ -68,14 +68,12 @@ int Client::parseRequest(std::string request)
         throw std::invalid_argument("400 Bad Request");
     }
     _uri = tmp;
-    // if (!allowedMethods())
+    // if (!allowedMethods()) //? not needed
     // {
-    //     std::cout << "ih    405 Method not Allowed" << std::endl;
     //     throw std::invalid_argument("405 Method not Allowed");
     // }
 
     getline(httpRequest, tmp);
-
     if (tmp.compare("HTTP/1.1\r")) // \r\n
         throw std::invalid_argument("505 HTTP Version Not Supported");
     _protocol = tmp;
@@ -331,15 +329,18 @@ bool Client::checkMethod(std::string tmp)
 bool Client::allowedMethods()
 {
     std::vector<std::string> methods = _location[_uri].getMethods();
-    for (auto &i: methods)
-    {
-        std::cout << "Allowed methods: " << i << std::endl;
-        std::cout << "Method: " << _method << std::endl;
-    }
+
+    std::cout << _uri << std::endl;
+
+    std::cout << "size of methods: " << methods.size() << "\n";
     for (size_t i = 0; i < methods.size(); i++)
     {
         if (methods[i] == _method)
+        {
+            std::cout << "Method allowed\n";
             return true;
+        }
     }
+    std::cout << "Method not allowed\n";
     return false;
 }

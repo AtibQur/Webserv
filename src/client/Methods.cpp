@@ -147,6 +147,7 @@ void Client::handleDeleteMethod()
         {
             fs::remove(filePath); // Remove the file
             std::cout << "File deleted successfully." << std::endl;
+            handleGetMethod();
             Response goodResponse(m_socketFd, "202 Accepted");
             goodResponse.sendResponse();
         }
