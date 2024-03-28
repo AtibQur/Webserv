@@ -24,13 +24,12 @@ void ServerToCgi::WriteCgi()
     m_pipeFd[READ] = -1; //? cleanup
 
     std::string str = m_client.getCgiBody();
-    write(m_pipeFd[WRITE], str.c_str(), strlen(str.c_str())); // write to stdin
-
-    // TODO check for bytes writen is not -1
-
+    int bytes_writen = write(m_pipeFd[WRITE], str.c_str(), strlen(str.c_str())); // write to stdin
+    if (bytes_writen <= 0)
+    {
+        throw std::invalid_argument("500");
+    }
     if (close(m_pipeFd[WRITE]) == -1)
         perror("close write error");
     m_pipeFd[WRITE] = -1; //? cleanup
 }
-
-//! not working correctly
