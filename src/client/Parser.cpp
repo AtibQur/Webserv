@@ -158,7 +158,14 @@ int Client::parseRequest(std::string request)
 
     Location location = _location[_uri];
 
-    bodyfile.open("./root/" + _fileNameBody);
+    std::string uploadFolder;
+
+    if (!location.getUploadPath().empty())
+    {
+        uploadFolder = location.getUploadPath() + "/";
+    }
+
+    bodyfile.open("./" + m_server.getConf()->getRoot() + "/" + uploadFolder + _fileNameBody);
     if (!bodyfile)
     {
         std::cerr << "Error opening file" << std::endl;

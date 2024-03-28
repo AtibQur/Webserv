@@ -31,7 +31,7 @@ void Client::handleGetMethod()
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     if (_isDir)
     {
-        filePath = "root/" + _file_if_dir;
+        filePath = m_server.getConf()->getRoot() + "/" + _file_if_dir;
     }
     else if (clientLocation.getPath() == getUri())
         filePath = "root" + clientLocation.getPath() + "/" + clientLocation.getIndex();
@@ -77,7 +77,7 @@ std::string Client::generateDirectoryListing(std::string dirPath)
     std::string listing;
     listing += "<h3>";
     listing += "<ul>";
-    for (const auto &entry : fs::directory_iterator("root/" + dirPath))
+    for (const auto &entry : fs::directory_iterator(m_server.getConf()->getRoot() + "/" + dirPath))
     {
         listing += "<li>";
 
@@ -110,8 +110,9 @@ void Client::handlePostMethod()
     }
     Response clientResponse(m_socketFd, "302 FOUND");
 
-    std::string filePath = "root/" + getFileNameBody();
-    if (filePath == "root/")
+    std::string filePath = "/" + m_server.getConf()->getRoot() + "/" + _location[_uri].getUploadPath() + "/" + getFileNameBody();
+    std::cout << filePath << std::endl;
+    if (filePath == m_server.getConf()->getRoot() + "/")
     {
         std::cerr << "Error: Empty request" << std::endl;
         return;
@@ -131,10 +132,10 @@ void Client::handlePostMethod()
 /* DELETE */
 void Client::handleDeleteMethod()
 {
-    std::string filePath = "root/" + getFileNameBody();
+    std::string filePath = m_server.getConf()->getRoot() + "/" + getFileNameBody();
     if (fs::exists(filePath))
     {
-        if (filePath == "root/")
+        if (filePath == m_server.getConf()->getRoot() + "/")
         {
             handleGetMethod();
         }

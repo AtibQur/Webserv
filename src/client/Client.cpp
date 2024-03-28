@@ -161,6 +161,7 @@ int checkCgiPath(std::string path)
 bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
+    std::string root_folder = m_server.getConf()->getRoot();
 
     /* CGI */
     if (checkCgiPath(getUri()))
@@ -192,13 +193,13 @@ bool Client::checkPathAndMethod()
     {
         throw std::invalid_argument("418 I'm a teapot");
     }
-    if (!fs::exists("root" + getUri()))
+    if (!fs::exists(root_folder + getUri()))
     {
         throw std::invalid_argument("404 Not Found");
     }
-    if (fs::is_regular_file("root" + getUri()))
+    if (fs::is_regular_file(root_folder + getUri()))
         return true;
-    if (fs::is_directory("root" + getUri()) && clientLocation.getPath() != getUri())
+    if (fs::is_directory(root_folder + getUri()) && clientLocation.getPath() != getUri())
     {
         _isDir = true;
         if (_file_if_dir.empty())
