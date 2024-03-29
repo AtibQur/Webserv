@@ -14,17 +14,17 @@ void alarmHandler(int signal)
 int Client::execute()
 {
     std::string cgiScriptPath = "";
-    if (!std::filesystem::exists("root" + getUri()))
+    if (!std::filesystem::exists(m_server.getConf()->getRoot() + getUri()))
     {
         Location clientLocation = m_server.getConf()->getLocation("/cgi-bin");
         std::vector<std::string> cgiPath = clientLocation.getCgi();
         if (!cgiPath.empty())
         {
-            cgiScriptPath = "root/cgi-bin/" + cgiPath[0];
+            cgiScriptPath =  m_server.getConf()->getRoot() + "/cgi-bin/" + cgiPath[0];
         }
     }
     else
-        cgiScriptPath = "root/" + getUri();
+        cgiScriptPath =  m_server.getConf()->getRoot() + "/" + getUri();
 
     const char *pythonPath = "/usr/bin/python3";
 
@@ -60,7 +60,6 @@ int Client::execute()
     {
         int status;
         waitpid(pid, &status, 0);
-        std::cout << "status" << status << std::endl;
         close(m_cgiToServer.m_pipeFd[WRITE]);
 
         if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
@@ -93,6 +92,7 @@ bool isLineCommentedOut(std::string &line, bool&inCommentBlock)
     {
         return true;
     }
+
     pos = line.find('#');
     if (pos == 0) 
     {
@@ -116,7 +116,7 @@ bool isContentEmpty(const std::string &content)
 
 void    Client::extractcgiUri()
 {
-    std::string path = "root" + getUri();
+    std::string path = m_server.getConf()->getRoot() + getUri();
     size_t py = path.find(".py");
     std::string script = path.substr(0, py);
 
