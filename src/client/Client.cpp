@@ -25,7 +25,6 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
 Client::~Client()
 {
     close(m_socketFd);
-    std::cout << "Client removed" << std::endl;
 }
 
 Client &Client::operator=(Client const &copy)
