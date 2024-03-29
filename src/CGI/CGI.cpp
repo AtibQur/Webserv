@@ -60,6 +60,8 @@ int Client::execute()
     {
         int status;
         waitpid(pid, &status, 0);
+        std::cout << "status" << status << std::endl;
+        close(m_cgiToServer.m_pipeFd[WRITE]);
 
         if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
 			throw (std::invalid_argument("500"));
@@ -67,15 +69,53 @@ int Client::execute()
     }
     else
     {
-        std::cerr << "Error forking process" << std::endl;;
+        std::cerr << "Error forking process" << std::endl; 
         return 1;
     }
     return 0;
 }
 
-void    Client::extractcgiUri() 
+bool isLineCommentedOut(std::string &line, bool&inCommentBlock)
 {
+    size_t pos = line.find("'''");
+    if (pos != std::string::npos) 
+    {
+        inCommentBlock = !inCommentBlock;
+        return true;
+    }
+    pos = line.find("\"\"\"");
+    if (pos != std::string::npos)
+    {
+        inCommentBlock = !inCommentBlock;
+        return true;
+    }
+    if (inCommentBlock) 
+    {
+        return true;
+    }
+    pos = line.find('#');
+    if (pos == 0) 
+    {
+        return true;
+    }
+    return false;
+}
 
+bool isContentEmpty(const std::string &content)
+{
+    std::istringstream iss(content);
+    std::string line;
+    bool inCommentBlock = false;
+    while (std::getline(iss >> std::ws, line))
+    {
+        if (!isLineCommentedOut(line, inCommentBlock))
+            return false;
+    }
+    return true;
+}
+
+void    Client::extractcgiUri()
+{
     std::string path = "root" + getUri();
     size_t py = path.find(".py");
     std::string script = path.substr(0, py);
@@ -83,9 +123,22 @@ void    Client::extractcgiUri()
     if (std::filesystem::exists(script + ".py"))
     {
         _pytyhonScript = script + ".py";
-    }
+        std::ifstream file(_pytyhonScript);
+        if (file.is_open())
+        {
+            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            file.close();
+            if (isContentEmpty(content))
+            {
+                throw std::invalid_argument("500");
+            }
+        }
+        else
+            throw std::invalid_argument("500");
+   }
     else
         throw std::invalid_argument("404");
+
     std::string remaining = path.substr(py + 3);
 
 	size_t questionMarkPos = remaining.find("?");
