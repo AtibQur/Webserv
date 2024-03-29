@@ -75,7 +75,7 @@ int Client::execute()
     return 0;
 }
 
-bool checkifCommentedOut(std::string &line, bool&inCommentBlock)
+bool isLineCommentedOut(std::string &line, bool&inCommentBlock)
 {
     size_t pos = line.find("'''");
     if (pos != std::string::npos) 
@@ -108,7 +108,7 @@ bool isContentEmpty(const std::string &content)
     bool inCommentBlock = false;
     while (std::getline(iss >> std::ws, line))
     {
-        if (!checkifCommentedOut(line, inCommentBlock))
+        if (!isLineCommentedOut(line, inCommentBlock))
             return false;
     }
     return true;
