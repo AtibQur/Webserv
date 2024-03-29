@@ -158,7 +158,14 @@ int Client::parseRequest(std::string request)
 
     Location location = _location[_uri];
 
-    bodyfile.open("./root/" + _fileNameBody);
+    std::string uploadFolder;
+
+    if (!location.getUploadPath().empty())
+    {
+        uploadFolder = location.getUploadPath() + "/";
+    }
+
+    bodyfile.open("./" + m_server.getConf()->getRoot() + "/" + uploadFolder + _fileNameBody);
     if (!bodyfile)
     {
         std::cerr << "Error opening file" << std::endl;
@@ -183,8 +190,8 @@ void Client::checkBoundary() {
 
 int Client::transferData()
 {
-    std::string decodedFileName = "./root/" + decodePercentEncoding(_fileNameBody);
-    std::string encodedFileName = "./root/" + urlEncode(_fileNameBody);
+    std::string decodedFileName = "./" + m_server.getConf()->getRoot() + "/" + decodePercentEncoding(_fileNameBody);
+    std::string encodedFileName = "./" + m_server.getConf()->getRoot() + "/" + urlEncode(_fileNameBody);
 
     // Open the source file for reading
     std::ifstream sourceFile(decodedFileName);

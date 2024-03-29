@@ -123,6 +123,9 @@ void Location::setAtrributes(std::vector<std::string> variables)
         {
             setCgi(variables, i);
         }
+        else if (variables[i] == "upload") {
+            _upload_path = variables[++i];
+        }
         i++;
     }
     if (!methodSet)

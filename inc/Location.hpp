@@ -7,6 +7,7 @@ class Location {
 private:
     std::string _path;
     std::string _index;
+    std::string _upload_path;
     std::vector<std::string> _methods;
     std::vector<std::string> _cgi;
     bool _autoindex;
@@ -34,6 +35,7 @@ public:
     std::string getPath();
     bool getAutoIndex() { return _autoindex; };
     std::vector<std::string> getCgi() { return _cgi; };
+    std::string getUploadPath() { return _upload_path; };
 
     // OUTPUT
     void outputLocation();
