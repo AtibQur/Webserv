@@ -14,6 +14,7 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
     _file_if_dir = server.getConf()->getFileIfDir();
     _accumulatedRequestData = "";
     _contentLength = 0;
+    m_cgiBody = "";
 
     m_socketFd = accept(server.getSockFd(), (struct sockaddr *)&m_client_address, &m_addrlen);
     if (m_socketFd == -1)
@@ -25,7 +26,6 @@ Client::Client(Server &server, std::map<std::string, std::string> ErrorPages, st
 Client::~Client()
 {
     close(m_socketFd);
-    std::cout << "Client removed" << std::endl;
 }
 
 Client &Client::operator=(Client const &copy)
@@ -33,7 +33,7 @@ Client &Client::operator=(Client const &copy)
     this->m_socketFd = copy.m_socketFd;
     this->_requestBuffer = copy._requestBuffer;
     this->_response = copy._response;
-    std::cout << "client operator construcotr called " << std::endl;
+    std::cout << "client operator constructor called " << std::endl;
     return *this;
 }
 
@@ -81,12 +81,7 @@ int Client::readBuffer()
     char buffer[1024] = {0};
     ssize_t bytes_read;
 
-    bytes_read = read(getSocketFd(), buffer, sizeof(buffer));
-    std::string tmp(buffer);
-    if (tmp.find("Content-Length: ") != std::string::npos)
-    {
-        _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
-    }
+    bytes_read = read(getSocketFd(), buffer, sizeof(buffer) - 1);
     if (bytes_read < 0)
     {
         close(getSocketFd());
@@ -100,6 +95,13 @@ int Client::readBuffer()
     }
     else
     {
+        buffer[bytes_read] = '\0';
+        std::string tmp(buffer);
+        if (tmp.find("Content-Length: ") != std::string::npos)
+        {
+            _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
+        }
+
         _accumulatedRequestData.append(buffer, bytes_read);
         if (isRequestComplete(_accumulatedRequestData) == false)
         {

@@ -103,6 +103,7 @@ std::string Client::generateDirectoryListing(std::string dirPath)
 /* POST */
 void Client::handlePostMethod()
 {
+    std::string filePath;
     if (getFileNameBody().empty())
     {
         std::cout << "No file name" << std::endl;
@@ -110,7 +111,11 @@ void Client::handlePostMethod()
     }
     Response clientResponse(m_socketFd, "302 FOUND");
 
-    std::string filePath = "/" + m_server.getConf()->getRoot() + "/" + _location[_uri].getUploadPath() + "/" + getFileNameBody();
+    if (_location[_uri].getUploadPath().empty())
+        filePath = m_server.getConf()->getRoot() + "/" + getFileNameBody();
+    else
+        filePath = m_server.getConf()->getRoot() + "/" + _location[_uri].getUploadPath() + "/" + getFileNameBody();
+
     if (filePath == m_server.getConf()->getRoot() + "/")
     {
         std::cerr << "Error: Empty request" << std::endl;
@@ -131,32 +136,34 @@ void Client::handlePostMethod()
 /* DELETE */
 void Client::handleDeleteMethod()
 {
-    std::string filePath = m_server.getConf()->getRoot() + "/" + getFileNameBody();
+    std::string filePath;
+    if (_location[_uri].getUploadPath().empty())
+        filePath = m_server.getConf()->getRoot() + "/" + getFileNameBody();
+    else
+        filePath = m_server.getConf()->getRoot() + "/" + _location[_uri].getUploadPath() + "/" + getFileNameBody();
     if (fs::exists(filePath))
     {
-        if (filePath == m_server.getConf()->getRoot() + "/")
+        if (filePath == m_server.getConf()->getRoot() + "/" + _location[_uri].getUploadPath() + "/")
         {
             handleGetMethod();
+            return ;
         }
-        try
-        {
-            fs::remove(filePath);
-            std::cout << "File deleted successfully." << std::endl;
-            handleGetMethod();
-            Response goodResponse(m_socketFd, "202 Accepted");
-            goodResponse.sendResponse();
-        }
-        catch (const fs::filesystem_error &e)
-        {
-            setError(m_socketFd, "500 Internal Server Error");
-            handleGetMethod();
-        }
+        fs::remove(filePath); 
+        std::cout << "File deleted successfully." << std::endl;
+        Response goodResponse(m_socketFd, "202 Accepted");
+
+        std::ifstream htmlFile("docs/response_pages/delete.html");
+        std::string fileContent((std::istreambuf_iterator<char>(htmlFile)), (std::istreambuf_iterator<char>()));
+        goodResponse.setContent("Content-Length: " + std::to_string(fileContent.size()) + "\n\n" + fileContent);
+
+        goodResponse.sendResponse();
+        return ;
     }
     else
     {
         std::cout << "File does not exist." << std::endl;
         Response goodResponse(m_socketFd, "204 No Content");
         goodResponse.sendResponse();
+        return ;
     }
-    handleGetMethod();
 }

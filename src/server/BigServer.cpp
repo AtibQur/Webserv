@@ -5,7 +5,6 @@ int g_state = 1;
 static void handleSignal(int signal)
 {
     (void)signal;
-    std::cout << signal << " signal received" << std::endl;
     g_state = 0;
 }
 
