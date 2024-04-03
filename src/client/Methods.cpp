@@ -22,6 +22,7 @@ void Client::handleGetMethod()
         _response.setSocketFd(m_socketFd);
         _response.sendResponse();
         openAndClose();
+        return;
     }
 
     Response clientResponse(m_socketFd, "200 OK");
@@ -118,7 +119,7 @@ void Client::handlePostMethod()
 
     if (filePath == m_server.getConf()->getRoot() + "/")
     {
-        std::cerr << "Error: Empty request" << std::endl;
+        std::cerr << "Empty request" << std::endl;
         return;
     }
     std::ifstream htmlFile(filePath);
