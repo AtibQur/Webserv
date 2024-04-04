@@ -164,6 +164,23 @@ bool Client::checkPathAndMethod()
 {
     Location clientLocation = m_server.getConf()->getLocation(getUri());
     std::string root_folder = m_server.getConf()->getRoot();
+    bool methodAllowed = false;
+
+    std::vector<std::string> methods = clientLocation.getMethods();
+    if (methods.empty())
+    {
+        throw std::invalid_argument("405 Method Not Allowed");
+    }
+    std::cout << getMethod() << std::endl;
+    for (std::string method : methods)
+    {
+        if (method == getMethod())
+        {
+            methodAllowed = true;
+        }
+    }
+    if (!methodAllowed)
+        throw std::invalid_argument("405 Method Not Allowed");
 
     /* CGI */
     if (checkCgiPath(getUri()))
@@ -222,20 +239,7 @@ bool Client::checkPathAndMethod()
     {
         return true;
     }
-
-    std::vector<std::string> methods = clientLocation.getMethods();
-    if (methods.empty())
-    {
-        throw std::invalid_argument("405 Method Not Allowed");
-    }
-    for (std::string method : methods)
-    {
-        if (method == getMethod())
-        {
-            return true;
-        }
-    }
-    throw std::invalid_argument("405 Method Not Allowed");
+    return true;
 }
 
 void Client::handleResponse()
