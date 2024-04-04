@@ -171,7 +171,6 @@ bool Client::checkPathAndMethod()
     {
         throw std::invalid_argument("405 Method Not Allowed");
     }
-    std::cout << getMethod() << std::endl;
     for (std::string method : methods)
     {
         if (method == getMethod())
