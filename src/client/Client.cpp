@@ -101,6 +101,9 @@ int Client::readBuffer()
         {
             _contentLength = stoll(tmp.substr(tmp.find("Content-Length:") + 16));
         }
+        if (tmp.find("Transfer-Encoding: chunked") != std::string::npos) {
+            _contentLength = stoll(tmp.substr(tmp.find("application/x-www-form-urlencoded") + 37), 0, 16);
+        } 
 
         _accumulatedRequestData.append(buffer, bytes_read);
         if (isRequestComplete(_accumulatedRequestData) == false)
@@ -109,6 +112,7 @@ int Client::readBuffer()
         }
         else
         {
+            std::cout << "body: '" << _accumulatedRequestData << "'" << std::endl;
             handleRequest(_accumulatedRequestData);
         }
     }
